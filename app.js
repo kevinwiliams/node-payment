@@ -23,6 +23,9 @@ app.use(bodyParser.json());
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
+// Connect to database
+connectDB();
+
 // Session middleware
 app.use(session({
     secret: 'secret',
