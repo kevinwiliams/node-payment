@@ -1,17 +1,13 @@
+require('dotenv').config();
 const fs = require('fs');
 const handlebars = require('handlebars');
-const util = require('util');
 const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 const axios = require('axios');
-const dns = require('dns');
 const requestIP = require('request-ip');
 
 // const os = require('os');
 const DeviceDetector = require('device-detector-js');
-
-
-const readFile = util.promisify(fs.readFile);
 
 const pool = new Pool({
     connectionString: process.env.DB_CONNECTION_STRING
@@ -92,33 +88,30 @@ async function logUserActivity(actLog) {
 
 async function sendMail(emailTo, subject, body) {
     try {
-        
-        const jsonFile = await readFile('./app_data/email_settings.json');
-        const settings = JSON.parse(jsonFile);
 
         const transporter = nodemailer.createTransport({
-            host: settings.smtp_host,
-            port: parseInt(settings.email_port_number),
-            secure: settings.ssl_enabled === 'true',
+            host: process.env.smtp_host,
+            port: parseInt(process.env.email_port_number),
+            secure: process.env.ssl_enabled === 'true',
             auth: {
-                user: settings.email_address_username,
-                pass: settings.email_password
+                user: process.env.email_address_username,
+                pass: process.env.email_password
             }
         });
         
         const mailOptions = {
-            from: `"${settings.email_address_from}" <${settings.email_address}>`,
+            from: `"${process.env.email_address_from}" <${process.env.email_address}>`,
             to: emailTo,
             subject: subject,
             html: body
         };
 
         if (subject.includes('Returns') && subject.includes('Confirmation')) {
-            mailOptions.cc = settings.bcc_closed;
+            mailOptions.cc = process.env.bcc_closed;
         }
 
         if (subject.includes('Dispute')) {
-            mailOptions.cc = settings.dispute_email;
+            mailOptions.cc = process.env.dispute_email;
         }
 
         await transporter.sendMail(mailOptions);
