@@ -1,9 +1,14 @@
 // models/service.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db').sequelize;
+const Category = require('../models/category'); // Import Category model
 
 const Service = sequelize.define('Service', {
     name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    currency: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -17,5 +22,9 @@ const Service = sequelize.define('Service', {
         defaultValue: true
     }
 });
+
+Service.belongsTo(
+    Category, { foreignKey: 'category_id' }
+);
 
 module.exports = Service;

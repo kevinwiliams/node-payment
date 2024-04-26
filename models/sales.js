@@ -1,6 +1,7 @@
 // models/sale.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db').sequelize;
+const Service = require('../models/service'); // Import Service model
 
 const Sale = sequelize.define('Sale', {
     service_name: {
@@ -43,6 +44,10 @@ const Sale = sequelize.define('Sale', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    currency: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     amount: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
@@ -64,5 +69,9 @@ const Sale = sequelize.define('Sale', {
         allowNull: false
     }
 });
+
+Sale.belongsTo(
+    Service, { foreignKey: 'service_id' }
+);
 
 module.exports = Sale;
