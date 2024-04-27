@@ -4,6 +4,15 @@ const sequelize = require('../config/db').sequelize;
 const Category = require('../models/category'); // Import Category model
 
 const Service = sequelize.define('Service', {
+    service_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false
@@ -21,10 +30,21 @@ const Service = sequelize.define('Service', {
         allowNull: false,
         defaultValue: true
     }
+},{
+    tableName: 'service'
 });
 
 Service.belongsTo(
     Category, { foreignKey: 'category_id' }
 );
 
+// Sync the model with the database
+sequelize.sync()
+    .then(() => {
+        console.log('Database synchronized');
+    })
+    .catch(err => {
+        console.error('Error synchronizing database:', err);
+    });
+    
 module.exports = Service;

@@ -4,6 +4,15 @@ const sequelize = require('../config/db').sequelize;
 const Service = require('../models/service'); // Import Service model
 
 const Sale = sequelize.define('Sale', {
+    sale_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     service_name: {
         type: DataTypes.STRING,
         allowNull: false
@@ -68,10 +77,22 @@ const Sale = sequelize.define('Sale', {
         type: DataTypes.BOOLEAN,
         allowNull: false
     }
+}, {
+    tableName: 'sales', // Specify the table name
+    timestamps: false // Disable timestamps (payment_date)
 });
 
 Sale.belongsTo(
     Service, { foreignKey: 'service_id' }
 );
 
+// Sync the model with the database
+sequelize.sync()
+    .then(() => {
+        console.log('Database synchronized');
+    })
+    .catch(err => {
+        console.error('Error synchronizing database:', err);
+    });
+    
 module.exports = Sale;
