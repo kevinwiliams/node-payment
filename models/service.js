@@ -31,7 +31,7 @@ const Service = sequelize.define('Service', {
         defaultValue: true
     }
 },{
-    tableName: 'service'
+    tableName: 'services'
 });
 
 Service.belongsTo(
@@ -46,5 +46,5 @@ sequelize.sync()
     .catch(err => {
         console.error('Error synchronizing database:', err);
     });
-    
+
 module.exports = Service;

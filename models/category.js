@@ -22,7 +22,7 @@ const Category = sequelize.define('Category', {
         defaultValue: true
     }
 },{
-    tableName: 'category'
+    tableName: 'categories'
 });
 
 // Sync the model with the database
