@@ -32,7 +32,7 @@ const postLogin = async (req, res) => {
             return;
         }
         // Compare the password hash
-        const isMatch = await bcrypt.compare(password, user.PasswordHash);
+        const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
             res.render('auth/login', { error: 'Incorrect username/password'});
             return;
@@ -42,7 +42,7 @@ const postLogin = async (req, res) => {
         req.session.user = user; // Example: Storing user data in session
         
         req.session.isAuthenticated = true;
-        res.redirect('/dashboard'); // Redirect to home page
+        res.redirect('/admin/dashboard'); // Redirect to home page
         // res.redirect(returnUrl || '/dashboard'); // Redirect to home page
         // res.render('dashboard/index', {layout: 'layout'}); // Redirect to home page
     } catch (error) {

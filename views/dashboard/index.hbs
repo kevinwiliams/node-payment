@@ -1,118 +1,210 @@
 <div class="container mt-5">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="card">
-          <h5 class="card-title">Categories</h5>
-          <table class="table table-striped">
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    <!-- Categories Card -->
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          Categories
+        </div>
+        <div class="card-body">
+          <table class="table">
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Description</th>
-                <th>Count</th>
+                <th>Active</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>1</td>
                 <td>Category 1</td>
-                <td>This is category 1</td>
-                <td>10</td>
+                <td>Description 1</td>
+                <td>Yes</td>
               </tr>
               <tr>
                 <td>2</td>
                 <td>Category 2</td>
-                <td>This is category 2</td>
-                <td>20</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="card">
-          <h5 class="card-title">Services</h5>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Service 1</td>
-                <td>This is service 1</td>
-                <td>100</td>
+                <td>Description 2</td>
+                <td>No</td>
               </tr>
               <tr>
-                <td>2</td>
-                <td>Service 2</td>
-                <td>This is service 2</td>
-                <td>200</td>
+                <td>3</td>
+                <td>Category 3</td>
+                <td>Description 3</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Category 4</td>
+                <td>Description 4</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Category 5</td>
+                <td>Description 5</td>
+                <td>Yes</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="card">
-          <h5 class="card-title">Sales</h5>
-          <table class="table table-striped">
+
+    <!-- Services Card -->
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          Services
+        </div>
+        <div class="card-body">
+          <table class="table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Customer</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Active</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>1</td>
-                <td>2022-01-01</td>
-                <td>1000</td>
-                <td>John Doe</td>
+                <td>Service 1</td>
+                <td>$10.00</td>
+                <td>Yes</td>
               </tr>
               <tr>
                 <td>2</td>
-                <td>2022-01-02</td>
-                <td>2000</td>
-                <td>Jane Doe</td>
+                <td>Service 2</td>
+                <td>$20.00</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Service 3</td>
+                <td>$30.00</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Service 4</td>
+                <td>$40.00</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Service 5</td>
+                <td>$50.00</td>
+                <td>Yes</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="card">
-          <h5 class="card-title">Subscribers</h5>
-          <table class="table table-striped">
+    </div>
+
+    <!-- Sales Card -->
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          Sales
+        </div>
+        <div class="card-body">
+          <table class="table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Joined</th>
+                <th>Product</th>
+                <th>Amount</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>1</td>
-                <td>John Doe</td>
-                <td>johndoe@example.com</td>
+                <td>Product 1</td>
+                <td>$100.00</td>
                 <td>2022-01-01</td>
               </tr>
               <tr>
                 <td>2</td>
-                <td>Jane Doe</td>
-                <td>jane.doe@example.com</td>
-                <td>2022-01-02</td>
+                <td>Product 2</td>
+                <td>$200.00</td>
+                <td>2022-02-01</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Product 3</td>
+                <td>$300.00</td>
+                <td>2022-03-01</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Product 4</td>
+                <td>$400.00</td>
+                <td>2022-04-01</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Product 5</td>
+                <td>$500.00</td>
+                <td>2022-05-01</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscribers Card -->
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          Subscribers
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Registration Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Subscriber 1</td>
+                <td>subscriber1@example.com</td>
+                <td>2022-01-01</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Subscriber 2</td>
+                <td>subscriber2@example.com</td>
+                <td>2022-02-01</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Subscriber 3</td>
+                <td>subscriber3@example.com</td>
+                <td>2022-03-01</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Subscriber 4</td>
+                <td>subscriber4@example.com</td>
+                <td>2022-04-01</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Subscriber 5</td>
+                <td>subscriber5@example.com</td>
+                <td>2022-05-01</td>
               </tr>
             </tbody>
           </table>
@@ -120,3 +212,4 @@
       </div>
     </div>
   </div>
+</div>
