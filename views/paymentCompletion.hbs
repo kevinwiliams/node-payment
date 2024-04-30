@@ -1,9 +1,11 @@
-<h1>Payment Completion</h1>
-{{#if paymentResponse.Approved}}
-    <p>Transaction Approved</p>
-    <p>Authorization Code: {{paymentResponse.AuthorizationCode}}</p>
-    <!-- Other payment completion data -->
-{{else}}
-    <p>Transaction Declined</p>
-    <p>Error Message: {{paymentResponse.ResponseMessage}}</p>
-{{/if}}
+<div class="container">
+    <h1>Payment Completion</h1>
+    {{#if paymentResponse.Approved}}
+        <p>Transaction Approved</p>
+        <p>Authorization Code: {{paymentResponse.AuthorizationCode}}</p>
+        <!-- Other payment completion data -->
+    {{else}}
+        <p>Transaction Declined</p>
+        <p>Error Message: {{paymentResponse.ResponseMessage}}</p>
+    {{/if}}
+</div>

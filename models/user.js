@@ -1,5 +1,9 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const { DataTypes, Sequelize } = require('sequelize');
+const sequelize = require('../config/db').sequelize;
+// Override timezone formatting for MSSQL
+Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
+    return this._applyTimezone(date, options).format('YYYY-MM-DD HH:mm:ss.SSS');
+  };
 
 const User = sequelize.define('User', {
     user_id: {
@@ -17,14 +21,18 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING(255)
     },
     registration_date: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    security_stamp: {
+        type: DataTypes.STRING(128)
     },
     other_info: {
         type: DataTypes.TEXT
     }
 }, {
     tableName: 'users', // Specify the table name
-    timestamps: false // Disable timestamps (createdAt, updatedAt)
+    timestamps: false 
 });
 
 // Sync the model with the database

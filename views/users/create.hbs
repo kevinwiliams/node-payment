@@ -1,0 +1,57 @@
+<div class="container">
+    <!-- Title -->
+    <h2>Create New User</h2>
+
+    <!-- Form -->
+    <form action="/admin/users/create" method="POST" class="form-horizontal" role="form">
+
+
+
+        <!-- UserName field -->
+        <div class="form-group">
+            <label for="userName" class="col-md-2 control-label">User Name</label>
+            <div class="col-md-10">
+                <input type="text" id="userName" name="userName" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Email field -->
+        <div class="form-group">
+            <label for="email" class="col-md-2 control-label">Email</label>
+            <div class="col-md-10">
+                <input type="text" id="email" name="email" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Password field -->
+        <div class="form-group">
+            <label for="password" class="col-md-2 control-label">Password</label>
+            <div class="col-md-10">
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Confirm Password field -->
+        <div class="form-group">
+            <label for="confirmPassword" class="col-md-2 control-label">Confirm Password</label>
+            <div class="col-md-10">
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+            </div>
+        </div>
+        <!-- Other field -->
+        <div class="form-group">
+            <label for="email" class="col-md-2 control-label">Other Information</label>
+            <div class="col-md-10">
+                <textarea type="text" id="otherInfo" name="otherInfo" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10 py-4">
+                <input type="submit" class="btn btn-primary" value="Register User">
+            </div>
+        </div>
+    </form>
+
+</div>

@@ -1,0 +1,62 @@
+<!-- login.hbs -->
+{{!-- <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4"> --}}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+                <div class="card mb-3">
+
+                    <div class="card-body">
+
+                        <div class="pt-1 pb-2">
+                            <h5 class="card-title text-center pb-0 fs-4">Login </h5>
+                        </div>
+
+                        <form action="/auth/login" method="post" class="row g-3 needs-validation php-email-form" role="form" novalidate>
+                            {{#if error}}
+                                <div class="alert alert-danger" role="alert">
+                                        <span>{{error}}</span>
+                                </div>
+                            {{/if}}
+
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="email" name="email" class="form-control" placeholder="Your Email" required="true" autocomplete="off">
+                                    <label for="email" class="">Email</label>
+                                    {{#if errors}}
+                                        {{{validationMessage field='email' errors=errors}}}
+                                    {{/if}}
+                                </div>
+                            </div>
+
+                            <div class="col-12 pb-4">
+                                <div class="form-floating">
+                                    <input type="password" name="password" class="form-control" placeholder="Your Password" required="true" autocomplete="off">
+                                    <label for="password" class="">Password</label>
+                                    {{#if errors}}
+                                        {{{validationMessage field='password' errors=errors}}}
+                                    {{/if}}
+                                </div>
+                            </div>
+
+                           
+                            <div class="col-12">
+                                <button class="btn btn-primary w-100" type="submit">Login</button>
+                            </div>
+                            <div class="col-12">
+                                <p class="small mb-0"><a href="/auth/forgotpassword" class="small">Forgot your password?</a></p>
+                            </div>
+
+                        </form>
+                        
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{{!-- </section> --}}
+<!-- Scripts -->
+<script src="/assets/js/jquery-3.7.1.min.js"></script>
+<script src="/assets/js/jquery.validate.min.js"></script>

@@ -6,6 +6,7 @@ const session = require('express-session');
 const paymentController = require('./controllers/paymentController');
 const { sql, connectDB } = require('./config/db');
 const moment = require('moment'); // Import moment for date formatting
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,6 +33,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
+
+app.use(cookieParser());
 
 // Handlebars middleware
 // Set up Handlebars engine
@@ -81,7 +84,15 @@ app.get('/', paymentController.checkOut);
 app.post('/authenticate', paymentController.authenticate);
 app.post('/paymentCompletion', paymentController.completePayment);
 
+// Import and use route handlers
+const authRoutes = require('./routes/auth');
+app.use('/auth', authRoutes);
 
+const userRoutes = require('./routes/user');
+app.use('/admin/users', userRoutes);
+
+const dashRoutes = require('./routes/dashboard');
+app.use('/admin/dashboard', dashRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

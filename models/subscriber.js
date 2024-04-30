@@ -1,6 +1,6 @@
 // models/subscriber.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const sequelize = require('../config/db').sequelize;
 
 const Subscriber = sequelize.define('Subscriber', {
     subscriber_id: {

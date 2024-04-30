@@ -51,7 +51,7 @@ exports.authenticate = async (req, res) => {
         // Simulate authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
-        // console.log('authResponse', authResponse);
+        console.log('authResponse', authResponse);
         res.render('authenticationView', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);

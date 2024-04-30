@@ -1,0 +1,71 @@
+<!-- views/register.hbs -->
+
+<!-- Title -->
+<h2>Register.</h2>
+
+<!-- Form -->
+<form action="/auth/register" method="POST" class="form-horizontal" role="form">
+
+    <!-- RoleName field -->
+    <div class="form-group">
+        <label for="roleName" class="col-md-2 control-label">Role Name</label>
+        <div class="col-md-10">
+            <select id="roleName" name="roleName" class="form-control" required>
+                <option value="">Select Role</option>
+                {{#each roles}}
+                <option value="{{ this.dataValues.Id }}">{{ this.dataValues.Name }}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+     <!-- FullName field -->
+    <div class="form-group">
+        <label for="fullName" class="col-md-2 control-label">Full Name</label>
+        <div class="col-md-10">
+            <input type="text" id="fullName" name="fullName" class="form-control" required>
+        </div>
+    </div>
+
+    <!-- UserName field -->
+    <div class="form-group">
+        <label for="userName" class="col-md-2 control-label">User Name</label>
+        <div class="col-md-10">
+            <input type="text" id="userName" name="userName" class="form-control" required>
+        </div>
+    </div>
+
+    <!-- Email field -->
+    <div class="form-group">
+        <label for="email" class="col-md-2 control-label">Email</label>
+        <div class="col-md-10">
+            <input type="text" id="email" name="email" class="form-control" required>
+        </div>
+    </div>
+
+    <!-- Password field -->
+    <div class="form-group">
+        <label for="password" class="col-md-2 control-label">Password</label>
+        <div class="col-md-10">
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+    </div>
+
+    <!-- Confirm Password field -->
+    <div class="form-group">
+        <label for="confirmPassword" class="col-md-2 control-label">Confirm Password</label>
+        <div class="col-md-10">
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+        </div>
+    </div>
+
+    <!-- Submit button -->
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10 py-4">
+            <input type="submit" class="btn btn-primary" value="Register User">
+        </div>
+    </div>
+</form>
+
+<!-- Scripts -->
+<script src="/js/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
