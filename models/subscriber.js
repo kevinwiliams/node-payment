@@ -3,32 +3,32 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db').sequelize;
 
 const Subscriber = sequelize.define('Subscriber', {
-    subscriber_id: {
+    subscriberId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    first_name: {
+    firstName: {
         type: DataTypes.STRING(128),
         allowNull: true
     },
-    last_name: {
+    lastName: {
         type: DataTypes.STRING(128),
         allowNull: true
     },
-    email_address: {
+    emailAddress: {
         type: DataTypes.STRING(50),
         allowNull: true
     },
-    address_line1: {
+    addressLine1: {
         type: DataTypes.STRING(250),
         allowNull: true
     },
-    address_line2: {
+    addressLine2: {
         type: DataTypes.STRING(250),
         allowNull: true
     },
-    city_town: {
+    cityTown: {
         type: DataTypes.STRING(100),
         allowNull: true
     },
@@ -40,19 +40,23 @@ const Subscriber = sequelize.define('Subscriber', {
         type: DataTypes.DATE,
         allowNull: false
     },
-    end_date: {
+    endDate: {
         type: DataTypes.DATE,
         allowNull: false
     },
-    new_user: {
+    newUser: {
         type: DataTypes.BOOLEAN,
         allowNull: false
     },
-    sub_type: {
+    subType: {
         type: DataTypes.STRING(50),
         allowNull: true
     },
-    created_at: {
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    updatedAt: {
         type: DataTypes.DATE,
         allowNull: false
     },
@@ -60,11 +64,11 @@ const Subscriber = sequelize.define('Subscriber', {
         type: DataTypes.BOOLEAN,
         allowNull: false
     },
-    plan_desc: {
+    planDesc: {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    order_number: {
+    orderNumber: {
         type: DataTypes.TEXT,
         allowNull: true
     }

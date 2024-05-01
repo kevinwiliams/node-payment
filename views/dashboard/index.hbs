@@ -7,7 +7,7 @@
           Categories
         </div>
         <div class="card-body">
-          <table class="table">
+          <table class="table small">
             <thead>
               <tr>
                 <th>ID</th>
@@ -17,36 +17,14 @@
               </tr>
             </thead>
             <tbody>
+        {{#each categories}}
               <tr>
-                <td>1</td>
-                <td>Category 1</td>
-                <td>Description 1</td>
-                <td>Yes</td>
+                <td>{{dataValues.categoryId}}</td>
+                <td>{{dataValues.name}}</td>
+                <td>{{dataValues.description}}</td>
+                <td>{{dataValues.active}}</td>
               </tr>
-              <tr>
-                <td>2</td>
-                <td>Category 2</td>
-                <td>Description 2</td>
-                <td>No</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Category 3</td>
-                <td>Description 3</td>
-                <td>Yes</td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td>Category 4</td>
-                <td>Description 4</td>
-                <td>No</td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>Category 5</td>
-                <td>Description 5</td>
-                <td>Yes</td>
-              </tr>
+        {{/each}}
             </tbody>
           </table>
         </div>
@@ -60,7 +38,7 @@
           Services
         </div>
         <div class="card-body">
-          <table class="table">
+          <table class="table small">
             <thead>
               <tr>
                 <th>ID</th>
@@ -113,7 +91,7 @@
           Sales
         </div>
         <div class="card-body">
-          <table class="table">
+          <table class="table small">
             <thead>
               <tr>
                 <th>ID</th>
@@ -166,7 +144,7 @@
           Subscribers
         </div>
         <div class="card-body">
-          <table class="table">
+          <table class="table small">
             <thead>
               <tr>
                 <th>ID</th>

@@ -4,12 +4,12 @@ const sequelize = require('../config/db').sequelize;
 const Category = require('../models/category'); // Import Category model
 
 const Service = sequelize.define('Service', {
-    service_id: {
+    serviceId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    category_id: {
+    categoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
@@ -25,10 +25,22 @@ const Service = sequelize.define('Service', {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
+    otherInfo: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
     }
 },{
     tableName: 'services'

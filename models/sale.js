@@ -4,52 +4,52 @@ const sequelize = require('../config/db').sequelize;
 const Service = require('../models/service'); // Import Service model
 
 const Sale = sequelize.define('Sale', {
-    sale_id: {
+    saleId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    category_id: {
+    categoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    service_name: {
+    serviceName: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    email_address: {
+    emailAddress: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    card_owner: {
+    cardOwner: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    card_type: {
+    cardType: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    card_expiry: {
+    cardExpiry: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    last_four: {
+    lastFour: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    transaction_id: {
+    transactionId: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    auth_code: {
+    authCode: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    order_id: {
+    orderId: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    ref_number: {
+    refNumber: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -61,20 +61,28 @@ const Sale = sequelize.define('Sale', {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    payment_date: {
+    paymentDate: {
         type: DataTypes.DATE,
         allowNull: false
     },
-    payment_status: {
+    paymentStatus: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    payment_notes: {
+    paymentNotes: {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    is_approved: {
+    isApproved: {
         type: DataTypes.BOOLEAN,
+        allowNull: false
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
         allowNull: false
     }
 }, {

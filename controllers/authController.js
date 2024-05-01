@@ -32,7 +32,7 @@ const postLogin = async (req, res) => {
             return;
         }
         // Compare the password hash
-        const isMatch = await bcrypt.compare(password, user.password_hash);
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch) {
             res.render('auth/login', { error: 'Incorrect username/password'});
             return;
@@ -80,10 +80,10 @@ const postRegister = async (req, res) => {
         const user = await User.create({
             username: userName,
             email: email,
-            other_info: otherInfo,
-            registration_date: sequelize.fn('GETUTCDATE'),
-            password_hash: hashedPassword,
-            security_stamp: generateUUID(),
+            otherInfo: otherInfo,
+            registrationDate: sequelize.fn('GETUTCDATE'),
+            passwordHash: hashedPassword,
+            securityStamp: generateUUID(),
         });
 
         // Redirect to home page after successful registration
@@ -150,12 +150,12 @@ const postResetPassword = async (req, res) => {
 
         if (password === confirmPassword) {
 
-            const user = await User.findOne({ where: { email: email, security_stamp: code } });
+            const user = await User.findOne({ where: { email: email, securityStamp: code } });
             if (user) {
-                const isMatch = await bcrypt.compare(password, user.PasswordHash);
+                const isMatch = await bcrypt.compare(password, user.passwordHash);
 
                 if(isMatch){
-                    const result = await changePasswordDB(user.Id, password);
+                    const result = await changePasswordDB(user.userId, password);
 
                     if (result.success) {
                         return res.render('auth/resetpassword', {Message: 'ChangePasswordSuccess'});
@@ -204,7 +204,7 @@ const postLogout = (req, res) => {
 async function changePasswordDB(userId, newPassword) {
     try {
         // Find the user by userId
-        const user = await AspNetUsers.findByPk(userId);
+        const user = await User.findByPk(userId);
         if (!user) {
             return { success: false, errors: ['User not found'] };
         }

@@ -3,7 +3,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db').sequelize;
 
 const Category = sequelize.define('Category', {
-    category_id: {
+    categoryId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -20,6 +20,14 @@ const Category = sequelize.define('Category', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false
     }
 },{
     tableName: 'categories'
