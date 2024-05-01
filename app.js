@@ -45,46 +45,20 @@ const hbs = exphbs.create({
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
-// Sample data for services
-const services = [
-    { service_id: 1, name: 'Service 1', price: 10.00 },
-    { service_id: 2, name: 'Service 2', price: 20.00 },
-    // Add more services as needed
-  ];
-
-  // Sample data for subcategories
-const subcategories = {
-    1: [
-      { subcategory_id: '1A', name: 'Subcategory 1A', price: 5.00, service_id: 1 }, // Tie back to Service 1
-      { subcategory_id: '1B', name: 'Subcategory 1B', price: 7.00, service_id: 1 }, // Tie back to Service 1
-    ],
-    2: [
-      { subcategory_id: '2A', name: 'Subcategory 2A', price: 8.00, service_id: 2 }, // Tie back to Service 2
-      { subcategory_id: '2B', name: 'Subcategory 2B', price: 10.00, service_id: 2 }, // Tie back to Service 2
-    ],
-    // No subcategories for service 3
-  };
-  // Route to handle GET requests to /api/services
-  app.get('/api/services', (req, res) => {
-    res.json(services);
-  });
-
-  // Route to handle GET requests to /api/services/:serviceId/subcategories
-app.get('/api/services/:serviceId/subcategories', (req, res) => {
-    const serviceId = parseInt(req.params.serviceId);
-    if (serviceId in subcategories) {
-      res.json(subcategories[serviceId]);
-    } else {
-      res.json([]); // Return an empty array if no subcategories found
-    }
-  });
 
 // Routes
-app.get('/', paymentController.checkOut);
+// app.get('/', paymentController.checkOut);
+app.get('/', (req, res) => {
+  res.redirect('/en');
+});
+
 app.post('/authenticate', paymentController.authenticate);
 app.post('/paymentCompletion', paymentController.completePayment);
 
 // Import and use route handlers
+const mainRoutes = require('./routes/en');
+app.use('/en', mainRoutes);
+
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 

@@ -25,9 +25,12 @@ const Service = sequelize.define('Service', {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    otherInfo: {
+    description: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    epaperDays: {
+        type: DataTypes.INTEGER
     },
     active: {
         type: DataTypes.BOOLEAN,
@@ -47,7 +50,7 @@ const Service = sequelize.define('Service', {
 });
 
 Service.belongsTo(
-    Category, { foreignKey: 'category_id' }
+    Category, { foreignKey: 'categoryId' }
 );
 
 // Sync the model with the database

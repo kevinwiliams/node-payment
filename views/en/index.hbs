@@ -1,0 +1,302 @@
+<!-- Step 1: Introduction Page -->
+<div class="container py-2">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+   
+      <form id="step1Form" class=" pb-5">
+           <div class="">
+        {{!-- <h1>Welcome to [Company] Payment Gateway</h1> --}}
+        {{!-- <p class="lead">Please select the service you want to pay for:</p> --}}
+        <div class="section-title">
+          <h2>Please select a payment category below</h2>
+          {{!-- <p>Select Category</p> --}}
+        </div>
+      </div>
+        <div class="mb-3 py-1">
+          <select class="form-select" id="category" name="category" required>
+            <option value="" selected>Select Service</option>
+             {{#each categories}}
+                <option value="{{ this.dataValues.categoryId }}">{{ this.dataValues.name }}</option>
+            {{/each}}
+            <!-- Add more options as needed -->
+          </select>
+        </div>
+        <div id="categoryList" class="mb-3 py-3" style="display: none;">
+            <div class="section-title">
+          <h2>Please select the service you want to pay for</h2>
+          {{!-- <p>Select Category</p> --}}
+        </div>
+            <div id="serviceOptions"></div>
+        </div>
+        <button type="button" class="btn btn-danger" onclick="nextStep()">Next Step</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Step 2: Checkout Page -->
+<div id="step2" class="container d-none">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="text-center mb-4">
+        <p class="lead">Please enter your payment details:</p>
+      </div>
+      <form id="step2Form" class="php-email-form" action="/authenticate" name="paymentForm" role="form" method="post" class="form-horizontal">
+        <!-- Billing Information Fields -->
+      
+        <div class="container">
+        <div class="row">
+        
+            <div class="col-md-4 order-2">
+                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Your Cart</span>
+                <span class="badge rounded-pill bg-secondary">1</span>
+                </h4>
+                
+                <li class="list-group-item d-flex justify-content-between lh-condensed pb-2">
+                    <div>
+                    <h6 class="my-0">EPAPER</h6>
+                    <small class="text-muted">2Yrs Subscription <br> Apr. 18 2024 to Apr. 17 2026</small>
+                    </div>
+                    <span class="text-muted">$280</span> <input type="hidden" name="TotalAmount" value="280.15">
+                </li>
+                
+            
+                <li class="list-group-item d-flex justify-content-between bg-light pb-2">
+                <div class="text-success">
+                    <h6 class="my-0">Promo code</h6>
+                    <small>EXAMPLECODE</small>
+                </div>
+                <span class="text-success">-$5</span>
+                </li>
+                
+                <div class="card-footer d-flex justify-content-between pb-2">
+                <span>Total (USD)</span>
+                <strong>$275</strong>
+                </div>
+                
+                <form class="card p-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Promo code">
+                    <div class="input-group-append">
+                    <button type="submit" class="btn btn-secondary">
+                        Redeem
+                    </button>
+                    </div>
+                </div>
+                </form>
+                
+            </div>
+            
+            <div class="col-md-8 order-1">
+                <h4 class="mb-3">Billing Address</h4>
+                <div class="row">
+                <div class="col mb-4">
+                    <label for="First name"> First Name </label>
+                    <input type="text" class="form-control" placeholder="First name" aria-label="First name" name="FirstName">
+                </div>
+                <div class="col mb-4">
+                    <label for="Last name"> Last Name </label>
+                    <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" name="LastName">
+                </div>
+                </div>
+                
+                <div class="mb-4">
+                <label for="email">Email </label>
+                <input type="text" class="form-control" placeholder="you@example.com" aria-label="email" name="EmailAddress">
+            </div>
+                
+                <div class="mb-4">
+                <label for="Address">Address</label>
+                <input type="text" class="form-control" placeholder="1234 Main St" aria-label="Address" name="Line1">
+                </div>
+                
+                <div class="mb-4">
+                <label for="Address2">Address 2 </label>
+                <input type="text" class="form-control" placeholder="Appartment or suite" aria-label="Address2" name="Line2">
+                </div>
+                
+                <div class="row">
+                <div class="col">
+                    <label for="country">Country</label>
+                    <select class="form-select" name="CountryCode">
+            <option selected>Choose...</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+                </div>
+                <div class="col">
+                    <label for="state">State</label>
+                    <select class="form-select" name="State">
+            <option selected>Choose...</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+                </div>
+                <div class="col mb-4">
+                    <label for="zip">Zip Code</label>
+                    <input type="text" class="form-control" aria-label="zip">
+                </div>
+                
+                
+                <hr class="mb-4">
+                
+                <h4 class="mb-3">Payment Details</h4>
+
+                
+                <div class="row">
+                    <div class="col mb-4">
+                    <label for="Card1">
+                        Name on card
+                    </label>
+                    <input type="text" class="form-control"aria-label="card1" name="CardholderName">
+                    <small class="text-muted">
+                        Full name, as displayed on the card
+                    </small>
+                    </div>
+                    
+                    <div class="col mb-4">
+                    <label for="Card2">
+                        Credit card Number
+                    </label>
+                    <input type="text" class="form-control" placeholder="1234-5678-9012" aria-label="Card2" name="CardPan">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col mb-3">
+                    <label for="Card3">
+                        Expiry Date
+                    </label>
+                    <input type="text" class="form-control"aria-label="card3" placeholder="MMYY" name="CardExpiration">
+                    </div>
+                    
+                    <div class="col mb-3">
+                    <label for="Card4">
+                        CVV
+                    </label>
+                    <input type="password" class="form-control"  aria-label="Card4" name="CardCvv" autocomplete="off">
+                    </div>
+                </div>
+                
+                </div>
+            
+            <hr class="mb-4">
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary btn-lg" type="submit">
+                Continue to Checkout
+                </button>
+            </div>
+            
+            </div>
+        
+        </div>
+    </div>
+      </form>
+    </div>
+  </div>
+  <!-- Scripts -->
+<script src="/assets/js/jquery-3.7.1.min.js"></script>
+  <script>
+
+    function createRadioButton(index, service) {
+        var radioButton = document.createElement('input');
+        radioButton.type = 'radio';
+        radioButton.name = 'service';
+        radioButton.id = 'service' + index;
+        radioButton.value = service.serviceId;
+        radioButton.class = 'form-check-input';
+        radioButton.classList.add('form-check-input');
+
+
+        var label = document.createElement('label');
+        label.setAttribute('for', 'service' + index);
+        label.textContent = service.name;
+
+        var div = document.createElement('div');
+        div.classList.add('form-check');
+        div.classList.add('pb-3');
+        div.appendChild(radioButton);
+        div.appendChild(label);
+
+        // Add price and description information if available
+        if (service.price !== null && service.price !== 0) {
+            var priceSpan = document.createElement('span');
+            priceSpan.class = '';
+            priceSpan.textContent = service.currency + ' ' + service.price; // Display price and currency
+            div.appendChild(priceSpan); // Append the price information to the div
+        } else {
+            // If price is 0, create an input box to collect the price
+            var priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.name = 'price';
+            priceInput.placeholder = 'Enter Price';
+            priceInput.class = 'form-control';
+            priceInput.classList.add('form-control');
+
+
+            div.appendChild(priceInput); // Append the input box to the div
+
+        }
+
+        // Create hidden input fields for additional data
+        var categoryIdInput = document.createElement('input');
+        categoryIdInput.type = 'hidden';
+        categoryIdInput.name = 'categoryId';
+        categoryIdInput.value = service.categoryId;
+        div.appendChild(categoryIdInput);
+
+        var descriptionInput = document.createElement('input');
+        descriptionInput.type = 'hidden';
+        descriptionInput.name = 'description';
+        descriptionInput.value = service.description;
+        div.appendChild(descriptionInput);
+
+        return div;
+    }
+    // Function to append radio buttons to the serviceOptions div
+    function appendRadioButtons(services) {
+        var serviceOptions = document.getElementById('serviceOptions');
+        serviceOptions.innerHTML = ''; // Clear previous content
+
+        services.forEach(function(service, index) {
+            var radioButtonDiv = createRadioButton(index, service);
+            serviceOptions.appendChild(radioButtonDiv);
+        });
+    }
+
+    $(document).ready(function() {
+    $('#category').on('change', function() {
+        var categoryId = $(this).val();
+        console.log('categoryId', categoryId);
+
+        if(!categoryId){
+            $('#categoryList').hide();
+        }
+
+        $.ajax({
+            url: '/en/service',
+            method: 'POST',
+            data: { id: categoryId },
+            success: function(response) {
+                // Clear existing service options
+                $('#serviceOptions').empty();
+        
+                // Append radio buttons for each service
+                appendRadioButtons(response.services);
+
+                // Show the services
+                $('#categoryList').show();
+            },
+            error: function(err) {
+                console.error(err);
+                alert('Error loading services');
+            }
+        });
+    });
+});
+
+  </script>
