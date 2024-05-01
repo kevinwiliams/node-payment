@@ -9,7 +9,7 @@ function generateUUID() {
 }
 
 exports.checkOut = (req, res) => {
-    res.render('merchantCheckOut');
+    res.render('en/index');
 };
 
 exports.authenticate = async (req, res) => {
@@ -52,7 +52,7 @@ exports.authenticate = async (req, res) => {
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
         console.log('authResponse', authResponse);
-        res.render('authenticationView', { redirectData: authResponse.RedirectData });
+        res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
         res.render('error');
@@ -66,7 +66,7 @@ exports.completePayment = async (req, res) => {
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
         // console.log('paymentResponse', paymentResponse);
-        res.render('paymentCompletion', { paymentResponse });
+        res.render('en/confirmation', { paymentResponse });
     } catch (error) {
         console.error('Error during payment completion:', error);
         res.render('error');

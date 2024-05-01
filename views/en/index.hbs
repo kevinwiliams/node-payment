@@ -41,7 +41,7 @@
       <div class="text-center mb-4">
         <p class="lead">Please enter your payment details:</p>
       </div>
-      <form id="step2Form" class="php-email-form" action="/authenticate" name="paymentForm" role="form" method="post" class="form-horizontal">
+      <form id="step2Form" class="php-email-form" action="/en/auth" name="paymentForm" role="form" method="post" class="form-horizontal">
         <!-- Billing Information Fields -->
       
         <div class="container">
@@ -202,61 +202,99 @@
 <script src="/assets/js/jquery-3.7.1.min.js"></script>
   <script>
 
+     function nextStep() {
+        var selectedService = document.getElementById('category').value;
+        if (selectedService === '') {
+        alert('Please select a service.');
+        return;
+        }
+
+        // Hide step 1 and show step 2
+        document.getElementById('step1Form').classList.add('d-none');
+        document.getElementById('step2').classList.remove('d-none');
+    }
+
+    // Function to create radio button and associated elements
     function createRadioButton(index, service) {
+        // Create radio button
         var radioButton = document.createElement('input');
         radioButton.type = 'radio';
         radioButton.name = 'service';
         radioButton.id = 'service' + index;
         radioButton.value = service.serviceId;
-        radioButton.class = 'form-check-input';
         radioButton.classList.add('form-check-input');
 
-
+        // Create label for the radio button
         var label = document.createElement('label');
         label.setAttribute('for', 'service' + index);
         label.textContent = service.name;
 
+        // Create div to contain the radio button and associated elements
         var div = document.createElement('div');
         div.classList.add('form-check');
         div.classList.add('pb-3');
         div.appendChild(radioButton);
         div.appendChild(label);
 
-        // Add price and description information if available
-        if (service.price !== null && service.price !== 0) {
-            var priceSpan = document.createElement('span');
-            priceSpan.class = '';
-            priceSpan.textContent = service.currency + ' ' + service.price; // Display price and currency
-            div.appendChild(priceSpan); // Append the price information to the div
-        } else {
-            // If price is 0, create an input box to collect the price
-            var priceInput = document.createElement('input');
-            priceInput.type = 'number';
-            priceInput.name = 'price';
-            priceInput.placeholder = 'Enter Price';
-            priceInput.class = 'form-control';
-            priceInput.classList.add('form-control');
+        // Add event listener to radio button to toggle visibility of price and textarea
+        radioButton.addEventListener('change', function() {
+            var allRadioButtons = document.querySelectorAll('input[name="service"]');
+            allRadioButtons.forEach(function(radio) {
+                var parentDiv = radio.parentNode;
+                var priceInput = parentDiv.querySelector('input[name="price"]');
+                var notesText = parentDiv.querySelector('textarea[name="otherInfo"]');
+                if (radio.checked) {
+                    // Show price input and textarea for the selected radio button
+                    if (priceInput) priceInput.style.display = 'block';
+                    if (notesText) notesText.style.display = 'block';
+                } else {
+                    // Hide price input and textarea for other radio buttons
+                    if (priceInput) priceInput.style.display = 'none';
+                    if (notesText) notesText.style.display = 'none';
+                }
+            });
+        });
 
+    // Create hidden input fields for additional data
+    var categoryIdInput = document.createElement('input');
+    categoryIdInput.type = 'hidden';
+    categoryIdInput.name = 'categoryId';
+    categoryIdInput.value = service.categoryId;
+    div.appendChild(categoryIdInput);
 
-            div.appendChild(priceInput); // Append the input box to the div
+    var descriptionInput = document.createElement('input');
+    descriptionInput.type = 'hidden';
+    descriptionInput.name = 'description';
+    descriptionInput.value = service.description;
+    div.appendChild(descriptionInput);
 
-        }
+    // If price is 0, create an input box to collect the price
+    if (service.price !== null && service.price !== 0) {
+        var priceSpan = document.createElement('span');
+        priceSpan.textContent = service.currency + ' ' + service.price; // Display price and currency
+        div.appendChild(priceSpan); // Append the price information to the div
+    } 
+    else {
+        var priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.name = 'price';
+        priceInput.placeholder = 'Enter Price';
+        priceInput.classList.add('form-control');
+        priceInput.classList.add('mb-2');
+        priceInput.style.display = 'none'; // Hide price input initially
+        div.appendChild(priceInput);
 
-        // Create hidden input fields for additional data
-        var categoryIdInput = document.createElement('input');
-        categoryIdInput.type = 'hidden';
-        categoryIdInput.name = 'categoryId';
-        categoryIdInput.value = service.categoryId;
-        div.appendChild(categoryIdInput);
-
-        var descriptionInput = document.createElement('input');
-        descriptionInput.type = 'hidden';
-        descriptionInput.name = 'description';
-        descriptionInput.value = service.description;
-        div.appendChild(descriptionInput);
-
-        return div;
+        var notesText = document.createElement('textarea');
+        notesText.name = 'otherInfo';
+        notesText.rows = '3';
+        notesText.placeholder = 'Enter additional notes re your payment';
+        notesText.classList.add('form-control');
+        notesText.style.display = 'none'; // Hide textarea initially
+        div.appendChild(notesText);
     }
+
+    return div;
+}
     // Function to append radio buttons to the serviceOptions div
     function appendRadioButtons(services) {
         var serviceOptions = document.getElementById('serviceOptions');
