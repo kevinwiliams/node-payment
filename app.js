@@ -52,9 +52,6 @@ app.get('/', (req, res) => {
   res.redirect('/en');
 });
 
-app.post('/authenticate', paymentController.authenticate);
-app.post('/paymentCompletion', paymentController.completePayment);
-
 // Import and use route handlers
 const mainRoutes = require('./routes/en');
 app.use('/en', mainRoutes);

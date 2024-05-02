@@ -57,7 +57,7 @@ exports.authenticate = async (req, res) => {
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
-        res.render('error');
+        res.render('en/checkout');
     }
 };
 
