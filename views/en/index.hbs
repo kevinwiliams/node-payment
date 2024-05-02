@@ -21,6 +21,7 @@
         <input id="categoryName" name="categoryName" type="hidden">
           <input id="currencyhd" name="currencyhd" type="hidden" />
             <input id="otherInfohd" name="otherInfo" type="hidden" />
+            <input id="totalAmount" name="totalAmount" type="hidden" />
 
         <div id="categoryList" class="mb-3 py-3" style="display: none;">
             <div class="section-title">
@@ -76,7 +77,7 @@
                     console.log(radio.dataset.text);
                     $('#serviceText').val(radio.dataset.text);
                     $('#description').val(radio.dataset.desc);
-
+                    
                     // Show price input and textarea for the selected radio button
                     if (currencyList) currencyList.style.display = 'block';
                     if (priceInput) priceInput.style.display = 'block';
@@ -90,19 +91,27 @@
             });
         });
 
-        // Create hidden input fields for additional data
-        var hdPriceInput = document.createElement('input');
-        hdPriceInput.type = 'hidden';
-        hdPriceInput.name = 'pricehd';
-        hdPriceInput.value = service.price;
-        div.appendChild(hdPriceInput);
-
         // If price is 0, create an input box to collect the price
         if (service.price !== null && service.price !== 0) {
             var priceSpan = document.createElement('span');
             priceSpan.classList.add('px-3');
             priceSpan.textContent = service.currency + ' $' + service.price; // Display price and currency
             div.appendChild(priceSpan); // Append the price information to the div
+
+            // Create hidden input fields for additional data
+            var priceHidden = document.createElement('input');
+            priceHidden.type = 'hidden';
+            priceHidden.name = 'price';
+            priceHidden.value = service.price;
+            div.appendChild(priceHidden);
+
+            // Create hidden input fields for additional data
+            var currenyHidden = document.createElement('input');
+            currenyHidden.type = 'hidden';
+            currenyHidden.name = 'currency';
+            currenyHidden.value = service.currency;
+            div.appendChild(currenyHidden);
+        
         } else {
 
             var priceInputGroup = document.createElement('div');
@@ -112,6 +121,7 @@
 
             var currencyDropdown = document.createElement('select');
             currencyDropdown.name = 'currency';
+            currencyDropdown.id = 'currency';
             currencyDropdown.classList.add('form-control');
             currencyDropdown.classList.add('me-1');
             currencyDropdown.classList.add('w-10');
@@ -125,6 +135,7 @@
 
             var priceInput = document.createElement('input');
             priceInput.type = 'number';
+            priceInput.id = 'price';
             priceInput.name = 'price';
             priceInput.placeholder = 'Enter Price';
             priceInput.classList.add('form-control');
@@ -136,6 +147,7 @@
 
             var notesText = document.createElement('textarea');
             notesText.name = 'otherInfo';
+            notesText.id = 'otherInfo';
             notesText.rows = '3';
             notesText.placeholder = 'Enter additional notes re your payment';
             notesText.classList.add('form-control');
@@ -229,18 +241,28 @@
             $('#description').val(serviceDesc);
 
             // Retrieve the hidden field values
-            var currency = selectedService.closest('div').find('input[name="currency"]').val();
+            var currency = selectedService.closest('div').find('select[name="currency"]').val();
+            var currencyHidden = selectedService.closest('div').find('input[name="currency"]').val();
             var price = selectedService.closest('div').find('input[name="price"]').val();
-            var otherInfo = selectedService.closest('div').find('input[name="otherInfo"]').val();
+            //var pricehd = selectedService.closest('div').find('input[name="pricehd"]').val();
+            var otherInfo = selectedService.closest('div').find('textarea[name="otherInfo"]').val();
+
+            var curr = (typeof currency !== 'undefined') ? currency : currencyHidden;
 
             // Assign the hidden field values to hidden input fields in the form
-            $('#currencyhd').val(currency);
-            $('#pricehd').val(price);
+            $('#currencyhd').val(curr);
+            $('#currency').val(currency);
+            $('#totalAmount').val(price);
             $('#otherInfohd').val(otherInfo);
+            //$('[name=price]').val(totalAmount);
 
             console.log('currency', currency);
+            console.log('currencyHidden', currencyHidden);
+            console.log('curr', curr);
             console.log('price', price);
+            //console.log('pricehd', pricehd);
             console.log('otherInfo', otherInfo);
+
             // Submit the form
             this.submit();
         });

@@ -37,11 +37,9 @@ async function getMain(req, res){
 
   async function loadPaymentInfo(req, res) {
     console.log('paymentInfo', req.body);
-    const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, price, otherInfo, description } = req.body;
+    const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, currencyhd, price, otherInfo, description, totalAmount } = req.body;
 
     // Assuming there's only one category and service selected
-    const selectedPrice = (price[0]) ? price[0] : pricehd[0];
-    const selectedCurrency = currency[0];
     const selectedOtherInfo = otherInfo[0];
 
     const paymentInfo = {
@@ -50,8 +48,8 @@ async function getMain(req, res){
         serviceName: serviceText,
         description: description,
         serviceId: service,
-        price: selectedPrice,
-        currency: selectedCurrency,
+        price: totalAmount,
+        currency: currencyhd,
         otherInfo: selectedOtherInfo
     };
 
