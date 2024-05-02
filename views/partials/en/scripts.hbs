@@ -39,12 +39,14 @@ function createRadioButton(index, service) {
                 
                 // Show price input and textarea for the selected radio button
                 if (currencyList) currencyList.style.display = 'block';
+                if (currencyList) currencyList.required = true;
                 if (priceInput) priceInput.style.display = 'block';
-                if (priceInput) priceInput.required = 'block';
+                if (priceInput) priceInput.required = true;
                 if (notesText) notesText.style.display = 'block';
             } else {
                 // Hide price input and textarea for other radio buttons
                 if (currencyList) currencyList.style.display = 'none';
+                if (currencyList) currencyList.required = false;
                 if (priceInput) priceInput.style.display = 'none';
                 if (priceInput) priceInput.required = false;
                 if (notesText) notesText.style.display = 'none';
@@ -87,8 +89,11 @@ function createRadioButton(index, service) {
         currencyDropdown.classList.add('me-1');
         currencyDropdown.classList.add('w-10');
         currencyDropdown.style.display = 'none'; // Hide dropdown initially
+        var selectOption = new Option('Choose Currency', '');
+        selectOption.selected = true;
         var jmdOption = new Option('JMD', 'JMD');
         var usdOption = new Option('USD', 'USD');
+        currencyDropdown.appendChild(selectOption);
         currencyDropdown.appendChild(jmdOption);
         currencyDropdown.appendChild(usdOption);
         //div.appendChild(currencyDropdown);
