@@ -57,7 +57,7 @@ exports.authenticate = async (req, res) => {
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
-        res.render('en/checkout');
+        res.render('en/checkout', {title: 'Checkout'});
     }
 };
 
@@ -68,9 +68,9 @@ exports.completePayment = async (req, res) => {
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
         // console.log('paymentResponse', paymentResponse);
-        res.render('en/confirmation', { paymentResponse });
+        res.render('en/confirmation', { paymentResponse, title: 'Thank You' });
     } catch (error) {
         console.error('Error during payment completion:', error);
-        res.render('error');
+        res.render('en/checkout', {title: 'Checkout'});
     }
 };

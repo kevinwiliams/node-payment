@@ -62,7 +62,7 @@ async function getMain(req, res){
         };
 
         //res.json({ success: paymentInfo });
-        res.render('en/checkout', { paymentInfo, countries });
+        res.render('en/checkout', { paymentInfo, countries, title : 'Checkout' });
     } catch (error) {
         console.log(error);
     }
