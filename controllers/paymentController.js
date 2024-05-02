@@ -17,10 +17,12 @@ exports.authenticate = async (req, res) => {
 
         const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode} = req.body;
         // console.log('body', req.body);
+
+        const currency = (CurrencyCode == 'JMD') ? '388' : '840';
         const authData = {
             TransactionIdentifier: generateUUID(),
             TotalAmount: parseFloat(TotalAmount),
-            CurrencyCode: "388",
+            CurrencyCode: currency,
             ThreeDSecure: true,
             Source: {
                 CardPan: CardPan,

@@ -1,13 +1,11 @@
 <!-- Step 1: Introduction Page -->
-<div class="container py-2">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
+
 
 <!-- Step 2: Checkout Page -->
-<div id="step2" class="container d-none">
+<div id="step2" class="container">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="text-center mb-4">
+      <div class="mb-4">
         <p class="lead">Please enter your payment details:</p>
       </div>
       <form id="step2Form" class="php-email-form" action="/en/auth" name="paymentForm" role="form" method="post" class="form-horizontal">
@@ -19,41 +17,49 @@
             <div class="col-md-4 order-2">
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-muted">Your Cart</span>
-                <span class="badge rounded-pill bg-secondary">1</span>
+                {{!-- <span class="badge rounded-pill bg-secondary">1</span> --}}
                 </h4>
                 
                 <li class="list-group-item d-flex justify-content-between lh-condensed pb-2">
                     <div>
-                    <h6 class="my-0">EPAPER</h6>
-                    <small class="text-muted">2Yrs Subscription <br> Apr. 18 2024 to Apr. 17 2026</small>
+                        <h6 class="my-0 text-uppercase">{{paymentInfo.categoryName}}</h6>
+                        <small class="text-muted">{{paymentInfo.description}}</small>
                     </div>
-                    <span class="text-muted">$280</span> <input type="hidden" name="TotalAmount" value="280.15">
+                    <span class="text-muted">${{paymentInfo.price}}</span> 
+                    <input type="hidden" name="TotalAmount" value="{{paymentInfo.price}}">
+                    <input type="hidden" name="CurrencyCode" value="{{paymentInfo.currency}}">
                 </li>
-                
-            
-                <li class="list-group-item d-flex justify-content-between bg-light pb-2">
-                <div class="text-success">
-                    <h6 class="my-0">Promo code</h6>
-                    <small>EXAMPLECODE</small>
-                </div>
-                <span class="text-success">-$5</span>
+                <hr>
+                <li class="list-group-item d-flex justify-content-between lh-condensed pb-2">
+                   <div>
+                        <h6 class="my-0">Notes</h6>
+                        <small class="text-muted">{{paymentInfo.otherInfo}}</small>
+                    </div>
                 </li>
+                <hr>
+                {{!-- <li class="list-group-item d-flex justify-content-between bg-light pb-2">
+                    <div class="text-success">
+                        <h6 class="my-0">Promo code</h6>
+                        <small>EXAMPLECODE</small>
+                    </div>
+                    <span class="text-success">-$5</span>
+                </li> --}}
                 
                 <div class="card-footer d-flex justify-content-between pb-2">
-                <span>Total (USD)</span>
-                <strong>$275</strong>
+                <span>Total ({{paymentInfo.currency}})</span>
+                <strong>${{paymentInfo.price}}</strong>
                 </div>
                 
-                <form class="card p-2">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Promo code">
-                    <div class="input-group-append">
-                    <button type="submit" class="btn btn-secondary">
-                        Redeem
-                    </button>
+                {{!-- <form class="card p-2">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Promo code">
+                        <div class="input-group-append">
+                        <button type="submit" class="btn btn-secondary">
+                            Redeem
+                        </button>
+                        </div>
                     </div>
-                </div>
-                </form>
+                </form> --}}
                 
             </div>
             
@@ -169,7 +175,4 @@
   </div>
   </div>
 
-  </div>
-  </div>
-  </div>
-  
+

@@ -53,8 +53,8 @@ async function getMain(req, res){
         otherInfo: selectedOtherInfo
     };
 
-    // Optionally, you can send a response back
-    res.json({ success: paymentInfo });
+    //res.json({ success: paymentInfo });
+    res.render('en/checkout', { paymentInfo });
     
   }
 
