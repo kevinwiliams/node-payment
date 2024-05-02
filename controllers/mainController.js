@@ -2,6 +2,9 @@ const Category = require('../models/category');
 const Service = require('../models/service');
 const Sale = require('../models/sale');
 const Subscriber = require('../models/subscriber');
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
 
 
 
@@ -36,25 +39,34 @@ async function getMain(req, res){
   }
 
   async function loadPaymentInfo(req, res) {
-    console.log('paymentInfo', req.body);
-    const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, currencyhd, price, otherInfo, description, totalAmount } = req.body;
+    try {
+        console.log('paymentInfo', req.body);
+    
+        const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, currencyhd, price, otherInfo, description, totalAmount } = req.body;
+        // Assuming there's only one category and service selected
+        const selectedOtherInfo = otherInfo[0];
 
-    // Assuming there's only one category and service selected
-    const selectedOtherInfo = otherInfo[0];
+        const jsonFile = await readFile('./app_data/countries.json');
+        const countries = JSON.parse(jsonFile);
 
-    const paymentInfo = {
-        categoryName: categoryName,
-        categoryId: category,
-        serviceName: serviceText,
-        description: description,
-        serviceId: service,
-        price: totalAmount,
-        currency: currencyhd,
-        otherInfo: selectedOtherInfo
-    };
 
-    //res.json({ success: paymentInfo });
-    res.render('en/checkout', { paymentInfo });
+        const paymentInfo = {
+            categoryName: categoryName,
+            categoryId: category,
+            serviceName: serviceText,
+            description: description,
+            serviceId: service,
+            price: totalAmount,
+            currency: currencyhd,
+            otherInfo: selectedOtherInfo
+        };
+
+        //res.json({ success: paymentInfo });
+        res.render('en/checkout', { paymentInfo, countries });
+    } catch (error) {
+        console.log(error);
+    }
+    
     
   }
 
