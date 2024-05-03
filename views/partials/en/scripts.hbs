@@ -58,7 +58,7 @@ function createRadioButton(index, service) {
     if (service.price !== null && service.price !== 0) {
         var priceSpan = document.createElement('span');
         priceSpan.classList.add('px-3');
-        priceSpan.textContent = service.currency + ' $' + service.price; // Display price and currency
+        priceSpan.textContent = service.currency + ' $' + parseFloat(service.price).toFixed(2);; // Display price and currency
         div.appendChild(priceSpan); // Append the price information to the div
 
         // Create hidden input fields for additional data

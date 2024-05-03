@@ -7,6 +7,7 @@ const paymentController = require('./controllers/paymentController');
 const { sql, connectDB } = require('./config/db');
 const moment = require('moment'); // Import moment for date formatting
 const cookieParser = require('cookie-parser');
+const Handlebars = require('handlebars');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,11 +37,76 @@ app.use(session({
 
 app.use(cookieParser());
 
+const reduceOp = function(args, reducer){
+    args = Array.from(args);
+    args.pop(); // => options
+    var first = args.shift();
+    return args.reduce(reducer, first);
+  };
+
+// Helper function to format numbers with commas and decimal places
+Handlebars.registerHelper({
+    eq  : function(){ return reduceOp(arguments, (a,b) => a === b); },
+    ne  : function(){ return reduceOp(arguments, (a,b) => a !== b); },
+    lt  : function(){ return reduceOp(arguments, (a,b) => a  <  b); },
+    gt  : function(){ return reduceOp(arguments, (a,b) => a  >  b); },
+    lte : function(){ return reduceOp(arguments, (a,b) => a  <= b); },
+    gte : function(){ return reduceOp(arguments, (a,b) => a  >= b); },
+    and : function(){ return reduceOp(arguments, (a,b) => a  && b); },
+    or  : function(){ return reduceOp(arguments, (a,b) => a  || b); },
+    formatNumber : function(number){
+         // Check if the input is a valid number
+        if (isNaN(number)) {
+            return number; // Return the original value if it's not a number
+        }
+
+        const formattedNumber = parseFloat(number).toFixed(2);
+        // Split the number into parts before and after the decimal point
+        const parts = formattedNumber.split('.');
+        // Add commas to the integer part
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        // Join the parts and return the formatted number
+        return parts.join('.');;
+    }
+});
+
 // Handlebars middleware
 // Set up Handlebars engine
 const hbs = exphbs.create({
     extname: '.hbs',
-    defaultLayout: 'main'
+    defaultLayout: 'main',
+    helpers: {
+        formatListDate: function(date) {
+            return moment(date).add(1, 'days').format('DD-MMM-YYYY');
+        },
+        formatHistDate: function(date) {
+            return moment(date).add(1, 'days').format('DD-MM-YYYY');
+        },
+        formatPubDate: function(date) {
+            return moment(date).add(1, 'days').format('DD/MM/YYYY');
+        },
+        formatDBDate: function(date) {
+            return moment(date).add(1, 'days').format('YYYY-MM-DD');
+        },
+        formatTimeDate: function(date) {
+            return moment(date).format('DD-MMM-YYYY h:mm A');
+        },
+        eq: function(arg1, arg2, options) {
+            return Handlebars.helpers.eq(arg1, arg2, options);
+        },
+        ne: function(arg1, arg2, options) {
+            return Handlebars.helpers.ne(arg1, arg2, options);
+        },
+        and: function(arg1, arg2, options) {
+            return Handlebars.helpers.and(arg1, arg2, options);
+        },
+        or: function(arg1, arg2, options) {
+            return Handlebars.helpers.or(arg1, arg2, options);
+        },
+        formatNumber: function(number){
+            return Handlebars.helpers.formatNumber(number);
+        }
+    }
 });
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');

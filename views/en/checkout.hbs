@@ -25,8 +25,8 @@
                         <h6 class="my-0 text-uppercase">{{paymentInfo.categoryName}}</h6>
                         <small class="text-muted">{{paymentInfo.description}}</small>
                     </div>
-                    <span class="text-muted">${{paymentInfo.price}}</span> 
-                    <input type="hidden" name="TotalAmount" value="{{paymentInfo.price}}">
+                    <span class="text-muted">${{formatNumber paymentInfo.price}}</span> 
+                    <input type="hidden" name="TotalAmount" value="{{ paymentInfo.price}}">
                     <input type="hidden" name="CurrencyCode" value="{{paymentInfo.currency}}">
                 </li>
                 <hr>
@@ -47,7 +47,7 @@
                 
                 <div class="card-footer d-flex justify-content-between pb-2">
                 <span>Total ({{paymentInfo.currency}})</span>
-                <strong>${{paymentInfo.price}}</strong>
+                <strong>${{formatNumber paymentInfo.price}}</strong>
                 </div>
 
                 
@@ -112,7 +112,7 @@
                     </select>
                 </div>
                
-                <div class="col mb-4">
+                <div class="col-3 mb-4">
                     <label for="zip">Zip Code</label>
                     <input type="text" class="form-control" aria-label="zip">
                 </div>
