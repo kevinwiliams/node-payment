@@ -1,4 +1,7 @@
 <script>
+    function ReloadPage() {
+        location.reload();
+    }
     // Listen for click event on edit category button
     $('.edit-category').on('click', function() {
         var categoryId = $(this).data('id'); // Get the category ID from the button
@@ -38,11 +41,39 @@
             },
             success: function(response) {
                 // Handle success response
-                console.log('Category created successfully:', response);
+                //console.log('Category updated successfully:', response);
+                if (response.success) {
+                    console.log(response.success);
+
+                    swal({
+                        title: "Success!",
+                        text: "Category updated successfully!",
+                        type: "success",
+                        dangerMode: false
+                    });
+
+                    setTimeout(
+                        ReloadPage
+                        , 1500);
+                } else {
+                    swal({
+                        title: "Error!",
+                        text: "Something went wrong| Please try again later!",
+                        type: "warning",
+                        dangerMode: true
+                    });
+                }
+            
             },
             error: function(xhr, status, error) {
                 // Handle error response
                 console.error('Error creating category:', error);
+                swal({
+                            title: "Error updating category!",
+                            text: error,
+                            type: "warning",
+                            dangerMode: true
+                        });
             }
         });
     });
@@ -57,6 +88,16 @@
             success: function(response) {
                 // Handle success response
                 console.log('Category deleted successfully:', response);
+                swal({
+                        title: "Success!",
+                        text: "Category deleted successfully!",
+                        type: "success",
+                        dangerMode: false
+                    });
+
+                    setTimeout(
+                        ReloadPage
+                        , 1500);
             },
             error: function(xhr, status, error) {
                 // Handle error response
@@ -105,13 +146,33 @@
                 serviceName: $('#serviceName').val(),
                 serviceCurrency: $('#serviceCurrency').val(),
                 servicePrice: $('#servicePrice').val(),
-                categoryDesc: $('#categoryDesc').val(),
+                serviceDesc: $('#serviceDesc').val(),
                 serviceEpaperDays: $('#serviceEpaperDays').val(),
                 serviceActive: $('#serviceActive').is(':checked')
             },
             success: function(response) {
                 // Handle success response
-                console.log('Service created successfully:', response);
+                // console.log('Service created successfully:', response);
+                if (response.success) {
+                    //console.log(response.success);
+                    swal({
+                        title: "Success!",
+                        text: "Service updated successfully!",
+                        type: "success",
+                        dangerMode: false
+                    });
+
+                    setTimeout(
+                        ReloadPage
+                        , 1500);
+                } else {
+                    swal({
+                        title: "Error!",
+                        text: "Something went wrong| Please try again later!",
+                        type: "warning",
+                        dangerMode: true
+                    });
+                }
             },
             error: function(xhr, status, error) {
                 // Handle error response
@@ -129,7 +190,17 @@
             },
             success: function(response) {
                 // Handle success response
-                console.log('Service deleted successfully:', response);
+                //console.log('Service deleted successfully:', response);
+                swal({
+                        title: "Success!",
+                        text: "Service deleted successfully!",
+                        type: "success",
+                        dangerMode: false
+                    });
+
+                    setTimeout(
+                        ReloadPage
+                        , 1500);
             },
             error: function(xhr, status, error) {
                 // Handle error response
