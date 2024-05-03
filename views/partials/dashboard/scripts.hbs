@@ -49,7 +49,7 @@
 
     $('#deleteCategoryBtn').click(function() {
         $.ajax({
-            url: $(this).closest('form').data('request-url'), // URL from data-request-url attribute
+            url: '/admin/dashboard/deletecategory', // URL from data-request-url attribute
             method: 'POST',
             data: {
                 categoryId: $('#categoryId').val()
@@ -121,7 +121,7 @@
 
     $('#deleteServiceBtn').click(function() {
         $.ajax({
-            url: $(this).closest('form').data('request-url'), // URL from data-request-url attribute
+            url: '/admin/dashboard/deleteservice', // URL from data-request-url attribute
             method: 'POST',
             data: {
                 serviceId: $('#serviceId').val()

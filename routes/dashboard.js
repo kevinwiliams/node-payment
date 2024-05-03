@@ -3,6 +3,7 @@ const router = express.Router();
 const dashController = require('../controllers/dashboardController');
 
 router.get('/', dashController.getDashboard);
+
 router.post('/getcategory', dashController.getCategory);
 router.post('/updatecategory', dashController.updateCategory);
 router.post('/deletecategory', dashController.deleteCategory);

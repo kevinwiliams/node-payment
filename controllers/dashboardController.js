@@ -27,7 +27,11 @@ async function getDashboard(req, res){
   async function createCategory(req, res) {
     try {
         const { categoryName, categoryDesc, categoryActive } = req.body;
-        const category = await Category.create({ categoryName, categoryDesc, categoryActive });
+        const category = await Category.create({ 
+          name: categoryName, 
+          description: categoryDesc, 
+          active: categoryActive 
+        });
         res.status(201).json(category);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -37,7 +41,6 @@ async function getDashboard(req, res){
   async function getCategory(req, res){
     const {categoryId} = req.body;
     const category = await Category.findOne({ where: { categoryId: parseInt(categoryId) }  });
-    console.log('category', category);
     if (category) {
       return res.json({ category });
     }else{
