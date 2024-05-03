@@ -26,8 +26,8 @@ async function getDashboard(req, res){
 
   async function createCategory(req, res) {
     try {
-        const { name, description, active } = req.body;
-        const category = await Category.create({ name, description, active });
+        const { categoryName, categoryDesc, categoryActive } = req.body;
+        const category = await Category.create({ categoryName, categoryDesc, categoryActive });
         res.status(201).json(category);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -48,14 +48,14 @@ async function getDashboard(req, res){
 
   async function updateCategory(req, res) {
     try {
-        const { categoryId, name, description, active } = req.body;
+        const { categoryId, categoryName, categoryDesc, categoryActive } = req.body;
         const category = await Category.findByPk(categoryId);
         if (!category) {
             return res.status(404).json({ message: 'Category not found' });
         }
-        category.name = name;
-        category.description = description;
-        category.active = active;
+        category.name = categoryName;
+        category.description = categoryDesc;
+        category.active = categoryActive;
         await category.save();
         res.json(category);
     } catch (error) {
@@ -79,8 +79,16 @@ async function getDashboard(req, res){
 
   async function createService(req, res) {
     try {
-        const { categoryId, name, currency, price, description, epaperDays, active } = req.body;
-        const service = await Service.create({ categoryId, name, currency, price, description, epaperDays, active });
+        const { serviceCategory, serviceName, serviceCurrency, servicePrice, categoryDesc, serviceEpaperDays, serviceActive } = req.body;
+        const service = await Service.create({  
+          categoryId: serviceCategory, 
+          name: serviceName, 
+          currency: serviceCurrency, 
+          price: servicePrice, 
+          description: categoryDesc, 
+          epaperDays: serviceEpaperDays, 
+          active: serviceActive 
+        });
         res.status(201).json(service);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -101,18 +109,18 @@ async function getDashboard(req, res){
 
   async function updateService(req, res) {
     try {
-        const { serviceId, categoryId, name, currency, price, description, epaperDays, active } = req.body;
+        const { serviceId, serviceCategory, serviceName, serviceCurrency, servicePrice, categoryDesc, serviceEpaperDays, serviceActive } = req.body;
         const service = await Service.findByPk(serviceId);
         if (!service) {
             return res.status(404).json({ message: 'Service not found' });
         }
-        service.categoryId = categoryId;
-        service.name = name;
-        service.currency = currency;
-        service.price = price;
-        service.description = description;
-        service.epaperDays = epaperDays;
-        service.active = active;
+        service.categoryId = serviceCategory;
+        service.name = serviceName;
+        service.currency = serviceCurrency;
+        service.price = servicePrice;
+        service.description = categoryDesc;
+        service.epaperDays = serviceEpaperDays;
+        service.active = serviceActive;
         await service.save();
         res.json(service);
     } catch (error) {

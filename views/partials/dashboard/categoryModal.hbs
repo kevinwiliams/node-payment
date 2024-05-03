@@ -9,6 +9,7 @@
       <form id="editCategoryForm" name="editCategoryForm" role="form" method="POST" class="g-3 needs-validation" data-request-url="/admin/dashboard/updatecategory">
         <div class="modal-body">
           <!-- Input fields for editing values -->
+          <input type="hidden" class="form-control" id="categoryId" name="categoryId">
           
           <div class="mb-3">
             <label for="categoryName" class="form-label">Category</label>
@@ -29,8 +30,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" id="deleteBtn">Delete</button>
-          <button type="submit" class="btn btn-primary" id="updateBtn">Update</button>
+          <button type="button" class="btn btn-danger" id="deleteCategoryBtn">Delete</button>
+          <button type="submit" class="btn btn-primary" id="updateCategoryBtn">Update</button>
         </div>
       </form>
     </div>

@@ -1,51 +1,232 @@
 <script>
-  // Listen for click event on edit button
-  $('.edit-category').on('click', function() {
-      var categoryId = $(this).data('id'); // Get the category ID from the button
-      console.log('categoryId', categoryId);
-      // Use AJAX to fetch category data based on the ID
-      $.ajax({
-          url: '/admin/dashboard/getcategory', // Replace with your actual route to fetch category data
-          method: 'POST',
-          dataType: 'json',
-          data: { categoryId: categoryId },
-          success: function(response) {
-              const category = response.category;
-              // Populate form fields with category data
-              $('#categoryName').val(category.name);
-              $('#categoryDesc').val(category.description);
-              $('#categoryActive').prop('checked', category.active);
-              // Similar for other fields
-          },
-          error: function(err) {
-              console.error(err);
-              // Handle error
-          }
-      });
-  });
+    // Listen for click event on edit category button
+    $('.edit-category').on('click', function() {
+        var categoryId = $(this).data('id'); // Get the category ID from the button
+        console.log('categoryId', categoryId);
+        // Use AJAX to fetch category data based on the ID
+        $.ajax({
+            url: '/admin/dashboard/getcategory', // Replace with your actual route to fetch category data
+            method: 'POST',
+            dataType: 'json',
+            data: { categoryId: categoryId },
+            success: function(response) {
+                const category = response.category;
+                // Populate form fields with category data
+                $('#categoryId').val(categoryId);
+                $('#categoryName').val(category.name);
+                $('#categoryDesc').val(category.description);
+                $('#categoryActive').prop('checked', category.active);
+                // Similar for other fields
+            },
+            error: function(err) {
+                console.error(err);
+                // Handle error
+            }
+        });
+    });
 
-   // Listen for click event on edit button
-  $('.edit-service').on('click', function() {
-      var serviceId = $(this).data('id'); // Get the service ID from the button
-      // Use AJAX to fetch service data based on the ID
-      $.ajax({
-          url: '/admin/dashboard/getservice', // Replace with your actual route to fetch service data
-          method: 'POST',
-          dataType: 'json',
-          data: { serviceId: serviceId },
-          success: function(response) {
-              const service = response.service;
-              // Populate form fields with service data
-              $('#serviceCategory').val(service.categoryId);
-              $('#serviceName').val(service.name);
-              $('#serviceDesc').val(service.description);
-              $('#serviceActive').prop('checked', service.active);
-              // Similar for other fields
-          },
-          error: function(err) {
-              console.error(err);
-              // Handle error
-          }
-      });
-  });
+    $('#editCategoryForm').submit(function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: $(this).data('request-url'), // URL from data-request-url attribute
+            method: 'POST',
+            data: {
+                categoryId: $('#categoryId').val(),
+                categoryName: $('#categoryName').val(),
+                categoryDesc: $('#categoryDesc').val(),
+                categoryActive: $('#categoryActive').is(':checked')
+            },
+            success: function(response) {
+                // Handle success response
+                console.log('Category created successfully:', response);
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error('Error creating category:', error);
+            }
+        });
+    });
+
+    $('#deleteCategoryBtn').click(function() {
+        $.ajax({
+            url: $(this).closest('form').data('request-url'), // URL from data-request-url attribute
+            method: 'POST',
+            data: {
+                categoryId: $('#categoryId').val()
+            },
+            success: function(response) {
+                // Handle success response
+                console.log('Category deleted successfully:', response);
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error('Error deleting category:', error);
+            }
+        });
+    });
+    
+    // Listen for click event on edit service button
+    $('.edit-service').on('click', function() {
+        var serviceId = $(this).data('id'); // Get the service ID from the button
+        // Use AJAX to fetch service data based on the ID
+        $.ajax({
+            url: '/admin/dashboard/getservice', // Replace with your actual route to fetch service data
+            method: 'POST',
+            dataType: 'json',
+            data: { serviceId: serviceId },
+            success: function(response) {
+                const service = response.service;
+                // Populate form fields with service data
+                $('#serviceCategory').val(service.categoryId);
+                $('#serviceName').val(service.name);
+                $('#serviceDesc').val(service.description);
+                $('#serviceCurrency').val(service.currency);
+                $('#servicePrice').val(service.price);
+                $('#serviceEpaperDays').val(service.epaperDays);
+                $('#serviceActive').prop('checked', service.active);
+                // Similar for other fields
+            },
+            error: function(err) {
+                console.error(err);
+                // Handle error
+            }
+        });
+    });
+
+    $('#editServiceForm').submit(function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: $(this).data('request-url'), // URL from data-request-url attribute
+            method: 'POST', 
+            data: {
+                serviceId: $('#serviceId').val(),
+                serviceCategory: $('#serviceCategory').val(),
+                serviceName: $('#serviceName').val(),
+                serviceCurrency: $('#serviceCurrency').val(),
+                servicePrice: $('#servicePrice').val(),
+                categoryDesc: $('#categoryDesc').val(),
+                serviceEpaperDays: $('#serviceEpaperDays').val(),
+                serviceActive: $('#serviceActive').is(':checked')
+            },
+            success: function(response) {
+                // Handle success response
+                console.log('Service created successfully:', response);
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error('Error creating service:', error);
+            }
+        });
+    });
+
+    $('#deleteServiceBtn').click(function() {
+        $.ajax({
+            url: $(this).closest('form').data('request-url'), // URL from data-request-url attribute
+            method: 'POST',
+            data: {
+                serviceId: $('#serviceId').val()
+            },
+            success: function(response) {
+                // Handle success response
+                console.log('Service deleted successfully:', response);
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error('Error deleting service:', error);
+            }
+        });
+    });
+    
+    // Listen for click event on category button
+    document.addEventListener("DOMContentLoaded", function() {
+        const createNewCategoryBtn = document.getElementById('createNewCategoryBtn');
+        const editCategoryModal = document.getElementById('editCategoryModal');
+        const editCategoryModalTitle = document.getElementById('editCategoryModalLabel');
+        const editCategoryForm = document.getElementById('editCategoryForm');
+        const categoryNameInput = document.getElementById('categoryName');
+        const categoryDescInput = document.getElementById('categoryDesc');
+        const categoryActiveCheckbox = document.getElementById('categoryActive');
+        const deleteCategoryBtn = document.getElementById('deleteCategoryBtn');
+        const updateCategoryBtn = document.getElementById('updateCategoryBtn');
+
+        createNewCategoryBtn.addEventListener('click', function() {
+            // Set modal title
+            editCategoryModalTitle.textContent = 'Create New Category';
+
+            // Set form action URL
+            editCategoryForm.setAttribute('data-request-url', '/admin/dashboard/createcategory');
+
+            // Set button labels
+            deleteCategoryBtn.style.display = 'none'; // Hide delete button
+            updateCategoryBtn.textContent = 'Create'; // Change update button label
+
+            // Reset form fields
+            categoryNameInput.value = '';
+            categoryDescInput.value = '';
+            categoryActiveCheckbox.checked = false;
+        });
+        // Reset modal content when it is closed
+        editCategoryModal.addEventListener('hidden.bs.modal', function() {
+            // Reset modal title
+            editCategoryModalTitle.textContent = 'Edit Category';
+
+            // Reset form action URL
+            editCategoryForm.setAttribute('data-request-url', '/admin/dashboard/updatecategory');
+
+            // Reset button labels
+            deleteCategoryBtn.style.display = 'block'; // Show delete button
+            updateCategoryBtn.textContent = 'Update'; // Reset update button label
+        });
+    
+        const createNewServiceBtn = document.getElementById('createNewServiceBtn');
+        const editServiceModal = document.getElementById('editServiceModal');
+        const editServiceModalTitle = document.getElementById('editServiceModalLabel');
+        const editServiceForm = document.getElementById('editServiceForm');
+        const serviceIdInput = document.getElementById('serviceId');
+        const serviceCategoryInput = document.getElementById('serviceCategory');
+        const serviceNameInput = document.getElementById('serviceName');
+        const serviceDescInput = document.getElementById('serviceDesc');
+        const serviceCurrencyInput = document.getElementById('serviceCurrency');
+        const servicePriceInput = document.getElementById('servicePrice');
+        const serviceEpaperDaysInput = document.getElementById('serviceEpaperDays');
+        const serviceActiveCheckbox = document.getElementById('serviceActive');
+        const deleteServiceBtn = document.getElementById('deleteServiceBtn');
+        const updateServiceBtn = document.getElementById('updateServiceBtn');
+
+        createNewServiceBtn.addEventListener('click', function() {
+            // Set modal title
+            editServiceModalTitle.textContent = 'Create New Service';
+
+            // Set form action URL
+            editServiceForm.setAttribute('data-request-url', '/admin/dashboard/createservice');
+
+            // Set button labels
+            deleteServiceBtn.style.display = 'none'; // Hide delete button
+            updateServiceBtn.textContent = 'Create'; // Change update button label
+
+            // Reset form fields
+            serviceIdInput.value = ''; // Clear service ID
+            serviceCategoryInput.value = ''; // Clear selected category
+            serviceNameInput.value = '';
+            serviceDescInput.value = '';
+            serviceCurrencyInput.value = '';
+            servicePriceInput.value = '';
+            serviceEpaperDaysInput.value = '';
+            serviceActiveCheckbox.checked = false;
+        });
+
+        // Reset modal content when it is closed
+        editServiceModal.addEventListener('hidden.bs.modal', function() {
+            // Reset modal title
+            editServiceModalTitle.textContent = 'Edit Service';
+
+            // Reset form action URL
+            editServiceForm.setAttribute('data-request-url', '/admin/dashboard/updateservice');
+
+            // Reset button labels
+            deleteServiceBtn.style.display = 'block'; // Show delete button
+            updateServiceBtn.textContent = 'Update'; // Reset update button label
+        });
+    });
+
 </script>
