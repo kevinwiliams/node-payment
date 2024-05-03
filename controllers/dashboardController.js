@@ -9,13 +9,13 @@ const Subscriber = require('../models/subscriber');
 async function getDashboard(req, res){
     try {
     //   const users = await User.findAll();
-    const categories = await Category.findAll({
-        limit: 10,
-        order:[
-            ['name', 'ASC']
-        ]
-    })
-      res.render('dashboard/index', {title: 'Dashboard', categories});
+    const categories = await Category.findAll({ order:[ ['name', 'ASC'] ] });
+    const services = await Service.findAll({ order:[ ['categoryId', 'ASC'] ], include: [Category] });
+    const sales = await Sale.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
+    const subscribers = await Subscriber.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
+    const serviceList = JSON.stringify(services);
+    console.log('services', JSON.stringify(services));
+      res.render('dashboard/index', {title: 'Dashboard', categories, services: JSON.parse(serviceList), sales, subscribers});
 
     } catch (err) {
       console.error(err);

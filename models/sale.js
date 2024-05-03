@@ -2,6 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db').sequelize;
 const Service = require('../models/service'); // Import Service model
+const Category = require('../models/category');
 
 const Sale = sequelize.define('Sale', {
     saleId: {
@@ -91,7 +92,7 @@ const Sale = sequelize.define('Sale', {
 });
 
 Sale.belongsTo(
-    Service, { foreignKey: 'service_id' }
+    Category, { foreignKey: 'categoryId' }
 );
 
 // Sync the model with the database

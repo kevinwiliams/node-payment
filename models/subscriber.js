@@ -36,7 +36,7 @@ const Subscriber = sequelize.define('Subscriber', {
         type: DataTypes.STRING(100),
         allowNull: true
     },
-    start_date: {
+    startDate: {
         type: DataTypes.DATE,
         allowNull: false
     },

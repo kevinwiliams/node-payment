@@ -3,26 +3,27 @@
     <!-- Categories Card -->
     <div class="col">
       <div class="card">
-        <div class="card-header">
-          Categories
+       <div class="card-header d-flex justify-content-between align-items-center">
+            Categories
+            <button type="button" class="btn btn-sm btn-primary">Create New</button>
         </div>
         <div class="card-body">
           <table class="table small">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Active</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
         {{#each categories}}
               <tr>
-                <td>{{dataValues.categoryId}}</td>
                 <td>{{dataValues.name}}</td>
                 <td>{{dataValues.description}}</td>
                 <td>{{dataValues.active}}</td>
+                <td><a href="#" class="edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}">edit</a></td>
               </tr>
         {{/each}}
             </tbody>
@@ -30,160 +31,102 @@
         </div>
       </div>
     </div>
-
-    <!-- Services Card -->
-    <div class="col">
-      <div class="card">
-        <div class="card-header">
-          Services
-        </div>
-        <div class="card-body">
-          <table class="table small">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Active</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Service 1</td>
-                <td>$10.00</td>
-                <td>Yes</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Service 2</td>
-                <td>$20.00</td>
-                <td>No</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Service 3</td>
-                <td>$30.00</td>
-                <td>Yes</td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td>Service 4</td>
-                <td>$40.00</td>
-                <td>No</td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>Service 5</td>
-                <td>$50.00</td>
-                <td>Yes</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    {{> dashboard/categoryModal }}
 
     <!-- Sales Card -->
     <div class="col">
       <div class="card">
-        <div class="card-header">
-          Sales
+        <div class="card-header d-flex justify-content-between align-items-center">
+            Sales
+            <button type="button" class="btn btn-sm btn-primary">Full View</button>
         </div>
         <div class="card-body">
           <table class="table small">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Product</th>
                 <th>Amount</th>
                 <th>Date</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
+              {{#each sales}}
               <tr>
-                <td>1</td>
-                <td>Product 1</td>
-                <td>$100.00</td>
-                <td>2022-01-01</td>
+                <td>{{dataValues.serviceName}}</td>
+                <td>{{dataValues.amount}}</td>
+                <td>{{dataValues.paymentDate}}</td>
+                <td><a href="#">edit</a></td>
               </tr>
-              <tr>
-                <td>2</td>
-                <td>Product 2</td>
-                <td>$200.00</td>
-                <td>2022-02-01</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Product 3</td>
-                <td>$300.00</td>
-                <td>2022-03-01</td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td>Product 4</td>
-                <td>$400.00</td>
-                <td>2022-04-01</td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>Product 5</td>
-                <td>$500.00</td>
-                <td>2022-05-01</td>
-              </tr>
+              {{/each}}
             </tbody>
           </table>
         </div>
       </div>
     </div>
-
-    <!-- Subscribers Card -->
+    <!-- Services Card -->
     <div class="col">
       <div class="card">
-        <div class="card-header">
-          Subscribers
+       <div class="card-header d-flex justify-content-between align-items-center">
+            Services
+            <button type="button" class="btn btn-sm btn-primary">Create New</button>
         </div>
         <div class="card-body">
           <table class="table small">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Name</th>
-                <th>Email</th>
-                <th>Registration Date</th>
+                <th>Category</th>
+                <th>Desc</th>
+                <th>Active</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
+              {{#each services}}
               <tr>
-                <td>1</td>
-                <td>Subscriber 1</td>
-                <td>subscriber1@example.com</td>
-                <td>2022-01-01</td>
+                <td>{{name}}</td>
+                <td>{{Category.name}}</td>
+                <td><small>{{description}}</small></td>
+                <td>{{active}}</td>
+                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{dataValues.serviceId}}">edit</a></td>
+
               </tr>
+            {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {{> dashboard/serviceModal }}
+    
+    <!-- Subscribers Card -->
+    <div class="col">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            Subscribers
+            <button type="button" class="btn btn-sm btn-primary">Full View</button>
+        </div>
+        <div class="card-body">
+          <table class="table small">
+            <thead>
               <tr>
-                <td>2</td>
-                <td>Subscriber 2</td>
-                <td>subscriber2@example.com</td>
-                <td>2022-02-01</td>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Registration Date</th>
+                <th></th>
               </tr>
+            </thead>
+            <tbody>
+              {{#each sales}}
               <tr>
-                <td>3</td>
-                <td>Subscriber 3</td>
-                <td>subscriber3@example.com</td>
-                <td>2022-03-01</td>
+                <td>{{dataValues.firstName}} {{dataValues.lastName}}</td>
+                <td>{{dataValues.planDesc}}</td>
+                <td>{{dataValues.createdAt}}</td>
+                <td><a href="#">edit</a></td>
               </tr>
-              <tr>
-                <td>4</td>
-                <td>Subscriber 4</td>
-                <td>subscriber4@example.com</td>
-                <td>2022-04-01</td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>Subscriber 5</td>
-                <td>subscriber5@example.com</td>
-                <td>2022-05-01</td>
-              </tr>
+              {{/each}}
+       
             </tbody>
           </table>
         </div>
@@ -191,3 +134,28 @@
     </div>
   </div>
 </div>
+  <!-- Scripts -->
+<script src="/assets/js/jquery-3.7.1.min.js"></script>
+<script>
+  // Listen for click event on edit button
+  $('.edit-category').on('click', function() {
+      var categoryId = $(this).data('id'); // Get the category ID from the button
+      // Use AJAX to fetch category data based on the ID
+      $.ajax({
+          url: '/getCategory', // Replace with your actual route to fetch category data
+          method: 'GET',
+          data: { categoryId: categoryId },
+          success: function(response) {
+              // Populate form fields with category data
+              $('#categoryName').val(response.name);
+              $('#categoryDesc').val(response.description);
+              $('#categoryActive').val(response.active);
+              // Similar for other fields
+          },
+          error: function(err) {
+              console.error(err);
+              // Handle error
+          }
+      });
+  });
+</script>
