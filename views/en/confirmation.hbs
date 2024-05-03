@@ -4,6 +4,7 @@
         <p>Transaction Approved</p>
         <p>Authorization Code: {{paymentResponse.AuthorizationCode}}</p>
         <!-- Other payment completion data -->
+        <input type="text" name="ccEmail" id="ccEmail" placeholder="Send the email of the rep" class="form-control">
     {{else}}
         <p>Transaction Declined</p>
         <p>Error Message: {{paymentResponse.ResponseMessage}}</p>

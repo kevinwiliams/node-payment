@@ -89,7 +89,7 @@
                 <td>{{Category.name}}</td>
                 <td><small>{{description}}</small></td>
                 <td>{{active}}</td>
-                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{dataValues.serviceId}}">edit</a></td>
+                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{serviceId}}">edit</a></td>
 
               </tr>
             {{/each}}
@@ -150,6 +150,29 @@
               $('#categoryName').val(response.name);
               $('#categoryDesc').val(response.description);
               $('#categoryActive').val(response.active);
+              // Similar for other fields
+          },
+          error: function(err) {
+              console.error(err);
+              // Handle error
+          }
+      });
+  });
+
+   // Listen for click event on edit button
+  $('.edit-service').on('click', function() {
+      var serviceId = $(this).data('id'); // Get the service ID from the button
+      // Use AJAX to fetch service data based on the ID
+      $.ajax({
+          url: '/getService', // Replace with your actual route to fetch service data
+          method: 'GET',
+          data: { serviceId: serviceId },
+          success: function(response) {
+              // Populate form fields with service data
+              $('#serviceCategory').val(response.categoryId); //TBD
+              $('#serviceName').val(response.name);
+              $('#serviceDesc').val(response.description);
+              $('#serviceActive').val(response.active);
               // Similar for other fields
           },
           error: function(err) {
