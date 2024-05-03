@@ -84,10 +84,10 @@ async function getDashboard(req, res){
     try {
         const { serviceCategory, serviceName, serviceCurrency, servicePrice, categoryDesc, serviceEpaperDays, serviceActive } = req.body;
         const service = await Service.create({  
-          categoryId: serviceCategory, 
+          categoryId: parseInt(serviceCategory), 
           name: serviceName, 
           currency: serviceCurrency, 
-          price: servicePrice, 
+          price: parseFloat(servicePrice), 
           description: categoryDesc, 
           epaperDays: serviceEpaperDays, 
           active: serviceActive 
@@ -117,10 +117,10 @@ async function getDashboard(req, res){
         if (!service) {
             return res.status(404).json({ message: 'Service not found' });
         }
-        service.categoryId = serviceCategory;
+        service.categoryId = parseInt(serviceCategory);
         service.name = serviceName;
         service.currency = serviceCurrency;
-        service.price = servicePrice;
+        service.price = parseFloat(servicePrice);
         service.description = categoryDesc;
         service.epaperDays = serviceEpaperDays;
         service.active = serviceActive;
