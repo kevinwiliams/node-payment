@@ -96,19 +96,16 @@ function createRadioButton(index, service) {
         currencyDropdown.appendChild(selectOption);
         currencyDropdown.appendChild(jmdOption);
         currencyDropdown.appendChild(usdOption);
-        //div.appendChild(currencyDropdown);
         priceInputGroup.appendChild(currencyDropdown);
 
         var priceInput = document.createElement('input');
-        priceInput.type = 'number';
+        priceInput.type = 'text';
         priceInput.id = 'price';
         priceInput.name = 'price';
-        //priceInput.required = true;
         priceInput.placeholder = 'Enter Price';
         priceInput.classList.add('form-control');
         priceInput.classList.add('flex-grow-1');
         priceInput.style.display = 'none'; // Hide price input initially
-        //div.appendChild(priceInput);
         priceInputGroup.appendChild(priceInput);
         div.appendChild(priceInputGroup);
 

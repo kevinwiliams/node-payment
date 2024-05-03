@@ -19,6 +19,7 @@ exports.authenticate = async (req, res) => {
         // console.log('body', req.body);
 
         const currency = (CurrencyCode == 'JMD') ? '388' : '840';
+        const cardExp = CardExpiration.slice(2) + CardExpiration.slice(0, 2);
         const authData = {
             TransactionIdentifier: generateUUID(),
             TotalAmount: parseFloat(TotalAmount),
@@ -27,7 +28,7 @@ exports.authenticate = async (req, res) => {
             Source: {
                 CardPan: CardPan,
                 CardCvv: CardCvv,
-                CardExpiration: CardExpiration,
+                CardExpiration: cardExp,
                 CardholderName: CardholderName
             },
             OrderIdentifier: 'INV-'+ generateUUID(),
