@@ -8,7 +8,7 @@
             <button type="button" class="btn btn-sm btn-primary" id="createNewCategoryBtn" data-bs-toggle="modal" data-bs-target="#editCategoryModal">Create New</button>
         </div>
         <div class="card-body">
-          <table class="table small">
+          <table class="table small dtCategory">
             <thead>
               <tr>
                 <th>Name</th>
@@ -74,12 +74,12 @@
             <button type="button" class="btn btn-sm btn-primary" id="createNewServiceBtn" data-bs-toggle="modal" data-bs-target="#editServiceModal">Create New</button>
         </div>
         <div class="card-body">
-          <table class="table small">
+          <table class="table small dtService">
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Category</th>
-                <th>Desc</th>
+                <th>Price</th>
                 <th>Active</th>
                 <th></th>
               </tr>
@@ -89,7 +89,7 @@
               <tr>
                 <td>{{name}}</td>
                 <td>{{Category.name}}</td>
-                <td><small>{{description}}</small></td>
+                <td>{{currency}} {{price}}</td>
                 <td>
                   <span class="badge {{#if (eq active false)}}bg-danger{{else}}bg-success{{/if}}">{{active}}</span>
                 </td>
@@ -139,4 +139,6 @@
 </div>
   <!-- Scripts -->
 <script src="/assets/js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/b-2.3.6/b-html5-2.3.6/b-print-2.3.6/r-2.4.1/sb-1.4.2/sp-2.1.2/datatables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.js"></script>
 {{> dashboard/scripts }}
