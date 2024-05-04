@@ -12,7 +12,7 @@ const readFile = util.promisify(fs.readFile);
 async function getMain(req, res){
     try {
     //   const users = await User.findAll();
-    const categories = await Category.findAll({ limit: 10, order:[ ['name', 'ASC'] ] });
+    const categories = await Category.findAll({ limit: 10, where: { active: true }, order:[ ['name', 'ASC'] ] });
     // console.log('categories', categories);
       res.render('en/index', {title: 'Home', categories});
 
@@ -26,7 +26,9 @@ async function getMain(req, res){
     try {
         const { id } = req.body;
         console.log('id', req.body);
-        const services = await Service.findAll({ where: { categoryId : parseInt(id)}, order:[ ['price', 'DESC'] ] });
+        const services = await Service.findAll({ 
+            where: { categoryId : parseInt(id), active: true}, 
+            order:[ ['price', 'DESC'] ] });
         // return services;
         res.json({
             services: services

@@ -37,6 +37,12 @@ app.use(session({
 
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+    // Attach session object to res.locals
+    res.locals.session = req.session;
+    next();
+});
+
 const reduceOp = function(args, reducer){
     args = Array.from(args);
     args.pop(); // => options
@@ -105,6 +111,11 @@ const hbs = exphbs.create({
         },
         formatNumber: function(number){
             return Handlebars.helpers.formatNumber(number);
+        },
+        isAuthenticated : function(){
+            const session = this.session; // Assuming session is available in res.locals
+            if(session)
+                return session.isAuthenticated;
         }
     }
 });

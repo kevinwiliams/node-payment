@@ -6,7 +6,7 @@ Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
   };
 
 const User = sequelize.define('User', {
-    user_id: {
+    userId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
@@ -17,17 +17,17 @@ const User = sequelize.define('User', {
     email: {
         type: DataTypes.STRING(100)
     },
-    password_hash: {
+    passwordHash: {
         type: DataTypes.STRING(255)
     },
-    registration_date: {
+    registrationDate: {
         type: DataTypes.DATE,
         allowNull: false
     },
-    security_stamp: {
+    securityStamp: {
         type: DataTypes.STRING(128)
     },
-    other_info: {
+    otherInfo: {
         type: DataTypes.TEXT
     }
 }, {
