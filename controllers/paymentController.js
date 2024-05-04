@@ -52,11 +52,11 @@ exports.authenticate = async (req, res) => {
             }
         };
         req.session.authData = authData;
-        console.log('authData', authData);
+        //console.log('authData', authData);
         // Simulate authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
-        console.log('authResponse', authResponse);
+        //console.log('authResponse', authResponse);
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
@@ -71,34 +71,43 @@ exports.completePayment = async (req, res) => {
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
         console.log('paymentResponse', paymentResponse);
+
+        const paymentInfo = req.session.paymentInfo;
+        console.log('paymentInfo', paymentInfo);
+
         //Save transaction data
-
         const authData = req.session.authData;
-
+        console.log('authData', authData);
+        
         const newSale = await Sale.create({
-            categoryId: parseInt(authData.categoryId), // Replace with the actual categoryId
-            serviceName: 'Example Service',
+            categoryId: parseInt(paymentInfo.categoryId), 
+            serviceName: paymentInfo.categoryName + ' : ' + paymentInfo.serviceName,
             emailAddress: authData.BillingAddress.EmailAddress,
-            cardOwner: authData.CardholderName,
+            cardOwner: authData.Source.CardholderName,
             cardType: paymentResponse.CardBrand,
-            cardExpiry: authData.CardExpiration, // Replace with the actual card expiry
-            lastFour: authData.CardPan.slice(4), // Replace with the actual last four digits of the card
-            transactionId: paymentResponse.TransactionIdentifier, // Replace with the actual transaction ID
-            authCode: paymentResponse.AuthorizationCode, // Replace with the actual authorization code
-            orderId: paymentResponse.OrderIdentifier, // Replace with the actual order ID
-            refNumber: paymentResponse.RRN, // Replace with the actual reference number
-            currency: paymentResponse.CurrencyCode, // Replace with the actual currency
-            amount: parseFloat(paymentResponse.TotalAmount), // Replace with the actual amount
-            paymentDate: new Date(), // Replace with the actual payment date
-            paymentStatus: paymentResponse.Approved, // Replace with the actual payment status
-            paymentNotes: 'Payment successful.', // Replace with any payment notes
-            isApproved: paymentResponse.Approved, // Replace with the actual approval status
-            createdAt: new Date(), // Replace with the actual creation date
-            updatedAt: new Date() // Replace with the actual update date
+            cardExpiry: authData.Source.CardExpiration, 
+            lastFour: authData.Source.CardPan.slice(-4), 
+            transactionId: paymentResponse.TransactionIdentifier, 
+            authCode: paymentResponse.AuthorizationCode, 
+            orderId: paymentResponse.OrderIdentifier, 
+            refNumber: paymentResponse.RRN, 
+            currency: paymentInfo.currency, 
+            amount: parseFloat(paymentResponse.TotalAmount), 
+            paymentDate: new Date(), 
+            paymentStatus: paymentResponse.Approved, 
+            paymentNotes: paymentInfo.otherInfo, 
+            isApproved: paymentResponse.Approved, 
+            createdAt: new Date(), 
+            updatedAt: new Date() 
         });
+
         console.log('New sale created:', newSale.toJSON());
 
-        res.render('en/confirmation', { paymentResponse, title: 'Thank You' });
+        res.render('en/confirmation', { 
+            paymentResponse, 
+            title: 'Thank You', newSale 
+        });
+
     } catch (error) {
         console.error('Error during payment completion:', error);
         res.render('en/checkout', {title: 'Checkout', error});

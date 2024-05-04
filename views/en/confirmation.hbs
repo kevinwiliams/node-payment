@@ -25,20 +25,20 @@
               Please see your transaction and service summary below:
             </p>
             <ul>
-              <li><i class="ri-check-double-line"></i> EPAPER</li>
+              <li><i class="ri-check-double-line"></i> {{serviceName}}</li>
               <li><i class="ri-check-double-line"></i> Duis aute irure dolor in reprehenderit in voluptate velit</li>
-              <li><i class="ri-check-double-line"></i> Notes: Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in</li>
+              <li><i class="ri-check-double-line"></i> Notes: {{otherInfo}}</li>
             </ul>
             <hr>
             <p class="fst-italic">
               Transaction Details
             </p>
-            <ul>
-              <li><i class="ri-check-double-line"></i> Kevin Williams</li>
+            <ul class="small">
+              <li><i class="ri-check-double-line"></i> {{cardOwner}}</li>
               <li><i class="ri-check-double-line"></i> Address Details</li>
               <li><i class="ri-check-double-line"></i> Address Details 2</li>
-              <li><i class="ri-check-double-line"></i> Card Ending: 0123</li>
-              <li><i class="ri-check-double-line"></i> Total: <strong>JMD$12,300.00</strong></li>
+              <li><i class="ri-check-double-line"></i> {{cardType}} - Ending: {{lastFour}}</li>
+              <li><i class="ri-check-double-line"></i> Total: <strong>{{currency}}${{formatNumber amount}}</strong></li>
             </ul>
 
           </div>

@@ -65,6 +65,8 @@ async function getMain(req, res){
             currency: currencyhd,
             otherInfo: selectedOtherInfo
         };
+        
+        req.session.paymentInfo = paymentInfo;
 
         //res.json({ success: paymentInfo });
         res.render('en/checkout', { paymentInfo, countries, title : 'Checkout' });

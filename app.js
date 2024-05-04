@@ -73,7 +73,10 @@ Handlebars.registerHelper({
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         // Join the parts and return the formatted number
         return parts.join('.');;
-    }
+    },
+    formatTimeDate: function(date) {
+        return moment(date).format('DD-MMM-YYYY h:mm A');
+    },
 });
 
 // Handlebars middleware

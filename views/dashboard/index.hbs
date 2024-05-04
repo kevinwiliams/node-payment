@@ -57,9 +57,9 @@
               {{#each sales}}
               <tr>
                 <td>{{dataValues.serviceName}}</td>
-                <td>{{dataValues.amount}}</td>
-                <td>{{dataValues.paymentDate}}</td>
-                <td><a href="#">edit</a></td>
+                <td>{{dataValues.currency}} {{dataValues.amount}}</td>
+                <td>{{formatTimeDate dataValues.paymentDate}}</td>
+                <td><a href="#" class="view-sale" data-bs-toggle="modal" data-bs-target="#viewSaleModal" data-id="{{dataValues.salesId}}"><i class='bx bx-search-alt bx-sm text-muted'></i></a></td>
               </tr>
               {{/each}}
             </tbody>
@@ -122,12 +122,12 @@
               </tr>
             </thead>
             <tbody>
-              {{#each sales}}
+              {{#each subscribers}}
               <tr>
                 <td>{{dataValues.firstName}} {{dataValues.lastName}}</td>
                 <td>{{dataValues.planDesc}}</td>
                 <td>{{dataValues.createdAt}}</td>
-                <td><a href="#">edit</a></td>
+                <td><a href="#" class="view-sub" data-bs-toggle="modal" data-bs-target="#viewSubModal" data-id="{{dataValues.salesId}}"><i class='bx bx-search-alt bx-sm text-muted'></i></a></td>
               </tr>
               {{/each}}
        
