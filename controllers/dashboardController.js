@@ -103,7 +103,7 @@ async function createService(req, res) {
 async function getService(req, res){
   const {serviceId} = req.body;
   const service = await Service.findOne({ where: { serviceId: parseInt(serviceId) }  });
-  console.log('service', service);
+  // console.log('service', service);
   if (service) {
     return res.json({ success: true, service });
   }else{

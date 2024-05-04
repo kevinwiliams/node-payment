@@ -23,9 +23,10 @@
                 <td>{{dataValues.name}}</td>
                 <td>{{dataValues.description}}</td>
                 <td>
-                  <span class="badge {{#if (eq dataValues.active false)}}bg-danger{{else}}bg-success{{/if}}">{{dataValues.active}}</span>
+                  <span class="badge {{#if (eq dataValues.active false)}}bg-danger{{else}}bg-success{{/if}}"><i class='bx bx-{{#if (eq dataValues.active false)}}x{{else}}check{{/if}}'></i></span>
                 </td>
-                <td><a href="#" class="edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}">edit</a></td>
+                <td><a href="#" class="edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}"><i class='bx bx-edit-alt bx-sm text-muted'></i></a></td>
+                {{!-- <td><a href="#" class="edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}">edit</a></td> --}}
               </tr>
             {{/each}}
             </tbody>
@@ -91,9 +92,9 @@
                 <td>{{Category.name}}</td>
                 <td>{{currency}} {{price}}</td>
                 <td>
-                  <span class="badge {{#if (eq active false)}}bg-danger{{else}}bg-success{{/if}}">{{active}}</span>
+                  <span class="badge {{#if (eq active false)}}bg-danger{{else}}bg-success{{/if}}"><i class='bx bx-{{#if (eq active false)}}x{{else}}check{{/if}}'></i></span>
                 </td>
-                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{serviceId}}">edit</a></td>
+                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{serviceId}}"><i class='bx bx-edit-alt bx-sm text-muted'></i></a></td>
               </tr>
             {{/each}}
             </tbody>

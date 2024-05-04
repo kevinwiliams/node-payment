@@ -15,7 +15,7 @@ async function getUsers(req, res){
           res.redirect('/auth/login');
       }
       const users = await User.findAll();
-      console.log('users', users);
+      //console.log('users', users);
 
       res.render('users/index', { title: 'Admin Users', users });
     } catch (err) {
@@ -32,7 +32,7 @@ async function getUsers(req, res){
       }
       const user = await User.findByPk(req.params.id);
       if (user) {
-        console.log('user', user.dataValues);
+        //console.log('user', user.dataValues);
 
         res.render('users/edit', { user });
       } else {
@@ -74,7 +74,7 @@ async function getUsers(req, res){
             otherInfo: otherInfo
         });
 
-        console.log('cUser', user);
+        // console.log('cUser', user);
 
         res.redirect('/admin/users');
     } catch (err) {
