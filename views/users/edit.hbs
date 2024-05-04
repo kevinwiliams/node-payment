@@ -1,15 +1,16 @@
-<dic class="container">
-    <h1>Edit User {{user_id}}</h1>
+<div class="container">
+  <h1>Edit User {{user.dataValues.userId}}</h1>
 
-<form action="/admin/users/{{user_id}}" method="post">
-  <input type="hidden" name="_method" value="PUT">
+  <form action="/admin/users/{{user.dataValues.userId}}" method="post">
+    <input type="hidden" name="_method" value="PUT">
 
-  <label for="username">Username:</label>
-  <input type="text" name="username" value="{{username}}" required>
+    <label for="username">Username:</label>
+    <input type="text" name="username" value="{{user.dataValues.username}}" required>
 
-  <label for="email">Email:</label>
-  <input type="email" name="email" value="{{email}}" required>
+    <label for="email">Email:</label>
+    <input type="email" name="email" value="{{user.dataValues.email}}" required>
 
-  <input type="submit" value="Update">
-</form>
-</dic>
+
+    <input type="submit" value="Update">
+  </form>
+</div>

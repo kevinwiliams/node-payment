@@ -61,8 +61,13 @@
           <h2>{{title}}</h2>
         {{#if (isAuthenticated)}}
           <ol>
-            <li><a href="#">Reset Password</a></li>
-            <li><a href="#">Log Out</a></li>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a href="/admin/users">Users</a></li>
+            {{!-- <li><a href="/admin/dashboard/changepassword">Change Password</a></li>  --}}
+            &nbsp; &nbsp;/&nbsp; &nbsp; 
+            <form id="logoutForm" class="navbar-right" action="/auth/logoff" method="post">
+              <li><a href="javascript:document.getElementById('logoutForm').submit()">Log Out</a></li>
+            </form>
           </ol>
         {{/if}}
         </div>
@@ -70,7 +75,7 @@
       </div>
     </section><!-- End Breadcrumbs -->
     <!-- ======= Section ======= -->
-    <section class="contact">
+    <section class="contact py-1">
     {{{body}}}
     </section>
     <!-- End Section -->

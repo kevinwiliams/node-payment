@@ -1,13 +1,13 @@
 <div class="container">
-    <h1>Users</h1>
+  <a href="/admin/users/create">Add User</a>
+    <h4>Users List</h4>
 
 <ul>
   {{#each users}}
   <li>
-    <a href="/users/{{dataValues.user_id}}">{{dataValues.username}}</a>
+    <a href="/admin/users/{{dataValues.userId}}">{{dataValues.username}}</a>
   </li>
   {{/each}}
 </ul>
 </div>
 
-<a href="/admin/users/create">Create New User</a>

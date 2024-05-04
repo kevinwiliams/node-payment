@@ -8,7 +8,9 @@ const Subscriber = require('../models/subscriber');
 // GET all users
 async function getDashboard(req, res){
     try {
-
+      if(!req.session.isAuthenticated){
+          res.redirect('/auth/login');
+      }
       //   const users = await User.findAll();
       const categories = await Category.findAll({ order:[ ['name', 'ASC'] ] });
       const services = await Service.findAll({ order:[ ['categoryId', 'ASC'] ], include: [Category] });

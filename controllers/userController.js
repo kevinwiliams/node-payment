@@ -11,9 +11,13 @@ function generateUUID() {
 // GET all users
 async function getUsers(req, res){
     try {
+      if(!req.session.isAuthenticated){
+          res.redirect('/auth/login');
+      }
       const users = await User.findAll();
-      res.render('users/index', { users });
       console.log('users', users);
+
+      res.render('users/index', { title: 'Admin Users', users });
     } catch (err) {
       console.error(err);
       res.status(500).send('Error fetching users');
@@ -23,9 +27,14 @@ async function getUsers(req, res){
   // GET user by ID
   async function getUserInfo (req, res){
     try {
+      if(!req.session.isAuthenticated){
+          res.redirect('/auth/login');
+      }
       const user = await User.findByPk(req.params.id);
       if (user) {
-        res.render('user', { user });
+        console.log('user', user.dataValues);
+
+        res.render('users/edit', { user });
       } else {
         res.status(404).send('User not found');
       }
@@ -36,14 +45,19 @@ async function getUsers(req, res){
   }
 
   async function userForm(req, res) {
-    res.render('users/create');
+    if(!req.session.isAuthenticated){
+        res.redirect('/auth/login');
+    }
+    res.render('users/create', {title: 'Create new user'});
   }
   
   // POST create new user
   async function createUser(req, res) {
     try {
-
-        const { email, userName, password, confirmPassword } = req.body;
+      if(!req.session.isAuthenticated){
+          res.redirect('/auth/login');
+      }
+        const { email, userName, password, confirmPassword, otherInfo } = req.body;
          // Check if passwords match
          if (password !== confirmPassword) {
             return res.status(400).send('Passwords do not match');
@@ -54,9 +68,10 @@ async function getUsers(req, res){
         const user = await User.create({
             username: userName,
             email: email,
-            password_hash: hashedPassword,
-            registration_date: moment().format('YYYY-MM-DD HH:mm:ss'),
-            security_stamp: generateUUID()
+            passwordHash: hashedPassword,
+            registrationDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+            securityStamp: generateUUID(),
+            otherInfo: otherInfo
         });
 
         console.log('cUser', user);
@@ -71,6 +86,7 @@ async function getUsers(req, res){
   // PUT update user
   async function updateUser(req, res) {
     try {
+      
       const user = await User.findByPk(req.params.id);
       if (user) {
         await user.update(req.body);
@@ -87,6 +103,9 @@ async function getUsers(req, res){
   // DELETE user
   async function deleteUser(req, res) {
     try {
+      if(!req.session.isAuthenticated){
+          res.redirect('/auth/login');
+      }
       await User.destroy({ where: { user_id: req.params.id } });
       res.redirect('/admin/users');
     } catch (err) {

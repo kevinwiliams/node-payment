@@ -11,10 +11,13 @@ const readFile = util.promisify(fs.readFile);
 // GET all users
 async function getMain(req, res){
     try {
+        if(req.session.isAuthenticated){
+            res.redirect('/admin/dashboard');
+        }
     //   const users = await User.findAll();
     const categories = await Category.findAll({ limit: 10, where: { active: true }, order:[ ['name', 'ASC'] ] });
     // console.log('categories', categories);
-      res.render('en/index', {title: 'Home', categories});
+      res.render('en/index', {title: 'Welcome', categories});
 
     } catch (err) {
       console.error(err);

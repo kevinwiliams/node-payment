@@ -1,12 +1,47 @@
-<div class="container">
-    <h1>Payment Confirmation</h1>
-    {{#if paymentResponse.Approved}}
-        <p>Transaction Approved</p>
-        <p>Authorization Code: {{paymentResponse.AuthorizationCode}}</p>
-        <!-- Other payment completion data -->
-        <input type="text" name="ccEmail" id="ccEmail" placeholder="Send the email of the rep" class="form-control">
-    {{else}}
-        <p>Transaction Declined</p>
-        <p>Error Message: {{paymentResponse.ResponseMessage}}</p>
-    {{/if}}
-</div>
+<div class="container about">
+
+        <div class="row content pb-5">
+          <div class="col-lg-6">
+            <h2>Payment Confirmation</h2>
+            {{!-- <h3>Voluptatem dignissimos provident quasi corporis voluptates sit assum perenda sruen jonee trave</h3> --}}
+            {{#if paymentResponse.Approved}}
+                <h3>Transaction Approved</h3>
+                <p>Authorization Code: {{paymentResponse.AuthorizationCode}}</p>
+                <!-- Other payment completion data -->
+                <div class="row py-3">
+                    <small class="text-muted">You can send a copy of this payment confirmation to a sales rep.</small>
+                    <form action="/en/copyrecpt" method="post" name="recptForm" id="recptForm">
+                        <input type="text" name="ccEmail" id="ccEmail" placeholder="Enter sales rep email address" class="form-control">
+                        <button class="btn btn-danger my-3" type="submit">Send Copy</button>
+                    </form>
+                </div>
+            {{else}}
+                <h3>Transaction Declined</h3>
+                <p>Error Message: {{paymentResponse.ResponseMessage}}</p>
+            {{/if}}
+          </div>
+          <div class="col-lg-6 pt-4 pt-lg-0">
+            <p>
+              Please see your transaction and service summary below:
+            </p>
+            <ul>
+              <li><i class="ri-check-double-line"></i> EPAPER</li>
+              <li><i class="ri-check-double-line"></i> Duis aute irure dolor in reprehenderit in voluptate velit</li>
+              <li><i class="ri-check-double-line"></i> Notes: Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in</li>
+            </ul>
+            <hr>
+            <p class="fst-italic">
+              Transaction Details
+            </p>
+            <ul>
+              <li><i class="ri-check-double-line"></i> Kevin Williams</li>
+              <li><i class="ri-check-double-line"></i> Address Details</li>
+              <li><i class="ri-check-double-line"></i> Address Details 2</li>
+              <li><i class="ri-check-double-line"></i> Card Ending: 0123</li>
+              <li><i class="ri-check-double-line"></i> Total: <strong>JMD$12,300.00</strong></li>
+            </ul>
+
+          </div>
+        </div>
+
+      </div>
