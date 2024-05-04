@@ -2,6 +2,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const Payment = require('../models/paymentModel');
+const Sale = require('../models/sale');
 const { v4: uuidv4 } = require('uuid');
 
 function generateUUID() {
@@ -50,6 +51,7 @@ exports.authenticate = async (req, res) => {
                 MerchantResponseUrl: process.env.TESTING_MERCHANT_RESPONSE_URL
             }
         };
+        req.session.authData = authData;
         console.log('authData', authData);
         // Simulate authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
@@ -58,7 +60,7 @@ exports.authenticate = async (req, res) => {
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
-        res.render('en/checkout', {title: 'Checkout'});
+        res.render('en/checkout', {title: 'Checkout', error});
     }
 };
 
@@ -68,10 +70,37 @@ exports.completePayment = async (req, res) => {
         // Simulate payment completion
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
-        // console.log('paymentResponse', paymentResponse);
+        console.log('paymentResponse', paymentResponse);
+        //Save transaction data
+
+        const authData = req.session.authData;
+
+        const newSale = await Sale.create({
+            categoryId: parseInt(authData.categoryId), // Replace with the actual categoryId
+            serviceName: 'Example Service',
+            emailAddress: authData.BillingAddress.EmailAddress,
+            cardOwner: authData.CardholderName,
+            cardType: paymentResponse.CardBrand,
+            cardExpiry: authData.CardExpiration, // Replace with the actual card expiry
+            lastFour: authData.CardPan.slice(4), // Replace with the actual last four digits of the card
+            transactionId: paymentResponse.TransactionIdentifier, // Replace with the actual transaction ID
+            authCode: paymentResponse.AuthorizationCode, // Replace with the actual authorization code
+            orderId: paymentResponse.OrderIdentifier, // Replace with the actual order ID
+            refNumber: paymentResponse.RRN, // Replace with the actual reference number
+            currency: paymentResponse.CurrencyCode, // Replace with the actual currency
+            amount: parseFloat(paymentResponse.TotalAmount), // Replace with the actual amount
+            paymentDate: new Date(), // Replace with the actual payment date
+            paymentStatus: paymentResponse.Approved, // Replace with the actual payment status
+            paymentNotes: 'Payment successful.', // Replace with any payment notes
+            isApproved: paymentResponse.Approved, // Replace with the actual approval status
+            createdAt: new Date(), // Replace with the actual creation date
+            updatedAt: new Date() // Replace with the actual update date
+        });
+        console.log('New sale created:', newSale.toJSON());
+
         res.render('en/confirmation', { paymentResponse, title: 'Thank You' });
     } catch (error) {
         console.error('Error during payment completion:', error);
-        res.render('en/checkout', {title: 'Checkout'});
+        res.render('en/checkout', {title: 'Checkout', error});
     }
 };
