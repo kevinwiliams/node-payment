@@ -14,6 +14,8 @@ exports.checkOut = (req, res) => {
 };
 
 exports.authenticate = async (req, res) => {
+    const paymentInfo = req.session.paymentInfo;
+
     try {
 
         const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode} = req.body;
@@ -51,6 +53,7 @@ exports.authenticate = async (req, res) => {
                 MerchantResponseUrl: process.env.TESTING_MERCHANT_RESPONSE_URL
             }
         };
+
         req.session.authData = authData;
         //console.log('authData', authData);
         // Simulate authentication request
@@ -60,56 +63,74 @@ exports.authenticate = async (req, res) => {
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
-        res.render('en/checkout', {title: 'Checkout', error});
+        res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
     }
 };
 
 exports.completePayment = async (req, res) => {
+    const paymentInfo = req.session.paymentInfo;
+
     try {
-       
-        // Simulate payment completion
+        // Init payment completion
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
         console.log('paymentResponse', paymentResponse);
 
-        const paymentInfo = req.session.paymentInfo;
-        console.log('paymentInfo', paymentInfo);
+        // Extract necessary properties from req.session.authData
+        const { BillingAddress, Source } = req.session.authData;
 
-        //Save transaction data
-        const authData = req.session.authData;
-        console.log('authData', authData);
-        
-        const newSale = await Sale.create({
-            categoryId: parseInt(paymentInfo.categoryId), 
-            serviceName: paymentInfo.categoryName + ' : ' + paymentInfo.serviceName,
-            emailAddress: authData.BillingAddress.EmailAddress,
-            cardOwner: authData.Source.CardholderName,
-            cardType: paymentResponse.CardBrand,
-            cardExpiry: authData.Source.CardExpiration, 
-            lastFour: authData.Source.CardPan.slice(-4), 
-            transactionId: paymentResponse.TransactionIdentifier, 
-            authCode: paymentResponse.AuthorizationCode, 
-            orderId: paymentResponse.OrderIdentifier, 
-            refNumber: paymentResponse.RRN, 
-            currency: paymentInfo.currency, 
-            amount: parseFloat(paymentResponse.TotalAmount), 
-            paymentDate: new Date(), 
-            paymentStatus: paymentResponse.Approved, 
-            paymentNotes: paymentInfo.otherInfo, 
-            isApproved: paymentResponse.Approved, 
-            createdAt: new Date(), 
-            updatedAt: new Date() 
-        });
+        // Render confirmation or checkout page based on payment response
+        if (paymentResponse.Approved) {
+            // Render confirmation page
+            const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
+             // Create new sale record
+            await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+            req.session.destroy();
+            res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
+        } else {
+             // Create new sale record
+            await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+            // Render checkout page with error message
+            res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage });
+        }
 
-        console.log('New sale created:', newSale.toJSON());
-
-        res.render('en/confirmation', { 
-            paymentResponse, 
-            title: 'Thank You', newSale 
-        });
-
+       
     } catch (error) {
         console.error('Error during payment completion:', error);
-        res.render('en/checkout', {title: 'Checkout', error});
+        res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
     }
 };
+
+// Helper function to extract sale data
+function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
+    return {
+        serviceName: `${paymentInfo.categoryName} : ${paymentInfo.serviceName}`,
+        emailAddress: billingAddress.EmailAddress,
+        cardOwner: source.CardholderName,
+        cardType: paymentResponse.CardBrand,
+        cardExpiry: source.CardExpiration,
+        lastFour: source.CardPan.slice(-4),
+        transactionId: paymentResponse.TransactionIdentifier,
+        authCode: paymentResponse.AuthorizationCode ?? 0,
+        orderId: paymentResponse.OrderIdentifier,
+        refNumber: paymentResponse.RRN,
+        currency: paymentInfo.currency,
+        amount: parseFloat(paymentResponse.TotalAmount),
+        paymentDate: new Date(),
+        paymentStatus: paymentResponse.ResponseMessage,
+        paymentNotes: paymentInfo.otherInfo,
+        isApproved: paymentResponse.Approved,
+        createdAt: new Date(),
+        updatedAt: new Date()
+    };
+}
+
+// Helper function to create new sale record
+async function createNewSale(paymentInfo, paymentResponse, authData) {
+    const newSale = {
+        categoryId: parseInt(paymentInfo.categoryId),
+        ...extractSaleData(paymentInfo, paymentResponse, authData.Source, authData.BillingAddress)
+    };
+    await Sale.create(newSale);
+}
+

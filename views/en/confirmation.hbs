@@ -20,28 +20,30 @@
                 <p>Error Message: {{paymentResponse.ResponseMessage}}</p>
             {{/if}}
           </div>
+            
           <div class="col-lg-6 pt-4 pt-lg-0">
             <p>
               Please see your transaction and service summary below:
             </p>
             <ul>
-              <li><i class="ri-check-double-line"></i> {{serviceName}}</li>
-              <li><i class="ri-check-double-line"></i> Duis aute irure dolor in reprehenderit in voluptate velit</li>
-              <li><i class="ri-check-double-line"></i> Notes: {{otherInfo}}</li>
+              <li><i class="ri-check-double-line"></i>Service - {{serviceName}}</li>
+              <li><i class="ri-check-double-line"></i> More details</li>
+              <li><i class="ri-check-double-line"></i> Notes - {{paymentNotes}}</li>
             </ul>
             <hr>
             <p class="fst-italic">
               Transaction Details
             </p>
             <ul class="small">
-              <li><i class="ri-check-double-line"></i> {{cardOwner}}</li>
-              <li><i class="ri-check-double-line"></i> Address Details</li>
-              <li><i class="ri-check-double-line"></i> Address Details 2</li>
-              <li><i class="ri-check-double-line"></i> {{cardType}} - Ending: {{lastFour}}</li>
-              <li><i class="ri-check-double-line"></i> Total: <strong>{{currency}}${{formatNumber amount}}</strong></li>
-            </ul>
+              <li><i class="ri-check-double-line"></i> Card Holder: {{cardOwner}}</li>
+              <li><i class="ri-check-double-line"></i> Card Info: {{cardType}} - **** **** **** {{lastFour}}</li>
+              <li><i class="ri-check-double-line"></i> Total Chaged: <strong>{{currency}}${{formatNumber amount}}</strong></li>
+              <li><i class="ri-check-double-line"></i> Reference: {{refNumber}}</li>
 
+
+            </ul>
           </div>
+          
         </div>
 
       </div>

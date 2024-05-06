@@ -8,6 +8,11 @@
       <div class="my-4">
         <p class="lead">Please enter your payment details below:</p>
       </div>
+      {{#if error}}
+        <ul class="text-danger">
+            <li>{{error}}</li>
+        </ul>
+        {{/if}}
       <form id="step2Form" class="php-email-form" action="/en/auth" name="paymentForm" role="form" method="post" class="form-horizontal">
         <!-- Billing Information Fields -->
       
@@ -73,7 +78,7 @@
                 <div class="row">
                 <div class="col mb-4">
                     <label for="First name"> First Name </label>
-                    <input type="text" class="form-control" placeholder="First name" aria-label="First name" name="FirstName" required>
+                    <input type="text" class="form-control" placeholder="First name" aria-label="First name" name="FirstName" required value="{{BillingAddress.FirstName}}">
                 </div>
                 <div class="col mb-4">
                     <label for="Last name"> Last Name </label>
