@@ -20,53 +20,54 @@
         <div class="row">
         
             <div class="col-md-4 order-lg-2 order-sm-1 py-4">
-                <h4 class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-muted">Your Cart</span>
-                {{!-- <span class="badge rounded-pill bg-secondary">1</span> --}}
-                </h4>
-                
-                <li class="list-group-item d-flex justify-content-between lh-condensed pb-2">
-                    <div>
-                        <h6 class="my-0 text-uppercase">{{paymentInfo.categoryName}}</h6>
-                        <small class="text-muted">{{paymentInfo.description}}</small>
-                    </div>
-                    <span class="text-muted">${{formatNumber paymentInfo.price}}</span> 
-                    <input type="hidden" name="TotalAmount" value="{{ paymentInfo.price}}">
-                    <input type="hidden" name="CurrencyCode" value="{{paymentInfo.currency}}">
-                </li>
-                <hr>
-                <li class="list-group-item d-flex justify-content-between lh-condensed pb-2">
-                   <div>
-                        <h6 class="my-0">Notes</h6>
-                        <small class="text-muted">{{paymentInfo.otherInfo}}</small>
-                    </div>
-                </li>
-                <hr>
-                {{!-- <li class="list-group-item d-flex justify-content-between bg-light pb-2">
-                    <div class="text-success">
-                        <h6 class="my-0">Promo code</h6>
-                        <small>EXAMPLECODE</small>
-                    </div>
-                    <span class="text-success">-$5</span>
-                </li> --}}
-                
-                <div class="card-footer d-flex justify-content-between pb-2">
-                <span>Total ({{paymentInfo.currency}})</span>
-                <strong>${{formatNumber paymentInfo.price}}</strong>
-                </div>
-
-                
-                {{!-- <form class="card p-2">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Promo code">
-                        <div class="input-group-append">
-                        <button type="submit" class="btn btn-secondary">
-                            Redeem
-                        </button>
+                <div class="card p-4">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Your Cart</span>
+                    {{!-- <span class="badge rounded-pill bg-secondary">1</span> --}}
+                    </h4>
+                    
+                    <li class="list-group-item d-flex justify-content-between lh-condensed pb-2">
+                        <div>
+                            <h6 class="my-0 text-uppercase">{{paymentInfo.categoryName}}</h6>
+                            <small class="text-muted">{{paymentInfo.description}}</small>
                         </div>
+                        <span class="text-muted">${{formatNumber paymentInfo.price}}</span> 
+                        <input type="hidden" name="TotalAmount" value="{{ paymentInfo.price}}">
+                        <input type="hidden" name="CurrencyCode" value="{{paymentInfo.currency}}">
+                    </li>
+                    <hr>
+                    <li class="list-group-item d-flex justify-content-between lh-condensed pb-3">
+                    <div>
+                            <h6 class="my-0">Notes</h6>
+                            <small class="text-muted">{{paymentInfo.otherInfo}}</small>
+                        </div>
+                    </li>
+                    {{!-- <hr> --}}
+                    {{!-- <li class="list-group-item d-flex justify-content-between bg-light py-3 pe-3 ps-2">
+                        <div class="text-success">
+                            <h6 class="my-0">Promo code</h6>
+                            <small>EXAMPLECODE</small>
+                        </div>
+                        <span class="text-success">-$500</span>
+                    </li> --}}
+                    
+                    <div class="card-footer d-flex justify-content-between pb-2">
+                    <span>Total ({{paymentInfo.currency}})</span>
+                    <strong>${{formatNumber paymentInfo.price}}</strong>
                     </div>
-                </form> --}}
 
+                    
+                    {{!-- <form class="card">
+                        <div class="input-group py-4">
+                            <input type="text" class="form-control" placeholder="Promo code">
+                            <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary">
+                                Redeem
+                            </button>
+                            </div>
+                        </div>
+                    </form> --}}
+                </div>
                 <div class="row justify-content-center py-5">
                 <img src="/assets/img/secure-ssl-services.png" style="max-width: 250px">
               </div>
