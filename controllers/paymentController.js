@@ -56,13 +56,14 @@ exports.authenticate = async (req, res) => {
 
         req.session.authData = authData;
         //console.log('authData', authData);
-        // Simulate authentication request
+        // Init authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
         //console.log('authResponse', authResponse);
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
+        req.session.destroy();
         res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
     }
 };
@@ -91,12 +92,14 @@ exports.completePayment = async (req, res) => {
              // Create new sale record
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
             // Render checkout page with error message
+            req.session.destroy();
             res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage });
         }
 
        
     } catch (error) {
         console.error('Error during payment completion:', error);
+        req.session.destroy();
         res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
     }
 };
