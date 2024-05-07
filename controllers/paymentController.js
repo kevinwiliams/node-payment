@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const util = require('util');
 const readFile = util.promisify(fs.readFile);
+const Util = require('../helpers/util');
 
 function generateUUID() {
     return uuidv4();
@@ -62,7 +63,7 @@ exports.authenticate = async (req, res) => {
         // Init authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
-        //console.log('authResponse', authResponse);
+        console.log('authResponse', authResponse);
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
@@ -91,6 +92,7 @@ exports.completePayment = async (req, res) => {
             const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
              // Create new sale record
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+            await Util.sendMail('williamskt@jamaicaobserver.com', 'Sales Portal', '<p>Feed</>');
             // Clear session
             req.session.destroy();
             res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });

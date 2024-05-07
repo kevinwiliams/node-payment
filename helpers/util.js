@@ -93,6 +93,9 @@ async function sendMail(emailTo, subject, body) {
             host: process.env.smtp_host,
             port: parseInt(process.env.email_port_number),
             secure: process.env.ssl_enabled === 'true',
+            tls: {
+                rejectUnauthorized: false
+            },
             auth: {
                 user: process.env.email_address_username,
                 pass: process.env.email_password
@@ -106,12 +109,16 @@ async function sendMail(emailTo, subject, body) {
             html: body
         };
 
-        if (subject.includes('Returns') && subject.includes('Confirmation')) {
+        if (subject.includes('Ads')) {
+            mailOptions.cc = process.env.bcc_advertise;
+        }
+
+        if (subject.includes('Recycled')) {
             mailOptions.cc = process.env.bcc_closed;
         }
 
-        if (subject.includes('Dispute')) {
-            mailOptions.cc = process.env.dispute_email;
+        if (subject.includes('Ticket')) {
+            mailOptions.cc = process.env.bcc_tickets;
         }
 
         await transporter.sendMail(mailOptions);

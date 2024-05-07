@@ -58,7 +58,7 @@ function createRadioButton(index, service) {
     if (service.price !== null && service.price !== 0) {
         var priceSpan = document.createElement('span');
         priceSpan.classList.add('px-3');
-        priceSpan.textContent = service.currency + ' $' + parseFloat(service.price).toFixed(2);; // Display price and currency
+        priceSpan.textContent = service.currency + ' $' + parseFloat(service.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Display price and currency
         div.appendChild(priceSpan); // Append the price information to the div
 
         // Create hidden input fields for additional data
@@ -195,6 +195,8 @@ $(document).ready(function() {
             alert('Please select a service');
             return;
         }
+
+        
                 
         // Retrieve the selected service details
         var serviceName = selectedService.data('text');
@@ -212,6 +214,14 @@ $(document).ready(function() {
         var otherInfo = selectedService.closest('div').find('textarea[name="otherInfo"]').val();
 
         var curr = (typeof currency !== 'undefined') ? currency : currencyHidden;
+
+        if (!/^\d*\.?\d*$/.test(price)) {
+            alert('Please enter numbers and "." only. Example: 50000.00');
+            // Remove any non-numeric characters
+            var fixedPrice = price.replace(/[^\d.]/g, '');
+            selectedService.closest('div').find('input[name="price"]').val(fixedPrice);
+            return;
+        }
 
         // Assign the hidden field values to hidden input fields in the form
         $('#currencyhd').val(curr);
