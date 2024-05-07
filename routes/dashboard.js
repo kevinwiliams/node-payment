@@ -14,4 +14,6 @@ router.post('/updateservice', dashController.updateService);
 router.post('/deleteservice', dashController.deleteService);
 router.post('/createservice', dashController.createService);
 
+router.get('/sales', dashController.getSales);
+
 module.exports = router;

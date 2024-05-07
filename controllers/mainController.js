@@ -53,7 +53,7 @@ async function getMain(req, res){
 
         const jsonFile = await readFile('./app_data/countries.json');
         const countries = JSON.parse(jsonFile);
-
+        
 
         const paymentInfo = {
             categoryName: categoryName,
@@ -63,9 +63,9 @@ async function getMain(req, res){
             serviceId: service,
             price: totalAmount,
             currency: currencyhd,
-            otherInfo: selectedOtherInfo
+            otherInfo: selectedOtherInfo ?? 'N/A'
         };
-        
+
         req.session.paymentInfo = paymentInfo;
 
         //res.json({ success: paymentInfo });

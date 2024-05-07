@@ -4,6 +4,9 @@ const axios = require('axios');
 const Payment = require('../models/paymentModel');
 const Sale = require('../models/sale');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
 
 function generateUUID() {
     return uuidv4();
@@ -72,6 +75,8 @@ exports.completePayment = async (req, res) => {
     const paymentInfo = req.session.paymentInfo;
 
     try {
+        const jsonFile = await readFile('./app_data/countries.json');
+        const countries = JSON.parse(jsonFile);
         // Init payment completion
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
@@ -86,14 +91,16 @@ exports.completePayment = async (req, res) => {
             const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
              // Create new sale record
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+            // Clear session
             req.session.destroy();
             res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
         } else {
+            const authData = req.session.authData;
              // Create new sale record
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
             // Render checkout page with error message
             req.session.destroy();
-            res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage });
+            res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage, ...authData, countries });
         }
 
        

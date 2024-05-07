@@ -26,6 +26,20 @@ async function getDashboard(req, res){
     }
   }
 
+async function getSales(req, res){
+  try {
+    
+    const sales = await Sale.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
+    res.render('sales/index',{
+      title: 'Sales Information',
+      sales
+    });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error loading dashboard');
+  }
+}
+
 async function createCategory(req, res) {
   try {
       const { categoryName, categoryDesc, categoryActive } = req.body;
@@ -156,5 +170,6 @@ async function deleteService(req, res) {
     createService, 
     updateService,
     deleteService,
-    getService
+    getService,
+    getSales
   };

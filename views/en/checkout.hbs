@@ -83,30 +83,30 @@
                 </div>
                 <div class="col mb-4">
                     <label for="Last name"> Last Name </label>
-                    <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" name="LastName" required>
+                    <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" name="LastName" required value="{{BillingAddress.LastName}}">
                 </div>
                 </div>
                 
                 <div class="mb-4">
                 <label for="email">Email </label>
-                <input type="text" class="form-control" placeholder="you@example.com" aria-label="email" name="EmailAddress" required>
+                <input type="text" class="form-control" placeholder="you@example.com" aria-label="email" name="EmailAddress" required value="{{BillingAddress.EmailAddress}}">
                 <small class="text-muted">A copy of the payment receipt will sent to this email</small>
             </div>
                 
                 <div class="mb-4">
                 <label for="Address">Address</label>
-                <input type="text" class="form-control" placeholder="1234 Main St" aria-label="Address" name="Line1" required>
+                <input type="text" class="form-control" placeholder="1234 Main St" aria-label="Address" name="Line1" required value="{{BillingAddress.Line1}}">
                 </div>
                 
                 <div class="mb-4">
                 <label for="Address2">Address Line 2 </label>
-                <input type="text" class="form-control" placeholder="Appartment or suite" aria-label="Address2" name="Line2">
+                <input type="text" class="form-control" placeholder="Appartment or suite" aria-label="Address2" name="Line2" value="{{BillingAddress.Line2}}">
                 </div>
                 
                 <div class="row">
                      <div class="col-lg-4 col-sm-12">
                     <label for="StateParish">State/Parish</label>
-                    <input type="text" class="form-control" aria-label="State" name="StateParish" required>
+                    <input type="text" class="form-control" aria-label="State" name="StateParish" required value="{{BillingAddress.City}}">
                 </div>
                 <div class="col-lg-4 col-sm-12">
                     <label for="country">Country</label>
