@@ -95,14 +95,14 @@ exports.completePayment = async (req, res) => {
              // Create new sale record
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
             //Send Mail
+            const subject = `Credit Card Payment Confirmation (${paymentInfo.categoryName}) - Jamaica Observer Limited`;
+            const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
             //connect to adhoc database to send mail
             connectAdhocDB();
-            const subject = `Online Credit Card Payment Confirmation - Jamaica Observer Limited`;
-            const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
             const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body);
             // Clear session
             req.session.destroy();
-            //reconnect to original database
+            //reconnect to main database
             connectDB();
 
             res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });

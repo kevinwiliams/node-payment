@@ -137,7 +137,7 @@ async function sendToMailQueue(emailTo, subject, body){
     try {
         const toemails = emailTo;
         const bccemails = process.env.bcc_itdept;
-        const ccemails = '';
+        let ccemails = '';
         const fromemail = process.env.email_address;
         const subjecttxt = encodeURIComponent(subject);
         const bodytxt = encodeURIComponent(body);
@@ -146,11 +146,11 @@ async function sendToMailQueue(emailTo, subject, body){
             ccemails = process.env.bcc_advertise;
         }
 
-        if (subject.includes('Recycled')) {
-            ccemails = process.env.bcc_closed;
+        if (subject.includes('Miscellaneous')) {
+            ccemails = process.env.bcc_papers;
         }
 
-        if (subject.includes('Ticket')) {
+        if (subject.includes('Tickets')) {
             ccemails = process.env.bcc_tickets;
         }
 
