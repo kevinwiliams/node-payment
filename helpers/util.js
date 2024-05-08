@@ -5,6 +5,9 @@ const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 const axios = require('axios');
 const requestIP = require('request-ip');
+const sequelize = require('../config/db').adhoc; //point to Adhoc connection
+const MessageQueue = require('../models/message');
+
 
 // const os = require('os');
 const DeviceDetector = require('device-detector-js');
@@ -130,6 +133,35 @@ async function sendMail(emailTo, subject, body) {
     }
 }
 
+async function sendToMailQueue(emailTo, subject, body){
+    try {
+        const toemails = emailTo;
+        const bccemails = process.env.bcc_itdept;
+        const ccemails = '';
+        const fromemail = process.env.email_address;
+        const subjecttxt = encodeURIComponent(subject);
+        const bodytxt = encodeURIComponent(body);
+
+        if (subject.includes('Ads')) {
+            ccemails = process.env.bcc_advertise;
+        }
+
+        if (subject.includes('Recycled')) {
+            ccemails = process.env.bcc_closed;
+        }
+
+        if (subject.includes('Ticket')) {
+            ccemails = process.env.bcc_tickets;
+        }
+
+        const message = `encoding=UTF-8&to=${toemails}&bcc=${bccemails}&cc=${ccemails}&from=${fromemail}&subject=${subjecttxt}&msgbody=${bodytxt}`;
+        await insertIntoMessageQueue(message);
+    } catch (err) {
+        console.error(err);
+    }
+
+}
+
 function isLocal() {
     try {
         const host = process.env.HOSTNAME || 'localhost';
@@ -233,6 +265,19 @@ async function renderViewToString(template, data){
     return emailHtml;
 }
 
+// Function to insert data into the messagequeue table
+async function insertIntoMessageQueue(message) {
+    try {
+      await sequelize.authenticate();
+      await MessageQueue.create({ mess: message });
+      console.log('Data inserted successfully into messagequeue table.');
+    } catch (error) {
+      console.error('Error inserting data into messagequeue table:', error);
+    } finally {
+      await sequelize.close();
+    }
+  }
+
 module.exports = {
     fileHelper,
     logError,
@@ -244,5 +289,6 @@ module.exports = {
     getBrowserName,
     getOSName,
     getIPAddress,
-    renderViewToString
+    renderViewToString,
+    sendToMailQueue
 };

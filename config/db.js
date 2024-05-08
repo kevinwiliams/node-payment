@@ -11,6 +11,17 @@ const sequelize = new Sequelize('[db]]', '[user]', '[password]', {
   },
 });
 
+const adhoc = new Sequelize('[db2]', '[usr]', '[pass]', {
+  host: 'localhost',
+  dialect: 'mssql',
+  dialectOptions: {
+    options: {
+      trustServerCertificate: true,
+      encrypt: false, // If you are connecting to Azure SQL Database, set this to true
+    },
+  },
+});
+
 async function connectDB() {
   try {
     await sequelize.authenticate();
@@ -20,4 +31,13 @@ async function connectDB() {
   }
 }
 
-module.exports = { sequelize, connectDB };
+async function connectAdhocDB() {
+  try {
+    await adhoc.authenticate();
+    console.log('Connected to Adhoc MSSQL database');
+  } catch (error) {
+    console.error('Error connecting to adhoc database:', error.message);
+  }
+}
+
+module.exports = { sequelize, connectDB, adhoc, connectAdhocDB};

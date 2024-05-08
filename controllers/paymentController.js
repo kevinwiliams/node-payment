@@ -8,6 +8,8 @@ const fs = require('fs');
 const util = require('util');
 const readFile = util.promisify(fs.readFile);
 const Util = require('../helpers/util');
+const { connectAdhocDB, connectDB } = require('../config/db');
+
 
 function generateUUID() {
     return uuidv4();
@@ -92,9 +94,17 @@ exports.completePayment = async (req, res) => {
             const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
              // Create new sale record
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
-            await Util.sendMail('williamskt@jamaicaobserver.com', 'Sales Portal', '<p>Feed</>');
+            //Send Mail
+            //connect to adhoc database to send mail
+            connectAdhocDB();
+            const subject = `Online Credit Card Payment Confirmation - Jamaica Observer Limited`;
+            const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
+            const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body);
             // Clear session
             req.session.destroy();
+            //reconnect to original database
+            connectDB();
+
             res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
         } else {
             const authData = req.session.authData;
@@ -145,4 +155,6 @@ async function createNewSale(paymentInfo, paymentResponse, authData) {
     };
     await Sale.create(newSale);
 }
+
+
 
