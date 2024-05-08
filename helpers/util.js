@@ -113,15 +113,15 @@ async function sendMail(emailTo, subject, body) {
         };
 
         if (subject.includes('Ads')) {
-            mailOptions.cc = process.env.bcc_advertise;
+            mailOptions.cc = process.env.cc_advertise;
         }
 
         if (subject.includes('Recycled')) {
-            mailOptions.cc = process.env.bcc_closed;
+            mailOptions.cc = process.env.cc_closed;
         }
 
         if (subject.includes('Ticket')) {
-            mailOptions.cc = process.env.bcc_tickets;
+            mailOptions.cc = process.env.cc_tickets;
         }
 
         await transporter.sendMail(mailOptions);
@@ -138,20 +138,20 @@ async function sendToMailQueue(emailTo, subject, body){
         const toemails = emailTo;
         const bccemails = process.env.bcc_itdept;
         let ccemails = '';
-        const fromemail = process.env.email_address;
+        const fromemail = `"${process.env.email_address_from}" <${process.env.email_address}>`;
         const subjecttxt = encodeURIComponent(subject);
         const bodytxt = encodeURIComponent(body);
 
         if (subject.includes('Ads')) {
-            ccemails = process.env.bcc_advertise;
+            ccemails = process.env.cc_advertise;
         }
 
         if (subject.includes('Miscellaneous')) {
-            ccemails = process.env.bcc_papers;
+            ccemails = process.env.cc_papers;
         }
 
         if (subject.includes('Tickets')) {
-            ccemails = process.env.bcc_tickets;
+            ccemails = process.env.cc_tickets;
         }
 
         const message = `encoding=UTF-8&to=${toemails}&bcc=${bccemails}&cc=${ccemails}&from=${fromemail}&subject=${subjecttxt}&msgbody=${bodytxt}`;
