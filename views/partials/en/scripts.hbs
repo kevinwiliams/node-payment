@@ -29,15 +29,20 @@ function createRadioButton(index, service) {
         var allRadioButtons = document.querySelectorAll('input[name="service"]');
         allRadioButtons.forEach(function(radio) {
             var parentDiv = radio.parentNode;
+            var quantityList = parentDiv.querySelector('select[name="quantity"]');
+            var quantityLbl = parentDiv.querySelector('label[for="quantity"]');
             var priceInput = parentDiv.querySelector('input[name="price"]');
             var currencyList = parentDiv.querySelector('select[name="currency"]');
             var notesText = parentDiv.querySelector('textarea[name="otherInfo"]');
             if (radio.checked) {
                 console.log(radio.dataset.text);
+                //capture service text and description for checkout page
                 $('#serviceText').val(radio.dataset.text);
                 $('#description').val(radio.dataset.desc);
                 
                 // Show price input and textarea for the selected radio button
+                if (quantityList) quantityList.style.display = 'block';
+                if (quantityLbl) quantityLbl.style.display = 'block';
                 if (currencyList) currencyList.style.display = 'block';
                 if (currencyList) currencyList.required = true;
                 if (priceInput) priceInput.style.display = 'block';
@@ -45,6 +50,8 @@ function createRadioButton(index, service) {
                 if (notesText) notesText.style.display = 'block';
             } else {
                 // Hide price input and textarea for other radio buttons
+                if (quantityList) quantityList.style.display = 'none';
+                if (quantityLbl) quantityLbl.style.display = 'none';
                 if (currencyList) currencyList.style.display = 'none';
                 if (currencyList) currencyList.required = false;
                 if (priceInput) priceInput.style.display = 'none';
@@ -74,6 +81,48 @@ function createRadioButton(index, service) {
         currenyHidden.name = 'currency';
         currenyHidden.value = service.currency;
         div.appendChild(currenyHidden);
+
+        // Create input fields for additional data
+
+        var quantityDiv = document.createElement('div');
+        quantityDiv.classList.add('form-floating');
+        quantityDiv.classList.add('col-lg-2');
+        quantityDiv.classList.add('col-md-4');
+        quantityDiv.classList.add('col-sm-2');
+        div.appendChild(quantityDiv);
+
+
+        var quantityDropdown = document.createElement('select');
+        quantityDropdown.name = 'quantity';
+        quantityDropdown.id = 'quantity';
+        quantityDropdown.classList.add('form-select');
+        quantityDropdown.style.display = 'none'; // Hide dropdown initially
+        var qty1 = new Option('1', '1');
+        var qty2 = new Option('2', '2');
+        var qty3 = new Option('3', '3');
+        var qty4 = new Option('4', '4');
+        var qty5 = new Option('5', '5');
+        quantityDropdown.appendChild(qty1);
+        quantityDropdown.appendChild(qty2);
+        quantityDropdown.appendChild(qty3);
+        quantityDropdown.appendChild(qty4);
+        quantityDropdown.appendChild(qty5);
+        quantityDiv.appendChild(quantityDropdown);
+       /* var quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.name = 'quantity';
+        quantityInput.id = 'quantity';
+        quantityInput.classList.add('form-control');
+        quantityInput.value = 1;
+        quantityDiv.appendChild(quantityInput);*/
+
+        var quantityLbl = document.createElement('label');
+        quantityLbl.setAttribute('for', 'quantity');
+        quantityLbl.innerHTML= 'Quantity';
+        quantityLbl.style.display = 'none';
+        quantityDiv.appendChild(quantityLbl);
+
+        
     
     } else {
 
@@ -210,7 +259,7 @@ $(document).ready(function() {
         var currency = selectedService.closest('div').find('select[name="currency"]').val();
         var currencyHidden = selectedService.closest('div').find('input[name="currency"]').val();
         var price = selectedService.closest('div').find('input[name="price"]').val();
-        //var pricehd = selectedService.closest('div').find('input[name="pricehd"]').val();
+        var quantity = selectedService.closest('div').find('select[name="quantity"]').val();
         var otherInfo = selectedService.closest('div').find('textarea[name="otherInfo"]').val();
 
         var curr = (typeof currency !== 'undefined') ? currency : currencyHidden;
@@ -224,6 +273,7 @@ $(document).ready(function() {
         }
 
         // Assign the hidden field values to hidden input fields in the form
+        $('#count').val(quantity);
         $('#currencyhd').val(curr);
         $('#currency').val(currency);
         $('#totalAmount').val(price);
@@ -234,7 +284,7 @@ $(document).ready(function() {
         console.log('currencyHidden', currencyHidden);
         console.log('curr', curr);
         console.log('price', price);
-        //console.log('pricehd', pricehd);
+        console.log('quantity', quantity);
         console.log('otherInfo', otherInfo);
 
         // Submit the form

@@ -278,6 +278,27 @@ async function insertIntoMessageQueue(message) {
     }
   }
 
+  // Function to generate a random alphanumeric string
+function generateRandomString(length) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+// Function to generate an invoice number
+function generateInvoiceNumber() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Zero-padding the month
+    const day = String(date.getDate()).padStart(2, '0'); // Zero-padding the day
+    const randomString = generateRandomString(6); // Generating a random alphanumeric string
+    const invoiceNumber = `${year}${month}${day}-${randomString}`;
+    return invoiceNumber;
+}
+
 module.exports = {
     fileHelper,
     logError,
@@ -290,5 +311,6 @@ module.exports = {
     getOSName,
     getIPAddress,
     renderViewToString,
-    sendToMailQueue
+    sendToMailQueue,
+    generateInvoiceNumber
 };

@@ -47,13 +47,13 @@ async function getMain(req, res){
     try {
         console.log('paymentInfo', req.body);
     
-        const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, currencyhd, price, otherInfo, description, totalAmount } = req.body;
+        const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, currencyhd, price, otherInfo, description, totalAmount, count } = req.body;
         // Assuming there's only one category and service selected
         const selectedOtherInfo = otherInfo[0];
 
         const jsonFile = await readFile('./app_data/countries.json');
         const countries = JSON.parse(jsonFile);
-        
+        const fullAmount = (count) ? (parseInt(count) * parseFloat(totalAmount)) : totalAmount;
 
         const paymentInfo = {
             categoryName: categoryName,
@@ -61,7 +61,8 @@ async function getMain(req, res){
             serviceName: serviceText,
             description: description,
             serviceId: service,
-            price: totalAmount,
+            price: fullAmount,
+            quantity: count,
             currency: currencyhd,
             otherInfo: selectedOtherInfo ?? 'N/A'
         };

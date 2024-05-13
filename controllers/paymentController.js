@@ -40,7 +40,7 @@ exports.authenticate = async (req, res) => {
                 CardExpiration: cardExp,
                 CardholderName: CardholderName
             },
-            OrderIdentifier: 'INV-'+ generateUUID(),
+            OrderIdentifier: Util.generateInvoiceNumber(),
             BillingAddress : {
                 FirstName: FirstName,
                 LastName: LastName,
