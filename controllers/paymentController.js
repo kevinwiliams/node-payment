@@ -86,6 +86,7 @@ exports.completePayment = async (req, res) => {
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
         console.log('paymentResponse', paymentResponse);
+        delete req.session.authResponse;
 
         // Extract necessary properties from req.session.authData
         const { BillingAddress, Source } = req.session.authData;
@@ -115,37 +116,42 @@ exports.completePayment = async (req, res) => {
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
             // Render checkout page with error message
             res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage, ...authData, countries });
-            req.session.destroy();
         }
 
        
     } catch (error) {
         console.error('Error during payment completion:', error);
         res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
-        req.session.destroy();
 
     }
 };
 
 // Helper function to extract sale data
 function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
+
+    const {Errors, ResponseMessage, Approved, CardBrand, TransactionIdentifier, AuthorizationCode, OrderIdentifier, TotalAmount, RRN} = paymentResponse;
+    let errorCodeMsg = '';
+        if (!Approved && Errors && Errors.length > 0) {
+            errorCodeMsg = ` | ${Errors[0].Code} : ${Errors[0].Message}`;
+        }
+
     return {
         serviceName: `${paymentInfo.categoryName} : ${paymentInfo.serviceName}`,
         emailAddress: billingAddress.EmailAddress,
         cardOwner: source.CardholderName,
-        cardType: paymentResponse.CardBrand,
+        cardType: CardBrand,
         cardExpiry: source.CardExpiration,
         lastFour: source.CardPan.slice(-4),
-        transactionId: paymentResponse.TransactionIdentifier,
-        authCode: paymentResponse.AuthorizationCode ?? 0,
-        orderId: paymentResponse.OrderIdentifier,
-        refNumber: paymentResponse.RRN,
+        transactionId: TransactionIdentifier,
+        authCode: AuthorizationCode ?? 0,
+        orderId: OrderIdentifier,
+        refNumber: RRN,
         currency: paymentInfo.currency,
-        amount: parseFloat(paymentResponse.TotalAmount),
+        amount: parseFloat(TotalAmount),
         paymentDate: new Date(),
-        paymentStatus: paymentResponse.ResponseMessage,
+        paymentStatus: ResponseMessage + errorCodeMsg,
         paymentNotes: paymentInfo.otherInfo,
-        isApproved: paymentResponse.Approved,
+        isApproved: Approved,
         createdAt: new Date(),
         updatedAt: new Date()
     };
