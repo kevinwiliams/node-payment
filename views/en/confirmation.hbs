@@ -8,13 +8,15 @@
                 <h3>Transaction Approved</h3>
                 <p>Authorization Code: {{paymentResponse.AuthorizationCode}}</p>
                 <!-- Other payment completion data -->
+                {{#if repEmail}}
                 <div class="row py-3">
-                    <small class="text-muted">You can send a copy of this payment confirmation to a sales rep.</small>
-                    <form action="/en/copyrecpt" method="post" name="recptForm" id="recptForm">
+                    <small class="text-muted">A copy of this your payment confirmation was also sent to {{repEmail}}.</small>
+                    {{!-- <form action="/en/copyrecpt" method="post" name="recptForm" id="recptForm">
                         <input type="text" name="ccEmail" id="ccEmail" placeholder="Enter sales rep email address" class="form-control">
                         <button class="btn btn-danger my-3" type="submit">Send Copy</button>
-                    </form>
+                    </form> --}}
                 </div>
+                {{/if}}
             {{else}}
                 <h3>Transaction Declined</h3>
                 <p>Error Message: {{paymentResponse.ResponseMessage}}</p>

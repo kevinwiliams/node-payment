@@ -24,7 +24,7 @@ exports.authenticate = async (req, res) => {
 
     try {
 
-        const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode} = req.body;
+        const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode, RepEmailAddress} = req.body;
         // console.log('body', req.body);
 
         const currency = (CurrencyCode == 'JMD') ? '388' : '840';
@@ -61,6 +61,7 @@ exports.authenticate = async (req, res) => {
         };
 
         req.session.authData = authData;
+        req.session.repEmail = RepEmailAddress;
         //console.log('authData', authData);
         // Init authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
@@ -97,15 +98,16 @@ exports.completePayment = async (req, res) => {
             //Send Mail
             const subject = `Credit Card Payment Confirmation (${paymentInfo.categoryName}) - Jamaica Observer Limited`;
             const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
+            const ccEmail = req.session.repEmail;
             //connect to adhoc database to send mail
             connectAdhocDB();
-            const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body);
+            const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
             // Clear session
             req.session.destroy();
             //reconnect to main database
             connectDB();
 
-            res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
+            res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData, repEmail: ccEmail });
         } else {
             const authData = req.session.authData;
              // Create new sale record

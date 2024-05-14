@@ -133,28 +133,33 @@ async function sendMail(emailTo, subject, body) {
     }
 }
 
-async function sendToMailQueue(emailTo, subject, body){
+async function sendToMailQueue(emailTo, subject, body, ccEmail){
     try {
         const toemails = emailTo;
         const bccemails = process.env.bcc_itdept;
-        let ccemails = '';
+        let ccEmails = '';
         const fromemail = `"${process.env.email_address_from}" <${process.env.email_address}>`;
         const subjecttxt = encodeURIComponent(subject);
         const bodytxt = encodeURIComponent(body);
 
+         // Check if ccEmail is provided and not empty
+         if (ccEmail && ccEmail.trim() !== '') {
+            ccEmails = ccEmail.trim(); 
+        }
+
         if (subject.includes('Ads')) {
-            ccemails = process.env.cc_advertise;
+            ccEmails += (ccEmails ? ';' : '') + process.env.cc_advertise;
         }
 
         if (subject.includes('Miscellaneous')) {
-            ccemails = process.env.cc_papers;
+            ccEmails += (ccEmails ? ';' : '') + process.env.cc_papers;
         }
 
         if (subject.includes('Tickets')) {
-            ccemails = process.env.cc_tickets;
+            ccEmails += (ccEmails ? ';' : '') + process.env.cc_tickets;
         }
 
-        const message = `encoding=UTF-8&to=${toemails}&bcc=${bccemails}&cc=${ccemails}&from=${fromemail}&subject=${subjecttxt}&msgbody=${bodytxt}`;
+        const message = `encoding=UTF-8&to=${toemails}&bcc=${bccemails}&cc=${ccEmails}&from=${fromemail}&subject=${subjecttxt}&msgbody=${bodytxt}`;
         await insertIntoMessageQueue(message);
     } catch (err) {
         console.error(err);
