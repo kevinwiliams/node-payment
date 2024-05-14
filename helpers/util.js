@@ -135,31 +135,31 @@ async function sendMail(emailTo, subject, body) {
 
 async function sendToMailQueue(emailTo, subject, body, ccEmail){
     try {
-        const toemails = emailTo;
-        const bccemails = process.env.bcc_itdept;
+        const toEmails = emailTo;
+        let bccEmails = '';
         let ccEmails = '';
-        const fromemail = `"${process.env.email_address_from}" <${process.env.email_address}>`;
-        const subjecttxt = encodeURIComponent(subject);
-        const bodytxt = encodeURIComponent(body);
+        const fromEmail = `"${process.env.email_address_from}" <${process.env.email_address}>`;
+        const subjectTxt = encodeURIComponent(subject);
+        const bodyTxt = encodeURIComponent(body);
 
          // Check if ccEmail is provided and not empty
          if (ccEmail && ccEmail.trim() !== '') {
             ccEmails = ccEmail.trim(); 
         }
 
-        if (subject.includes('Ads')) {
-            ccEmails += (ccEmails ? ';' : '') + process.env.cc_advertise;
+        if (subject.includes('Advertising')) {
+            bccEmails = process.env.bcc_advertise;
         }
 
         if (subject.includes('Miscellaneous')) {
-            ccEmails += (ccEmails ? ';' : '') + process.env.cc_papers;
+            bccEmails = process.env.bcc_other;
         }
 
         if (subject.includes('Tickets')) {
-            ccEmails += (ccEmails ? ';' : '') + process.env.cc_tickets;
+            bccEmails = process.env.bcc_tickets;
         }
 
-        const message = `encoding=UTF-8&to=${toemails}&bcc=${bccemails}&cc=${ccEmails}&from=${fromemail}&subject=${subjecttxt}&msgbody=${bodytxt}`;
+        const message = `encoding=UTF-8&to=${toEmails}&bcc=${bccEmails}&cc=${ccEmails}&from=${fromEmail}&subject=${subjectTxt}&msgbody=${bodyTxt}`;
         await insertIntoMessageQueue(message);
     } catch (err) {
         console.error(err);

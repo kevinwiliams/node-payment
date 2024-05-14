@@ -71,7 +71,7 @@ exports.authenticate = async (req, res) => {
     } catch (error) {
         console.error('Error during authentication:', error);
         res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
-        req.session.destroy();
+        //req.session.destroy();
 
     }
 };
@@ -131,9 +131,9 @@ function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
 
     const {Errors, ResponseMessage, Approved, CardBrand, TransactionIdentifier, AuthorizationCode, OrderIdentifier, TotalAmount, RRN} = paymentResponse;
     let errorCodeMsg = '';
-        if (!Approved && Errors && Errors.length > 0) {
-            errorCodeMsg = ` | ${Errors[0].Code} : ${Errors[0].Message}`;
-        }
+    if (!Approved && Errors && Errors.length > 0) {
+        errorCodeMsg = ` | ${Errors[0].Code} : ${Errors[0].Message}`;
+    }
 
     return {
         serviceName: `${paymentInfo.categoryName} : ${paymentInfo.serviceName}`,
@@ -159,11 +159,16 @@ function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
 
 // Helper function to create new sale record
 async function createNewSale(paymentInfo, paymentResponse, authData) {
-    const newSale = {
-        categoryId: parseInt(paymentInfo.categoryId),
-        ...extractSaleData(paymentInfo, paymentResponse, authData.Source, authData.BillingAddress)
-    };
-    await Sale.create(newSale);
+    try {
+        const newSale = {
+            categoryId: parseInt(paymentInfo.categoryId),
+            ...extractSaleData(paymentInfo, paymentResponse, authData.Source, authData.BillingAddress)
+        };
+        await Sale.create(newSale);
+    } catch (error) {
+        console.error('Error during sale completion:', error);
+    }
+   
 }
 
 
