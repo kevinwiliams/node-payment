@@ -6,6 +6,11 @@
             <p class="pb-4">
                 Welcome to our Payment Gateway!<br> Trust us for secure transactions with the Jamaica Observer Limited.
             </p>
+            <p>
+               {{#if error}}
+                    <p class="text-bold text-danger">{{error}}</p>
+                {{/if}}
+            </p>
         </div>
       <form id="step1Form" class="pb-5" method="post" action="/en/checkout">
            <div class="">

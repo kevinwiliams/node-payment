@@ -9,6 +9,7 @@ const util = require('util');
 const readFile = util.promisify(fs.readFile);
 const Util = require('../helpers/util');
 const { connectAdhocDB, connectDB } = require('../config/db');
+const Category = require('../models/category');
 
 
 function generateUUID() {
@@ -26,7 +27,6 @@ exports.authenticate = async (req, res) => {
 
         const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode, RepEmailAddress} = req.body;
         // console.log('body', req.body);
-
         const currency = (CurrencyCode == 'JMD') ? '388' : '840';
         const cardExp = CardExpiration.slice(2) + CardExpiration.slice(0, 2);
         const authData = {
@@ -66,12 +66,12 @@ exports.authenticate = async (req, res) => {
         // Init authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
-        console.log('authResponse', authResponse);
+        //console.log('authResponse', authResponse);
         res.render('en/auth', { redirectData: authResponse.RedirectData });
     } catch (error) {
         console.error('Error during authentication:', error);
         res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
-        //req.session.destroy();
+        delete req.session.authResponse;
 
     }
 };
@@ -116,13 +116,16 @@ exports.completePayment = async (req, res) => {
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
             // Render checkout page with error message
             res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage, ...authData, countries });
+            delete req.session.authResponse;
         }
 
        
     } catch (error) {
         console.error('Error during payment completion:', error);
-        res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
-
+        //res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
+        const categories = await Category.findAll({ where: { active: true }, order:[ ['name', 'ASC'] ] });
+        delete req.session.authResponse;
+        res.render('en/index', {categories, error : 'There was an error processing payment or your session has timed out. Please try again.'});
     }
 };
 
