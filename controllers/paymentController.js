@@ -9,6 +9,7 @@ const util = require('util');
 const readFile = util.promisify(fs.readFile);
 const Util = require('../helpers/util');
 const { connectAdhocDB, connectDB } = require('../config/db');
+const config = require('../config/env');
 const Category = require('../models/category');
 
 
@@ -56,7 +57,7 @@ exports.authenticate = async (req, res) => {
                     ChallengeWindowSize: 4,
                     ChallengeIndicator: '01'
                 },
-                MerchantResponseUrl: process.env.TESTING_MERCHANT_RESPONSE_URL
+                MerchantResponseUrl: config.responseUrl
             }
         };
 

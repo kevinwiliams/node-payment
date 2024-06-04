@@ -1,17 +1,19 @@
 // models/paymentModel.js
 require('dotenv').config();
+const config = require('../config/env');
+
 const axios = require('axios');
 
 const headers = {
     'Accept': 'application/json',
-    'PowerTranz-PowerTranzId': process.env.TESTING_MERCHANT_ID,
-    'PowerTranz-PowerTranzPassword': process.env.TESTING_PROCESSING_PASSWORD,
+    'PowerTranz-PowerTranzId': config.merchantId,
+    'PowerTranz-PowerTranzPassword': config.processingPassword,
     'Content-Type': 'application/json; charset=utf-8',
-    'Host': process.env.TESTING_PROCESSING_HOST,
+    'Host': config.processingHost,
 };
 
 exports.initiateAuthentication = async (data) => {
-    return axios.post('https://'+ process.env.TESTING_PROCESSING_HOST +'/Api/spi/auth', data, { headers })
+    return axios.post('https://' + config.processingHost + '/Api/spi/auth', data, { headers })
         .then(response => response.data)
         .catch(error => {
             throw error;
@@ -19,7 +21,7 @@ exports.initiateAuthentication = async (data) => {
 };
 
 exports.completePayment = async (spiToken) => {
-    return axios.post('https://'+ process.env.TESTING_PROCESSING_HOST +'/Api/spi/Payment', spiToken, { headers })
+    return axios.post('https://' + config.processingHost + '/Api/spi/Payment', spiToken, { headers })
         .then(response => response.data)
         .catch(error => {
             throw error;
