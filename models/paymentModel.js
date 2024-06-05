@@ -1,7 +1,6 @@
 // models/paymentModel.js
 require('dotenv').config();
 const config = require('../config/env');
-
 const axios = require('axios');
 
 const headers = {
@@ -22,6 +21,14 @@ exports.initiateAuthentication = async (data) => {
 
 exports.completePayment = async (spiToken) => {
     return axios.post('https://' + config.processingHost + '/Api/spi/Payment', spiToken, { headers })
+        .then(response => response.data)
+        .catch(error => {
+            throw error;
+        });
+};
+
+exports.capturePayment = async (captureData) => {
+    return axios.post('https://' + config.processingHost + '/Api/capture', captureData, { headers })
         .then(response => response.data)
         .catch(error => {
             throw error;

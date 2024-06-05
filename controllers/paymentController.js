@@ -91,26 +91,39 @@ exports.completePayment = async (req, res) => {
 
         // Extract necessary properties from req.session.authData
         const { BillingAddress, Source } = req.session.authData;
+        const authData = req.session.authData;
+
+        // Load data to capture transaction
+        const captureData = {
+            TransactionIdentifier : authData.TransactionIdentifier,
+            TotalAmount: parseFloat(authData.TotalAmount)
+        };
 
         // Render confirmation or checkout page based on payment response
         if (paymentResponse.Approved) {
-            // Render confirmation page
-            const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
-             // Create new sale record
-            await createNewSale(paymentInfo, paymentResponse, req.session.authData);
-            //Send Mail
-            const subject = `Credit Card Payment Confirmation (${paymentInfo.categoryName}) - Jamaica Observer Limited`;
-            const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
-            const ccEmail = req.session.repEmail;
-            //connect to adhoc database to send mail
-            connectAdhocDB();
-            const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
-            // Clear session
-            req.session.destroy();
-            //reconnect to main database
-            connectDB();
+            // Capture payment to complete transaction
+            const captureResponse = await Payment.capturePayment(captureData);
+            console.log('captureResponse', captureResponse);
+            if (captureResponse.Approved) {
+                 // Render confirmation page
+                const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
+                // Create new sale record
+                await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+                //Send Mail
+                const subject = `Credit Card Payment Confirmation (${paymentInfo.categoryName}) - Jamaica Observer Limited`;
+                const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
+                const ccEmail = req.session.repEmail;
+                //connect to adhoc database to send mail
+                connectAdhocDB();
+                const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
+                // Clear session
+                req.session.destroy();
+                //reconnect to main database
+                connectDB();
 
-            res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData, repEmail: ccEmail });
+                res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData, repEmail: ccEmail });
+            }
+           
         } else {
             const authData = req.session.authData;
              // Create new sale record
@@ -129,6 +142,8 @@ exports.completePayment = async (req, res) => {
         res.render('en/index', {categories, error : 'There was an error processing payment or your session has timed out. Please try again.'});
     }
 };
+
+
 
 // Helper function to extract sale data
 function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
