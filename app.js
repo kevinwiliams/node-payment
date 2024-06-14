@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const paymentController = require('./controllers/paymentController');
 const { sql, connectDB } = require('./config/db');
-const moment = require('moment'); // Import moment for date formatting
+const moment = require('moment'); 
 const cookieParser = require('cookie-parser');
 const Handlebars = require('handlebars');
 
@@ -19,7 +19,9 @@ app.use((req, res, next) => {
     next();
 });
 // Body parser middleware
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+    extended: true 
+}));
 app.use(bodyParser.json());
 
 // Serve static files from the 'public' directory
@@ -122,12 +124,12 @@ const hbs = exphbs.create({
         }
     }
 });
+
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
 
 // Routes
-// app.get('/', paymentController.checkOut);
 app.get('/', (req, res) => {
   res.redirect('/en');
 });

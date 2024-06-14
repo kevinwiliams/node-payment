@@ -41,7 +41,7 @@ exports.authenticate = async (req, res) => {
                 CardExpiration: cardExp,
                 CardholderName: CardholderName
             },
-            OrderIdentifier: Util.generateInvoiceNumber(),
+            OrderIdentifier: Util.generateInvoiceNumber() + '_' + CardholderName.replaceAll(/\s/g,''),
             BillingAddress : {
                 FirstName: FirstName,
                 LastName: LastName,
@@ -110,7 +110,7 @@ exports.completePayment = async (req, res) => {
                 // Create new sale record
                 await createNewSale(paymentInfo, paymentResponse, req.session.authData);
                 //Send Mail
-                const subject = `Credit Card Payment Confirmation (${paymentInfo.categoryName}) - Jamaica Observer Limited`;
+                const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.description}) - Jamaica Observer Limited`;
                 const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
                 const ccEmail = req.session.repEmail;
                 //connect to adhoc database to send mail

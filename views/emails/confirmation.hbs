@@ -122,6 +122,11 @@
                                                             <p>Dear Valued Customer,</p>
                                                             <p>This email is to confirm that ${{formatNumber amount}} {{currency}} has been charged to your {{cardType}} credit card, #: XXXXXXXXXXXX{{lastFour}}, on behalf of The Jamaica Observer Limted.</p>
                                                             <p>The reference number for the transaction is {{refNumber}}. Should you have queries, or need further assistance, please contact your Account Representative or any member of the Advertising Department at 876-936-9381 quoting your transaction number.</p>
+                                                            {{#if paymentNotes}}
+                                                            <br />
+                                                                <p>Additional notes: {{paymentNotes}}</p>
+                                                            <br />
+                                                            {{/if}}
                                                             <p>Thank you for your business.</p>
                                                             <p>Regards,</p>
                                                             <br>

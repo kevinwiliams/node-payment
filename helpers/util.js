@@ -112,17 +112,31 @@ async function sendMail(emailTo, subject, body) {
             html: body
         };
 
-        if (subject.includes('Ads')) {
-            mailOptions.cc = process.env.cc_advertise;
+        // Check if ccEmail is provided and not empty
+        if (ccEmail && ccEmail.trim() !== '') {
+            ccEmails = ccEmail.trim(); 
+        }
+
+        if (subject.includes('Classifieds')) {
+            bccEmails = process.env.bcc_advertise;
+        }
+
+        if (subject.includes('Display')) {
+            bccEmails = process.env.bcc_display;
+        }
+
+        if (subject.includes('Other')) {
+            bccEmails = process.env.bcc_other;
         }
 
         if (subject.includes('Recycled')) {
-            mailOptions.cc = process.env.cc_closed;
+            bccEmails = process.env.bcc_papers;
         }
 
-        if (subject.includes('Ticket')) {
-            mailOptions.cc = process.env.cc_tickets;
+        if (subject.includes('Tickets')) {
+            bccEmails = process.env.bcc_tickets;
         }
+
 
         await transporter.sendMail(mailOptions);
 
