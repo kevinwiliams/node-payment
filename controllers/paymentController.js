@@ -110,11 +110,10 @@ exports.completePayment = async (req, res) => {
                 // Create new sale record
                 await createNewSale(paymentInfo, paymentResponse, req.session.authData);
                 //Send Mail
-                const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.description}) - Jamaica Observer Limited`;
+                const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.serviceText}) - Jamaica Observer Limited`;
                 const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
                 const ccEmail = req.session.repEmail;
                 //connect to adhoc database to send mail
-                connectAdhocDB();
                 const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
                 // Clear session
                 req.session.destroy();

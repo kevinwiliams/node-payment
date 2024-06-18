@@ -117,26 +117,20 @@ async function sendMail(emailTo, subject, body) {
             ccEmails = ccEmail.trim(); 
         }
 
-        if (subject.includes('Classifieds')) {
-            bccEmails = process.env.bcc_advertise;
+        const bccMapping = {
+            'Classifieds': process.env.bcc_advertise,
+            'Display': process.env.bcc_display,
+            'Other': process.env.bcc_other,
+            'Recycled': process.env.bcc_papers,
+            'Tickets': process.env.bcc_tickets
+        };
+        
+        for (const [keyword, email] of Object.entries(bccMapping)) {
+            if (subject.includes(keyword)) {
+                bccEmails = email;
+                break; // Optional: if you only want the first match
+            }
         }
-
-        if (subject.includes('Display')) {
-            bccEmails = process.env.bcc_display;
-        }
-
-        if (subject.includes('Other')) {
-            bccEmails = process.env.bcc_other;
-        }
-
-        if (subject.includes('Recycled')) {
-            bccEmails = process.env.bcc_papers;
-        }
-
-        if (subject.includes('Tickets')) {
-            bccEmails = process.env.bcc_tickets;
-        }
-
 
         await transporter.sendMail(mailOptions);
 
@@ -156,24 +150,30 @@ async function sendToMailQueue(emailTo, subject, body, ccEmail){
         const subjectTxt = encodeURIComponent(subject);
         const bodyTxt = encodeURIComponent(body);
 
-         // Check if ccEmail is provided and not empty
-         if (ccEmail && ccEmail.trim() !== '') {
+        // Check if ccEmail is provided and not empty
+        if (ccEmail && ccEmail.trim() !== '') {
             ccEmails = ccEmail.trim(); 
         }
 
-        if (subject.includes('Advertising')) {
-            bccEmails = process.env.bcc_advertise;
+        const bccMapping = {
+            'Classifieds': process.env.bcc_advertise,
+            'Display': process.env.bcc_display,
+            'Other': process.env.bcc_other,
+            'Recycled': process.env.bcc_papers,
+            'Tickets': process.env.bcc_tickets
+        };
+        
+        for (const [keyword, email] of Object.entries(bccMapping)) {
+            if (subject.includes(keyword)) {
+                bccEmails = email;
+                break; // Optional: if you only want the first match
+            }
         }
-
-        if (subject.includes('Miscellaneous')) {
-            bccEmails = process.env.bcc_other;
-        }
-
-        if (subject.includes('Tickets')) {
-            bccEmails = process.env.bcc_tickets;
-        }
-
+        
         const message = `encoding=UTF-8&to=${toEmails}&bcc=${bccEmails}&cc=${ccEmails}&from=${fromEmail}&subject=${subjectTxt}&msgbody=${bodyTxt}`;
+        //connect to adhoc db for sending mails
+        connectAdhocDB();
+        // insert mail details in message queue table
         await insertIntoMessageQueue(message);
     } catch (err) {
         console.error(err);
