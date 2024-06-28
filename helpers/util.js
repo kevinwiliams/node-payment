@@ -5,8 +5,10 @@ const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 const axios = require('axios');
 const requestIP = require('request-ip');
-const sequelize = require('../config/db').adhoc; //point to Adhoc connection
-const MessageQueue = require('../models/message');
+// const sequelize = require('../config/db').adhoc; //point to Adhoc connection
+// const MessageQueue = require('../models/message');
+const defineMessageQueue = require('../models/message');
+const { connectAdhocDB } = require('../config/db');
 
 
 // const os = require('os');
@@ -144,7 +146,7 @@ async function sendMail(emailTo, subject, body) {
 async function sendToMailQueue(emailTo, subject, body, ccEmail){
     try {
         const toEmails = emailTo;
-        let bccEmails = '';
+        let bccEmails = process.env.bcc_other;
         let ccEmails = '';
         const fromEmail = `"${process.env.email_address_from}" <${process.env.email_address}>`;
         const subjectTxt = encodeURIComponent(subject);
@@ -159,7 +161,9 @@ async function sendToMailQueue(emailTo, subject, body, ccEmail){
             'Classifieds': process.env.bcc_advertise,
             'Display': process.env.bcc_display,
             'Other': process.env.bcc_other,
+            'Library': process.env.bcc_library,
             'Recycled': process.env.bcc_papers,
+            'Circulation': process.env.bcc_papers,
             'Tickets': process.env.bcc_tickets
         };
         
@@ -171,8 +175,6 @@ async function sendToMailQueue(emailTo, subject, body, ccEmail){
         }
         
         const message = `encoding=UTF-8&to=${toEmails}&bcc=${bccEmails}&cc=${ccEmails}&from=${fromEmail}&subject=${subjectTxt}&msgbody=${bodyTxt}`;
-        //connect to adhoc db for sending mails
-        connectAdhocDB();
         // insert mail details in message queue table
         await insertIntoMessageQueue(message);
     } catch (err) {
@@ -285,17 +287,21 @@ async function renderViewToString(template, data){
 }
 
 // Function to insert data into the messagequeue table
-async function insertIntoMessageQueue(message) {
+const insertIntoMessageQueue = async (message) => {
+    let adhoc;
     try {
-      await sequelize.authenticate();
+      // Connect to adhoc database and get MessageQueue model
+      adhoc = await connectAdhocDB();
+      //await adhoc.authenticate();
+
+      const MessageQueue = await defineMessageQueue();
+      
       await MessageQueue.create({ mess: message });
       console.log('Data inserted successfully into messagequeue table.');
     } catch (error) {
       console.error('Error inserting data into messagequeue table:', error);
-    } finally {
-      await sequelize.close();
-    }
-  }
+    } 
+};
 
   // Function to generate a random alphanumeric string
 function generateRandomString(length) {

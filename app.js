@@ -4,12 +4,13 @@ const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const paymentController = require('./controllers/paymentController');
-const { sql, connectDB } = require('./config/db');
+const { sql, connectDB, store } = require('./config/db');
 const moment = require('moment'); 
 const cookieParser = require('cookie-parser');
 const Handlebars = require('handlebars');
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
 // Custom middleware to make session object available globally
@@ -18,10 +19,12 @@ app.use((req, res, next) => {
     res.locals.session = req.session;
     next();
 });
+
 // Body parser middleware
 app.use(bodyParser.urlencoded({
     extended: true 
 }));
+
 app.use(bodyParser.json());
 
 // Serve static files from the 'public' directory
@@ -32,9 +35,13 @@ connectDB();
 
 // Session middleware
 app.use(session({
+    store: store,
     secret: 'secret',
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      },
 }));
 
 app.use(cookieParser());

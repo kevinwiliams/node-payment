@@ -86,7 +86,7 @@ exports.completePayment = async (req, res) => {
         // Init payment completion
         const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
         req.session.paymentResponse = paymentResponse;
-        console.log('paymentResponse', paymentResponse);
+        // console.log('paymentResponse', paymentResponse);
         delete req.session.authResponse;
 
         // Extract necessary properties from req.session.authData
@@ -103,24 +103,37 @@ exports.completePayment = async (req, res) => {
         if (paymentResponse.Approved) {
             // Capture payment to complete transaction
             const captureResponse = await Payment.capturePayment(captureData);
-            console.log('captureResponse', captureResponse);
+            // console.log('captureResponse', captureResponse);
             if (captureResponse.Approved) {
-                 // Render confirmation page
+                        
+                // Render confirmation page
                 const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
                 // Create new sale record
                 await createNewSale(paymentInfo, paymentResponse, req.session.authData);
                 //Send Mail
-                const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.serviceText}) - Jamaica Observer Limited`;
+                const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.serviceName}) - Jamaica Observer Limited`;
                 const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
                 const ccEmail = req.session.repEmail;
-                //connect to adhoc database to send mail
-                const emailSent = await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
-                // Clear session
-                req.session.destroy();
-                //reconnect to main database
-                connectDB();
 
-                res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData, repEmail: ccEmail });
+                // Send email
+                await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
+
+                // Clear session
+                await new Promise((resolve, reject) => {
+                    req.session.destroy((err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+
+                // Reconnect to main database
+                await connectDB();
+                
+                // After all promises are resolved
+                res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
             }
            
         } else {
@@ -166,6 +179,7 @@ function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
         refNumber: RRN,
         currency: paymentInfo.currency,
         amount: parseFloat(TotalAmount),
+        countAmount: paymentInfo.quantity,
         paymentDate: new Date(),
         paymentStatus: ResponseMessage + errorCodeMsg,
         paymentNotes: paymentInfo.otherInfo,
