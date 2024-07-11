@@ -44,6 +44,20 @@ app.use(session({
       },
 }));
 
+// Ensure the session is saved regularly
+app.use((req, res, next) => {
+    if (req.session) {
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+        } 
+        next();
+      });
+    } else {
+      next();
+    }
+  });
+
 app.use(cookieParser());
 
 app.use((req, res, next) => {
@@ -154,6 +168,15 @@ app.use('/admin/users', userRoutes);
 const dashRoutes = require('./routes/dashboard');
 app.use('/admin/dashboard', dashRoutes);
 
+// Sync the model with the database
+store.sync()
+    .then(() => {
+        console.log('Session table synchronized');
+    })
+    .catch(err => {
+        console.error('Error synchronizing session table:', err);
+    });
+    
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

@@ -67,12 +67,21 @@ exports.authenticate = async (req, res) => {
         // Init authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
+
+        req.session.save((err) => {
+            if (err) {
+              console.error('Error saving session:', err);
+              return res.status(500).send('Internal Server Error');
+            }
         //console.log('authResponse', authResponse);
         res.render('en/auth', { redirectData: authResponse.RedirectData });
+        });
+    
     } catch (error) {
         console.error('Error during authentication:', error);
-        res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
         delete req.session.authResponse;
+        res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
+        
 
     }
 };
@@ -110,7 +119,7 @@ exports.completePayment = async (req, res) => {
                 const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
                 // Create new sale record
                 await createNewSale(paymentInfo, paymentResponse, req.session.authData);
-                //Send Mail
+                //Setup Mail
                 const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.serviceName}) - Jamaica Observer Limited`;
                 const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
                 const ccEmail = req.session.repEmail;
@@ -140,9 +149,9 @@ exports.completePayment = async (req, res) => {
             const authData = req.session.authData;
              // Create new sale record
             await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+            delete req.session.authResponse;
             // Render checkout page with error message
             res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage, ...authData, countries });
-            delete req.session.authResponse;
         }
 
        
