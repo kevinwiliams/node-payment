@@ -8,7 +8,7 @@ const fs = require('fs');
 const util = require('util');
 const readFile = util.promisify(fs.readFile);
 const Util = require('../helpers/util');
-const { connectAdhocDB, connectDB } = require('../config/db');
+const { connectDB } = require('../config/db');
 const config = require('../config/env');
 const Category = require('../models/category');
 
@@ -73,7 +73,7 @@ exports.authenticate = async (req, res) => {
               console.error('Error saving session:', err);
               return res.status(500).send('Internal Server Error');
             }
-        //console.log('authResponse', authResponse);
+        // console.log('authResponse', authResponse);
         res.render('en/auth', { redirectData: authResponse.RedirectData });
         });
     
@@ -87,27 +87,28 @@ exports.authenticate = async (req, res) => {
 };
 
 exports.completePayment = async (req, res) => {
-    const paymentInfo = req.session.paymentInfo;
-
     try {
-        const jsonFile = await readFile('./app_data/countries.json');
-        const countries = JSON.parse(jsonFile);
-        // Init payment completion
-        const paymentResponse = await Payment.completePayment(req.session.authResponse.SpiToken);
+
+        const paymentInfo = req.session.paymentInfo;
+        const { BillingAddress, Source } = req.session.authData;
+
+        // Step 1: Get countries
+        const countries = await getCountries();
+
+        // Step 2: Parse request body to get bodyData and spiToken
+        const { bodyData, spiToken } = await parseRequestBody(req);
+
+        // Step 3: Complete payment
+        const paymentResponse = await completePayment(spiToken);
         req.session.paymentResponse = paymentResponse;
-        // console.log('paymentResponse', paymentResponse);
+
+        // Step 4: Delete session authResponse
         delete req.session.authResponse;
 
-        // Extract necessary properties from req.session.authData
-        const { BillingAddress, Source } = req.session.authData;
-        const authData = req.session.authData;
+        // Step 5: Load data to capture transaction
+        const captureData = await captureTransaction(bodyData);
 
-        // Load data to capture transaction
-        const captureData = {
-            TransactionIdentifier : authData.TransactionIdentifier,
-            TotalAmount: parseFloat(authData.TotalAmount)
-        };
-
+        // Step 6: Handle payment response
         // Render confirmation or checkout page based on payment response
         if (paymentResponse.Approved) {
             // Capture payment to complete transaction
@@ -115,7 +116,7 @@ exports.completePayment = async (req, res) => {
             // console.log('captureResponse', captureResponse);
             if (captureResponse.Approved) {
                         
-                // Render confirmation page
+                // Extract data for email
                 const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
                 // Create new sale record
                 await createNewSale(paymentInfo, paymentResponse, req.session.authData);
@@ -141,7 +142,7 @@ exports.completePayment = async (req, res) => {
                 // Reconnect to main database
                 await connectDB();
                 
-                // After all promises are resolved
+                // After all promises are resolved load confirmation screen
                 res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
             }
            
@@ -154,7 +155,6 @@ exports.completePayment = async (req, res) => {
             res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage, ...authData, countries });
         }
 
-       
     } catch (error) {
         console.error('Error during payment completion:', error);
         //res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
@@ -164,10 +164,35 @@ exports.completePayment = async (req, res) => {
     }
 };
 
+// Function to read and parse the countries JSON file
+const getCountries = async () => {
+    const jsonFile = await readFile('./app_data/countries.json');
+    return JSON.parse(jsonFile);
+};
 
+// Function to parse the request body and extract spiToken
+const parseRequestBody = async (req) => {
+    const bodyData = JSON.parse(req.body.Response);
+    const spiToken = bodyData.SpiToken;
+
+    return { bodyData, spiToken };
+};
+
+// Function to complete the payment
+const completePayment = async (spiToken) => {
+    return await Payment.completePayment(spiToken);
+};
+
+// Function to capture transaction data
+const captureTransaction = async (bodyData) => {
+    return {
+        TransactionIdentifier: bodyData.TransactionIdentifier,
+        TotalAmount: parseFloat(bodyData.TotalAmount)
+    };
+};
 
 // Helper function to extract sale data
-function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
+const extractSaleData = (paymentInfo, paymentResponse, source, billingAddress) => {
 
     const {Errors, ResponseMessage, Approved, CardBrand, TransactionIdentifier, AuthorizationCode, OrderIdentifier, TotalAmount, RRN} = paymentResponse;
     let errorCodeMsg = '';
@@ -199,7 +224,7 @@ function extractSaleData(paymentInfo, paymentResponse, source, billingAddress) {
 }
 
 // Helper function to create new sale record
-async function createNewSale(paymentInfo, paymentResponse, authData) {
+const createNewSale = async(paymentInfo, paymentResponse, authData) => {
     try {
         const newSale = {
             categoryId: parseInt(paymentInfo.categoryId),
