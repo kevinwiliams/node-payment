@@ -26,6 +26,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
@@ -43,20 +44,6 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
       },
 }));
-
-// Ensure the session is saved regularly
-app.use((req, res, next) => {
-    if (req.session) {
-      req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-        } 
-        next();
-      });
-    } else {
-      next();
-    }
-  });
 
 app.use(cookieParser());
 
@@ -176,7 +163,7 @@ store.sync()
     .catch(err => {
         console.error('Error synchronizing session table:', err);
     });
-    
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
