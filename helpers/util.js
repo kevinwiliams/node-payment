@@ -5,10 +5,9 @@ const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 const axios = require('axios');
 const requestIP = require('request-ip');
-// const sequelize = require('../config/db').adhoc; //point to Adhoc connection
-// const MessageQueue = require('../models/message');
 const defineMessageQueue = require('../models/message');
 const { connectAdhocDB } = require('../config/db');
+const config = require('../config/env');
 
 
 // const os = require('os');
@@ -146,7 +145,7 @@ async function sendMail(emailTo, subject, body) {
 async function sendToMailQueue(emailTo, subject, body, ccEmail){
     try {
         const toEmails = emailTo;
-        let bccEmails = process.env.bcc_other;
+        let bccEmails = config.bcc_other;
         let ccEmails = '';
         const fromEmail = `"${process.env.email_address_from}" <${process.env.email_address}>`;
         const subjectTxt = encodeURIComponent(subject);
@@ -158,13 +157,13 @@ async function sendToMailQueue(emailTo, subject, body, ccEmail){
         }
 
         const bccMapping = {
-            'Classifieds': process.env.bcc_advertise,
-            'Display': process.env.bcc_display,
-            'Other': process.env.bcc_other,
-            'Library': process.env.bcc_library,
-            'Recycled': process.env.bcc_papers,
-            'Circulation': process.env.bcc_papers,
-            'Tickets': process.env.bcc_tickets
+            'Classifieds': config.bcc_advertise,
+            'Display': config.bcc_display,
+            'Other': config.bcc_other,
+            'Library': config.bcc_library,
+            'Recycled': config.bcc_papers,
+            'Circulation': config.bcc_papers,
+            'Tickets': config.bcc_tickets
         };
         
         for (const [keyword, email] of Object.entries(bccMapping)) {

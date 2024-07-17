@@ -91,6 +91,7 @@ exports.completePayment = async (req, res) => {
 
         const paymentInfo = req.session.paymentInfo;
         const { BillingAddress, Source } = req.session.authData;
+        let authData = req.session.authData;
 
         // Step 1: Get countries
         const countries = await getCountries();
@@ -119,7 +120,7 @@ exports.completePayment = async (req, res) => {
                 // Extract data for email
                 const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
                 // Create new sale record
-                await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+                await createNewSale(paymentInfo, paymentResponse, authData);
                 //Setup Mail
                 const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.serviceName}) - Jamaica Observer Limited`;
                 const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);

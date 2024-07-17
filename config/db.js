@@ -19,8 +19,8 @@ const sequelize = new Sequelize('[db]', '[user]', '[password]', {
 const store = new SequelizeStore({
   db: sequelize,
   tableName: 'sessions', // Specify table name for storing sessions
-  checkExpirationInterval: 15 * 60 * 1000, // How often to check for expired sessions (15 min)
-  expiration: 24 * 60 * 60 * 1000 // How long sessions should be kept (24 hours)
+  // checkExpirationInterval: 15 * 60 * 1000, // How often to check for expired sessions (15 min)
+  // expiration: 24 * 60 * 60 * 1000 // How long sessions should be kept (24 hours)
 });
 
 // Sync the model with the database
