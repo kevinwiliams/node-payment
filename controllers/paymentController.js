@@ -22,21 +22,22 @@ exports.checkOut = (req, res) => {
 };
 
 exports.authenticate = async (req, res) => {
-    const paymentInfo = req.session.paymentInfo;
 
     try {
-
+        const paymentInfo = req.session.paymentInfo;
         const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode, RepEmailAddress} = req.body;
         // console.log('body', req.body);
         const currency = (CurrencyCode == 'JMD') ? '388' : '840';
-        const cardExp = CardExpiration.slice(2) + CardExpiration.slice(0, 2);
+        const cleanCardExpiration = CardExpiration.replace(/\//g, '');
+        const cardExp = cleanCardExpiration.slice(2) + CardExpiration.slice(0, 2);
+        const cardDigits = CardPan.replace(/\s+/g, '');
         const authData = {
             TransactionIdentifier: generateUUID(),
             TotalAmount: parseFloat(TotalAmount),
             CurrencyCode: currency,
             ThreeDSecure: true,
             Source: {
-                CardPan: CardPan,
+                CardPan: cardDigits,
                 CardCvv: CardCvv,
                 CardExpiration: cardExp,
                 CardholderName: CardholderName
@@ -68,27 +69,23 @@ exports.authenticate = async (req, res) => {
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
 
-        req.session.save((err) => {
-            if (err) {
-              console.error('Error saving session:', err);
-              return res.status(500).send('Internal Server Error');
-            }
         // console.log('authResponse', authResponse);
-        res.render('en/auth', { redirectData: authResponse.RedirectData });
-        });
+
+        if (!authResponse.Approved) {
+            res.render('en/checkout', {title: 'Checkout', error: authResponse.Errors.Message , paymentInfo: paymentInfo});
+        } else {
+            res.render('en/auth', { redirectData: authResponse.RedirectData });
+        }
     
     } catch (error) {
         console.error('Error during authentication:', error);
         delete req.session.authResponse;
         res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
-        
-
     }
 };
 
 exports.completePayment = async (req, res) => {
     try {
-
         const paymentInfo = req.session.paymentInfo;
         const { BillingAddress, Source } = req.session.authData;
         let authData = req.session.authData;

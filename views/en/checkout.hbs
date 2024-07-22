@@ -150,7 +150,7 @@
                     <label for="Card2">
                         Card Number
                     </label>
-                    <input type="text" class="form-control" placeholder="123456789012" aria-label="Card2" name="CardPan" required>
+                    <input type="text" class="form-control" placeholder="1234 5678 9012 3456" aria-label="Card2" name="CardPan" id="CardPan" required>
                     </div>
                 </div>
                 
@@ -159,14 +159,14 @@
                     <label for="Card3">
                         Expiration
                     </label>
-                    <input type="text" class="form-control"aria-label="card3" placeholder="MMYY" name="CardExpiration" required>
+                    <input type="text" class="form-control"aria-label="card3" placeholder="MM/YY" name="CardExpiration" id="CardExpiration" required>
                     </div>
                     
                     <div class="col-lg-2 col-sm-3 col-md-4 mb-3">
                     <label for="Card4">
                         CVV
                     </label>
-                    <input type="password" class="form-control"  aria-label="Card4" name="CardCvv" autocomplete="off" maxlength="3" required>
+                    <input type="password" class="form-control"  aria-label="Card4" name="CardCvv" id="CardCvv" autocomplete="off" maxlength="3" required>
                     </div>
                 </div>
                 
@@ -194,8 +194,10 @@
   </div>
   </div>
     <!-- Scripts -->
-<script src="/assets/js/jquery-3.7.1.min.js"></script>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="/assets/js/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  
 <script>
 
    $('form').on('submit',function(e){
@@ -206,6 +208,20 @@
      }
 
   });
+
+    let cardCVV = new Cleave('#CardCvv', {
+        blocks: [3],
+        numericOnly: true
+    });
+
+    let ccNumber = new Cleave('#CardPan', {
+        creditCard: true
+    });
+
+  let ccDate = new Cleave('#CardExpiration', {
+        date: true,
+        datePattern: ['m', 'y']
+    });
 
  </script>
  
