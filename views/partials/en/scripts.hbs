@@ -48,6 +48,13 @@ function createRadioButton(index, service) {
                 if (priceInput) priceInput.style.display = 'block';
                 if (priceInput) priceInput.required = true;
                 if (notesText) notesText.style.display = 'block';
+                
+                // Format price field to avoid user error
+                if (!quantityList){
+                    let categoryPrice = new Cleave('#price', {
+                        numeral: true
+                    });
+                }
             } else {
                 // Hide price input and textarea for other radio buttons
                 if (quantityList) quantityList.style.display = 'none';
@@ -216,22 +223,22 @@ $(document).ready(function() {
         }
 
         $.ajax({
-        url: '/en/service',
-        method: 'POST',
-        data: { id: categoryId },
-        success: function(response) {
-            // Clear existing service options
-            $('#serviceOptions').empty();
-            // Append radio buttons for each service
-            appendRadioButtons(response.services);
-            // Show the services
-            $('#categoryList').show();
-        },
-        error: function(err) {
-            console.error(err);
-            alert('Error loading services');
-        }
-    });
+            url: '/en/service',
+            method: 'POST',
+            data: { id: categoryId },
+            success: function(response) {
+                // Clear existing service options
+                $('#serviceOptions').empty();
+                // Append radio buttons for each service
+                appendRadioButtons(response.services);
+                // Show the services
+                $('#categoryList').show();
+            },
+            error: function(err) {
+                console.error(err);
+                alert('Error loading services');
+            }
+        });
     });
     $('#step1Form').on('submit', function(event) {
         event.preventDefault(); // Prevent the default form submission
@@ -264,13 +271,13 @@ $(document).ready(function() {
 
         var curr = (typeof currency !== 'undefined') ? currency : currencyHidden;
 
-        if (!/^\d*\.?\d*$/.test(price)) {
+        /*if (!/^\d*\.?\d*$/.test(price)) {
             alert('Please enter numbers and "." only. Example: 50000.00');
             // Remove any non-numeric characters
             var fixedPrice = price.replace(/[^\d.]/g, '');
             selectedService.closest('div').find('input[name="price"]').val(fixedPrice);
             return;
-        }
+        }*/
 
         // Assign the hidden field values to hidden input fields in the form
         $('#count').val(quantity);

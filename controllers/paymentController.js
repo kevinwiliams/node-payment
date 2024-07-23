@@ -31,9 +31,10 @@ exports.authenticate = async (req, res) => {
         const cleanCardExpiration = CardExpiration.replace(/\//g, '');
         const cardExp = cleanCardExpiration.slice(2) + CardExpiration.slice(0, 2);
         const cardDigits = CardPan.replace(/\s+/g, '');
+        const price = TotalAmount.replace(/,/g, '');
         const authData = {
             TransactionIdentifier: generateUUID(),
-            TotalAmount: parseFloat(TotalAmount),
+            TotalAmount: parseFloat(price),
             CurrencyCode: currency,
             ThreeDSecure: true,
             Source: {
@@ -64,19 +65,21 @@ exports.authenticate = async (req, res) => {
 
         req.session.authData = authData;
         req.session.repEmail = RepEmailAddress;
-        //console.log('authData', authData);
+        // console.log('authData', authData);
         // Init authentication request
         const authResponse = await Payment.initiateAuthentication(authData);
         req.session.authResponse = authResponse;
+        console.log('authResponse', authResponse);
 
-        // console.log('authResponse', authResponse);
-
-        if (!authResponse.Approved) {
+        if (authResponse.Errors && authResponse.Errors.length > 0) {
+            authResponse.Errors.forEach(error => {
+                console.log(`Error Code: ${error.Code}, Message: ${error.Message}`);
+            });
             res.render('en/checkout', {title: 'Checkout', error: authResponse.Errors.Message , paymentInfo: paymentInfo});
         } else {
             res.render('en/auth', { redirectData: authResponse.RedirectData });
         }
-    
+
     } catch (error) {
         console.error('Error during authentication:', error);
         delete req.session.authResponse;
