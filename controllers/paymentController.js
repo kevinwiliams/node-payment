@@ -37,6 +37,7 @@ exports.authenticate = async (req, res) => {
             TotalAmount: parseFloat(price),
             CurrencyCode: currency,
             ThreeDSecure: true,
+            // FraudCheck: true,
             Source: {
                 CardPan: cardDigits,
                 CardCvv: CardCvv,
@@ -63,22 +64,36 @@ exports.authenticate = async (req, res) => {
             }
         };
 
-        req.session.authData = authData;
-        req.session.repEmail = RepEmailAddress;
         // console.log('authData', authData);
         // Init authentication request
-        const authResponse = await Payment.initiateAuthentication(authData);
-        req.session.authResponse = authResponse;
-        console.log('authResponse', authResponse);
+        Payment.initiateAuthentication(authData)
+        .then(authResponse => {
+            //save data to sessions
+            req.session.authData = authData;
+            req.session.repEmail = RepEmailAddress;
+            req.session.authResponse = authResponse;
+            console.log('authResponse', authResponse);
 
-        if (authResponse.Errors && authResponse.Errors.length > 0) {
-            authResponse.Errors.forEach(error => {
-                console.log(`Error Code: ${error.Code}, Message: ${error.Message}`);
+            req.session.save((err) => {
+                if (err) {
+                  console.error('Session save error:', err);
+                }
             });
-            res.render('en/checkout', {title: 'Checkout', error: authResponse.Errors.Message , paymentInfo: paymentInfo});
-        } else {
-            res.render('en/auth', { redirectData: authResponse.RedirectData });
-        }
+        
+            if (authResponse.Errors && authResponse.Errors.length > 0) {
+                authResponse.Errors.forEach(error => {
+                    console.log(`Error Code: ${error.Code}, Message: ${error.Message}`);
+                });
+            } else {
+                res.render('en/auth', { redirectData: authResponse.RedirectData });
+            }
+        })
+        .catch(error => {
+            console.error('Error during authentication:', error);
+            res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
+            delete req.session.authResponse;
+        });
+
 
     } catch (error) {
         console.error('Error during authentication:', error);

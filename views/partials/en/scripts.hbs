@@ -31,6 +31,7 @@ function createRadioButton(index, service) {
             var parentDiv = radio.parentNode;
             var quantityList = parentDiv.querySelector('select[name="quantity"]');
             var quantityLbl = parentDiv.querySelector('label[for="quantity"]');
+            var priceSign = parentDiv.querySelector('span[id="sign"]');
             var priceInput = parentDiv.querySelector('input[name="price"]');
             var currencyList = parentDiv.querySelector('select[name="currency"]');
             var notesText = parentDiv.querySelector('textarea[name="otherInfo"]');
@@ -45,14 +46,15 @@ function createRadioButton(index, service) {
                 if (quantityLbl) quantityLbl.style.display = 'block';
                 if (currencyList) currencyList.style.display = 'block';
                 if (currencyList) currencyList.required = true;
+                if (priceSign) priceSign.style.display = 'block';
                 if (priceInput) priceInput.style.display = 'block';
                 if (priceInput) priceInput.required = true;
                 if (notesText) notesText.style.display = 'block';
                 
                 // Format price field to avoid user error
                 if (!quantityList){
-                    let categoryPrice = new Cleave('#price', {
-                        numeral: true
+                    document.querySelectorAll('#price').forEach(function(el) {
+                        new Cleave(el, {numeral: true, numeralPositiveOnly: true});
                     });
                 }
             } else {
@@ -61,6 +63,7 @@ function createRadioButton(index, service) {
                 if (quantityLbl) quantityLbl.style.display = 'none';
                 if (currencyList) currencyList.style.display = 'none';
                 if (currencyList) currencyList.required = false;
+                if (priceSign) priceSign.style.display = 'none';
                 if (priceInput) priceInput.style.display = 'none';
                 if (priceInput) priceInput.required = false;
                 if (notesText) notesText.style.display = 'none';
@@ -152,7 +155,25 @@ function createRadioButton(index, service) {
         currencyDropdown.appendChild(selectOption);
         currencyDropdown.appendChild(jmdOption);
         currencyDropdown.appendChild(usdOption);
-        priceInputGroup.appendChild(currencyDropdown);
+        // priceInputGroup.appendChild(currencyDropdown);
+
+        // Create a new input group for the price input
+        var priceWrapper = document.createElement('div');
+        priceWrapper.classList.add('input-group');
+
+        // Add the dollar sign span
+        var dollarSign = document.createElement('span');
+        dollarSign.id = 'sign';
+        dollarSign.name = 'sign';
+        dollarSign.classList.add('input-group-text');
+        dollarSign.textContent = '$';
+        dollarSign.style.display = 'none'; // Hide price input initially
+
+        priceWrapper.appendChild(currencyDropdown);
+
+
+        priceWrapper.appendChild(dollarSign);
+
 
         var priceInput = document.createElement('input');
         priceInput.type = 'text';
@@ -163,6 +184,11 @@ function createRadioButton(index, service) {
         priceInput.classList.add('flex-grow-1');
         priceInput.style.display = 'none'; // Hide price input initially
         priceInputGroup.appendChild(priceInput);
+
+        priceWrapper.appendChild(priceInput);
+        // Add the priceWrapper to the main input group
+        priceInputGroup.appendChild(priceWrapper);
+
         div.appendChild(priceInputGroup);
 
         var notesText = document.createElement('textarea');
