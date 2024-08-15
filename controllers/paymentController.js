@@ -11,7 +11,7 @@ const Util = require('../helpers/util');
 const { connectDB } = require('../config/db');
 const config = require('../config/env');
 const Category = require('../models/category');
-
+var store = require('store/dist/store.modern');
 
 function generateUUID() {
     return uuidv4();
@@ -32,17 +32,17 @@ exports.authenticate = async (req, res) => {
         const cardExp = cleanCardExpiration.slice(2) + CardExpiration.slice(0, 2);
         const cardDigits = CardPan.replace(/\s+/g, '');
         const price = TotalAmount.replace(/,/g, '');
+
         const authData = {
             TransactionIdentifier: generateUUID(),
             TotalAmount: parseFloat(price),
             CurrencyCode: currency,
             ThreeDSecure: true,
-            // FraudCheck: true,
             Source: {
                 CardPan: cardDigits,
                 CardCvv: CardCvv,
                 CardExpiration: cardExp,
-                CardholderName: CardholderName
+                CardholderName: CardholderName.trim()
             },
             OrderIdentifier: Util.generateInvoiceNumber() + '_' + CardholderName.replaceAll(/\s/g,''),
             BillingAddress : {
@@ -52,7 +52,7 @@ exports.authenticate = async (req, res) => {
                 Line2: Line2,
                 City: '',
                 //CountryCode: '840',
-                EmailAddress: EmailAddress
+                EmailAddress: EmailAddress.toLowerCase().trim()
             },
             AddressMatch: false,
             ExtendedData: {
@@ -64,39 +64,55 @@ exports.authenticate = async (req, res) => {
             }
         };
 
-        // console.log('authData', authData);
         // Init authentication request
         Payment.initiateAuthentication(authData)
-        .then(authResponse => {
-            //save data to sessions
-            req.session.authData = authData;
-            req.session.repEmail = RepEmailAddress;
-            req.session.authResponse = authResponse;
-            console.log('authResponse', authResponse);
+    .then(authResponse => {
+        // Save data to session
+        req.session.authData = authData;
+        //remove card details before store
+        authData.Source.CardPan = cardDigits.slice(-4);
+        authData.Source.CardCvv = 0;
 
-            req.session.save((err) => {
+        const encryptedAuthData = Util.encryptData(authData, process.env.SECRET_KEY);
+        store.set('authData', encryptedAuthData);
+        req.session.repEmail = RepEmailAddress;
+        req.session.authResponse = authResponse;
+
+        // Extract RedirectData for later use
+        const redirectData = authResponse.RedirectData;
+
+        // Save session changes
+        return new Promise((resolve, reject) => {
+            req.session.save(err => {
                 if (err) {
-                  console.error('Session save error:', err);
+                    console.error('Session save error:', err);
+                    res.render('en/checkout', { title: 'Checkout', error: 'Session save error', paymentInfo });
+                    reject(err);
+                } else {
+                    resolve(redirectData); // Resolve with redirectData
                 }
             });
-        
-            if (authResponse.Errors && authResponse.Errors.length > 0) {
-                authResponse.Errors.forEach(error => {
-                    console.log(`Error Code: ${error.Code}, Message: ${error.Message}`);
-                });
-            } else {
-                res.render('en/auth', { redirectData: authResponse.RedirectData });
-            }
-        })
-        .catch(error => {
-            console.error('Error during authentication:', error);
-            res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
-            delete req.session.authResponse;
         });
+    })
+    .then(redirectData => {
+        if (req.session.authResponse.Errors && req.session.authResponse.Errors.length > 0) {
+            req.session.authResponse.Errors.forEach(error => {
+                console.log(`Error Code: ${error.Code}, Message: ${error.Message}`);
+            });
+        } else {
+            // Use the extracted redirectData variable instead of session data
+            res.render('en/auth', { redirectData });
+        }
+    })
+    .catch(error => {
+        console.error('Error during authentication:', error);
+        res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
+        delete req.session.authResponse;
+    });
 
 
     } catch (error) {
-        console.error('Error during authentication:', error);
+        console.error('Error during authentication:', error);        
         delete req.session.authResponse;
         res.render('en/checkout', {title: 'Checkout', error, paymentInfo: paymentInfo});
     }
@@ -104,79 +120,81 @@ exports.authenticate = async (req, res) => {
 
 exports.completePayment = async (req, res) => {
     try {
-        const paymentInfo = req.session.paymentInfo;
-        const { BillingAddress, Source } = req.session.authData;
-        let authData = req.session.authData;
 
-        // Step 1: Get countries
-        const countries = await getCountries();
+        const encryptedAuthData = store.get('authData');
+        const encryptedPaymentInfo = store.get('paymentInfo');
+        const authData = Util.decryptData(encryptedAuthData, process.env.SECRET_KEY);
+        const paymentInfo = Util.decryptData(encryptedPaymentInfo, process.env.SECRET_KEY);
+        // const paymentInfo = req.session.paymentInfo;
+        const { BillingAddress, Source } = authData;
 
-        // Step 2: Parse request body to get bodyData and spiToken
-        const { bodyData, spiToken } = await parseRequestBody(req);
+        try {
+            // Step 1: Get countries
+            const countries = await getCountries();
 
-        // Step 3: Complete payment
-        const paymentResponse = await completePayment(spiToken);
-        req.session.paymentResponse = paymentResponse;
+            // Step 2: Parse request body to get bodyData and spiToken
+            const { bodyData, spiToken } = await parseRequestBody(req);
 
-        // Step 4: Delete session authResponse
-        delete req.session.authResponse;
+            // Step 3: Complete payment
+            const paymentResponse = await completePayment(spiToken);
+            req.session.paymentResponse = paymentResponse;
 
-        // Step 5: Load data to capture transaction
-        const captureData = await captureTransaction(bodyData);
-
-        // Step 6: Handle payment response
-        // Render confirmation or checkout page based on payment response
-        if (paymentResponse.Approved) {
-            // Capture payment to complete transaction
-            const captureResponse = await Payment.capturePayment(captureData);
-            // console.log('captureResponse', captureResponse);
-            if (captureResponse.Approved) {
-                        
-                // Extract data for email
-                const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
-                // Create new sale record
-                await createNewSale(paymentInfo, paymentResponse, authData);
-                //Setup Mail
-                const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.serviceName}) - Jamaica Observer Limited`;
-                const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
-                const ccEmail = req.session.repEmail;
-
-                // Send email
-                await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
-
-                // Clear session
-                await new Promise((resolve, reject) => {
-                    req.session.destroy((err) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    });
-                });
-
-                // Reconnect to main database
-                await connectDB();
-                
-                // After all promises are resolved load confirmation screen
-                res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
-            }
-           
-        } else {
-            const authData = req.session.authData;
-             // Create new sale record
-            await createNewSale(paymentInfo, paymentResponse, req.session.authData);
+            // Step 4: Delete session authResponse
             delete req.session.authResponse;
-            // Render checkout page with error message
-            res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage, ...authData, countries });
-        }
 
+            // Step 5: Load data to capture transaction
+            const captureData = await captureTransaction(bodyData);
+
+            // Step 6: Handle payment response
+            if (paymentResponse.Approved) {
+                // Capture payment to complete transaction
+                const captureResponse = await Payment.capturePayment(captureData);
+                if (captureResponse.Approved) {
+                    
+                    // Render confirmation page
+                    const saleData = extractSaleData(paymentInfo, paymentResponse, Source, BillingAddress);
+                    await createNewSale(paymentInfo, paymentResponse, authData);
+
+                    // Setup and send email
+                    const subject = `Payment Confirmation (${paymentInfo.categoryName} / ${paymentInfo.serviceName}) - Jamaica Observer Limited`;
+                    const body = await Util.renderViewToString('./views/emails/confirmation.hbs', saleData);
+                    const ccEmail = req.session.repEmail;
+                    await Util.sendToMailQueue(BillingAddress.EmailAddress, subject, body, ccEmail);
+
+                    // Clear session
+                    await new Promise((resolve, reject) => {
+                        req.session.destroy((err) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve();
+                                store.remove('authData');
+                                store.remove('paymentInfo');
+                            }
+                        });
+                    });
+
+                    // Reconnect to main database and render confirmation page
+                    await connectDB();
+                    res.render('en/confirmation', { title: 'Thank You', paymentResponse, ...saleData });
+                }
+            } else {
+                await connectDB();
+                // Handle declined or failed payment
+                await createNewSale(paymentInfo, paymentResponse, authData);
+                delete req.session.authResponse;
+                res.render('en/checkout', { title: 'Checkout', paymentInfo, error: paymentResponse.ResponseMessage, ...authData, countries });
+            }
+        } catch (error) {
+            await connectDB();
+            console.error('Error during payment completion:', error);
+            const categories = await Category.findAll({ where: { active: true }, order: [['name', 'ASC']] });
+            delete req.session.authResponse;
+            res.render('en/index', { categories, error: 'There was an error processing payment or your session has timed out. Please try again.' });
+        }
     } catch (error) {
-        console.error('Error during payment completion:', error);
-        //res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
-        const categories = await Category.findAll({ where: { active: true }, order:[ ['name', 'ASC'] ] });
-        delete req.session.authResponse;
-        res.render('en/index', {categories, error : 'There was an error processing payment or your session has timed out. Please try again.'});
+        console.error('Unexpected error:', error);
+        res.render('en/checkout', { title: 'Checkout', error, paymentInfo: req.session.paymentInfo });
     }
 };
 
@@ -190,7 +208,6 @@ const getCountries = async () => {
 const parseRequestBody = async (req) => {
     const bodyData = JSON.parse(req.body.Response);
     const spiToken = bodyData.SpiToken;
-
     return { bodyData, spiToken };
 };
 
@@ -209,7 +226,6 @@ const captureTransaction = async (bodyData) => {
 
 // Helper function to extract sale data
 const extractSaleData = (paymentInfo, paymentResponse, source, billingAddress) => {
-
     const {Errors, ResponseMessage, Approved, CardBrand, TransactionIdentifier, AuthorizationCode, OrderIdentifier, TotalAmount, RRN} = paymentResponse;
     let errorCodeMsg = '';
     if (!Approved && Errors && Errors.length > 0) {
@@ -222,7 +238,7 @@ const extractSaleData = (paymentInfo, paymentResponse, source, billingAddress) =
         cardOwner: source.CardholderName,
         cardType: CardBrand,
         cardExpiry: source.CardExpiration,
-        lastFour: source.CardPan.slice(-4),
+        lastFour: source.CardPan,
         transactionId: TransactionIdentifier,
         authCode: AuthorizationCode ?? 0,
         orderId: OrderIdentifier,
@@ -240,18 +256,19 @@ const extractSaleData = (paymentInfo, paymentResponse, source, billingAddress) =
 }
 
 // Helper function to create new sale record
-const createNewSale = async(paymentInfo, paymentResponse, authData) => {
+const createNewSale = async (paymentInfo, paymentResponse, authData) => {
     try {
+        
         const newSale = {
             categoryId: parseInt(paymentInfo.categoryId),
             ...extractSaleData(paymentInfo, paymentResponse, authData.Source, authData.BillingAddress)
         };
         await Sale.create(newSale);
+        
     } catch (error) {
-        console.error('Error during sale completion:', error);
+        console.error(error);
     }
-   
+    
 }
-
 
 

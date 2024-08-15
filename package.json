@@ -15,6 +15,7 @@
     "body-parser": "^1.20.2",
     "connect-session-sequelize": "^7.1.7",
     "cookie-parser": "^1.4.6",
+    "crypto-js": "^4.2.0",
     "device-detector-js": "^3.0.3",
     "dns": "^0.2.2",
     "dotenv": "^16.4.5",
@@ -28,6 +29,7 @@
     "pg": "^8.11.5",
     "request-ip": "^3.3.0",
     "sequelize": "^6.37.3",
+    "store": "^2.0.12",
     "tedious": "^18.1.0",
     "util": "^0.12.5",
     "uuid": "^9.0.1"

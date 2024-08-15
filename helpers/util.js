@@ -8,6 +8,7 @@ const requestIP = require('request-ip');
 const defineMessageQueue = require('../models/message');
 const { connectAdhocDB } = require('../config/db');
 const config = require('../config/env');
+const CryptoJS = require('crypto-js');
 
 
 // const os = require('os');
@@ -323,6 +324,21 @@ function generateInvoiceNumber() {
     return invoiceNumber;
 }
 
+// Encrypt Data
+function encryptData(data, secretKey) {
+    const jsonData = JSON.stringify(data);
+    const encryptedData = CryptoJS.AES.encrypt(jsonData, secretKey).toString();
+    return encryptedData;
+}
+
+// Decrypt Data
+function decryptData(encryptedData, secretKey) {
+    const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
+    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+    return JSON.parse(decryptedData);
+}
+
+
 module.exports = {
     fileHelper,
     logError,
@@ -336,5 +352,7 @@ module.exports = {
     getIPAddress,
     renderViewToString,
     sendToMailQueue,
-    generateInvoiceNumber
+    generateInvoiceNumber,
+    encryptData,
+    decryptData
 };

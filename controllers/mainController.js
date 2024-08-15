@@ -5,7 +5,8 @@ const Subscriber = require('../models/subscriber');
 const fs = require('fs');
 const util = require('util');
 const readFile = util.promisify(fs.readFile);
-
+const Util = require('../helpers/util');
+var store = require('store/dist/store.modern');
 
 
 // GET all users
@@ -68,6 +69,9 @@ async function getMain(req, res){
         };
 
         req.session.paymentInfo = paymentInfo;
+
+        const encryptedPaymentInfo = Util.encryptData(paymentInfo, process.env.SECRET_KEY);
+        store.set('paymentInfo', encryptedPaymentInfo);
 
         //res.json({ success: paymentInfo });
         res.render('en/checkout', { paymentInfo, countries, title : 'Checkout' });
