@@ -1,6 +1,9 @@
 <script>
 // Function to create radio button and associated elements
 function createRadioButton(index, service) {
+    // Get login button to show on radio selection
+    var submitButton = document.querySelector('button[name="nextBtn"]'); 
+
     // Create radio button
     var radioButton = document.createElement('input');
     radioButton.type = 'radio';
@@ -37,6 +40,9 @@ function createRadioButton(index, service) {
             var notesText = parentDiv.querySelector('textarea[name="otherInfo"]');
             if (radio.checked) {
                 console.log(radio.dataset.text);
+
+                //remove disable from submit button
+                submitButton.disabled = false;
                 //capture service text and description for checkout page
                 $('#serviceText').val(radio.dataset.text);
                 $('#description').val(radio.dataset.desc);
@@ -246,6 +252,7 @@ $(document).ready(function() {
 
         if(!categoryId){
             $('#categoryList').hide();
+            $('#nextBtn').prop('disabled', true);;
         }
 
         $.ajax({

@@ -66,49 +66,49 @@ exports.authenticate = async (req, res) => {
 
         // Init authentication request
         Payment.initiateAuthentication(authData)
-    .then(authResponse => {
-        // Save data to session
-        req.session.authData = authData;
-        //remove card details before store
-        authData.Source.CardPan = cardDigits.slice(-4);
-        authData.Source.CardCvv = 0;
+        .then(authResponse => {
+            // Save data to session
+            req.session.authData = authData;
+            //remove card details before store
+            authData.Source.CardPan = cardDigits.slice(-4);
+            authData.Source.CardCvv = 0;
 
-        const encryptedAuthData = Util.encryptData(authData, process.env.SECRET_KEY);
-        store.set('authData', encryptedAuthData);
-        req.session.repEmail = RepEmailAddress;
-        req.session.authResponse = authResponse;
+            const encryptedAuthData = Util.encryptData(authData, process.env.SECRET_KEY);
+            store.set('authData', encryptedAuthData);
+            req.session.repEmail = RepEmailAddress;
+            req.session.authResponse = authResponse;
 
-        // Extract RedirectData for later use
-        const redirectData = authResponse.RedirectData;
+            // Extract RedirectData for later use
+            const redirectData = authResponse.RedirectData;
 
-        // Save session changes
-        return new Promise((resolve, reject) => {
-            req.session.save(err => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    res.render('en/checkout', { title: 'Checkout', error: 'Session save error', paymentInfo });
-                    reject(err);
-                } else {
-                    resolve(redirectData); // Resolve with redirectData
-                }
+            // Save session changes
+            return new Promise((resolve, reject) => {
+                req.session.save(err => {
+                    if (err) {
+                        console.error('Session save error:', err);
+                        res.render('en/checkout', { title: 'Checkout', error: 'Session save error', paymentInfo });
+                        reject(err);
+                    } else {
+                        resolve(redirectData); // Resolve with redirectData
+                    }
+                });
             });
+        })
+        .then(redirectData => {
+            if (req.session.authResponse.Errors && req.session.authResponse.Errors.length > 0) {
+                req.session.authResponse.Errors.forEach(error => {
+                    console.log(`Error Code: ${error.Code}, Message: ${error.Message}`);
+                });
+            } else {
+                // Use the extracted redirectData variable instead of session data
+                res.render('en/auth', { redirectData });
+            }
+        })
+        .catch(error => {
+            console.error('Error during authentication:', error);
+            res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
+            delete req.session.authResponse;
         });
-    })
-    .then(redirectData => {
-        if (req.session.authResponse.Errors && req.session.authResponse.Errors.length > 0) {
-            req.session.authResponse.Errors.forEach(error => {
-                console.log(`Error Code: ${error.Code}, Message: ${error.Message}`);
-            });
-        } else {
-            // Use the extracted redirectData variable instead of session data
-            res.render('en/auth', { redirectData });
-        }
-    })
-    .catch(error => {
-        console.error('Error during authentication:', error);
-        res.render('en/checkout', { title: 'Checkout', error, paymentInfo });
-        delete req.session.authResponse;
-    });
 
 
     } catch (error) {
