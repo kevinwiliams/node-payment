@@ -25,7 +25,7 @@ exports.authenticate = async (req, res) => {
 
     try {
         const paymentInfo = req.session.paymentInfo;
-        const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode, RepEmailAddress} = req.body;
+        const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode, RepEmailAddress, PhoneNumber} = req.body;
         // console.log('body', req.body);
         const currency = (CurrencyCode == 'JMD') ? '388' : '840';
         const cleanCardExpiration = CardExpiration.replace(/\//g, '');
@@ -52,7 +52,8 @@ exports.authenticate = async (req, res) => {
                 Line2: Line2,
                 City: '',
                 //CountryCode: '840',
-                EmailAddress: EmailAddress.toLowerCase().trim()
+                EmailAddress: EmailAddress.toLowerCase().trim(),
+                PhoneNumber: PhoneNumber
             },
             AddressMatch: false,
             ExtendedData: {
@@ -250,6 +251,7 @@ const extractSaleData = (paymentInfo, paymentResponse, source, billingAddress) =
         paymentStatus: ResponseMessage + errorCodeMsg,
         paymentNotes: paymentInfo.otherInfo,
         isApproved: Approved,
+        contactNumber: billingAddress.PhoneNumber,
         createdAt: new Date(),
         updatedAt: new Date()
     };

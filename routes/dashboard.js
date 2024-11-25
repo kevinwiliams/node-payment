@@ -15,5 +15,6 @@ router.post('/deleteservice', dashController.deleteService);
 router.post('/createservice', dashController.createService);
 
 router.get('/sales', dashController.getSales);
+router.get('/sales/awvision', dashController.getAWVisionSales);
 
 module.exports = router;

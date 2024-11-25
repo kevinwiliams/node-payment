@@ -2,12 +2,14 @@ const Category = require('../models/category');
 const Service = require('../models/service');
 const Sale = require('../models/sale');
 const Subscriber = require('../models/subscriber');
-
+const { Op } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 
 // GET all users
 async function getDashboard(req, res){
     try {
+      //console.log('');
       if(!req.session.isAuthenticated){
           res.redirect('/auth/login');
       }
@@ -29,9 +31,52 @@ async function getDashboard(req, res){
 async function getSales(req, res){
   try {
     
-    const sales = await Sale.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
-    res.render('sales/index',{
+    // Fetch the latest 10 sales
+    const sales = await Sale.findAll({
+      //limit: 10,
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Fetch distinct service names
+    const serviceNames = await Sale.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('serviceName')), 'serviceName'],
+      ],
+      raw: true, // Return plain data, not model instances
+    });
+
+    // Extract service names as an array of strings
+    const distinctServices = serviceNames.map(service => service.serviceName);
+
+    // Render view with sales and distinct service names
+    res.render('sales/index', {
       title: 'Sales Information',
+      sales,
+      distinctServices,
+    });
+
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error loading dashboard');
+  }
+}
+
+async function getAWVisionSales(req, res){
+  try {
+    
+    //const sales = await Sale.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
+    //const sales = await Sale.findAll({ where: { isApproved: 1, }, order: [['name', 'ASC']] });
+    const sales = await Sale.findAll({
+      where: {
+        isApproved: 1,
+        serviceName: {
+          [Op.like]: 'Event Tickets : Vision%'
+        }
+      },
+      order: [['paymentDate', 'DESC']]
+    });
+    res.render('sales/awvision',{
+      title: 'Ticket Sales Information',
       sales
     });
   } catch (error) {
@@ -171,5 +216,6 @@ async function deleteService(req, res) {
     updateService,
     deleteService,
     getService,
-    getSales
+    getSales,
+    getAWVisionSales
   };

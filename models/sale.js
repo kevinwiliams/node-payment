@@ -78,6 +78,10 @@ const Sale = sequelize.define('Sale', {
         type: DataTypes.BOOLEAN,
         allowNull: false
     },
+    contactNumber: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false

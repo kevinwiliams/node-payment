@@ -65,7 +65,9 @@ async function getMain(req, res){
             price: fullAmount,
             quantity: count,
             currency: currencyhd,
-            otherInfo: selectedOtherInfo ?? 'N/A'
+            otherInfo: categoryName.includes('Tickets') 
+            ? (count ? `(${count}) Tickets` : 'N/A') // If 'Tickets', check if count exists
+            : (selectedOtherInfo || 'N/A') //set ticket count if tickets is in the categoryName
         };
 
         req.session.paymentInfo = paymentInfo;

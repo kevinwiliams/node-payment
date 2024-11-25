@@ -129,7 +129,11 @@
                     <input type="text" class="form-control" aria-label="zip">
                 </div>
                 
-                
+                <div class="mb-4 col-sm-4">
+                    <label for="contact">Contact Number</label>
+                    <input type="text" class="form-control" placeholder="876 555 5555" aria-label="contact" name="PhoneNumber" id="PhoneNumber" required value="{{BillingAddress.PhoneNumber}}">
+                    {{!-- <small class="text-muted">Contact information</small> --}}
+                </div>
                 <hr class="mb-4">
                 
                 <h4 class="mb-3">Payment Details</h4>
@@ -196,18 +200,49 @@
     <!-- Scripts -->
     <script src="/assets/js/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+  <script src="/assets/vendor/cleave/cleave-phone.i18n.js"></script>
+
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   
 <script>
 
    $('form').on('submit',function(e){
+        if(grecaptcha.getResponse() === "") {
+            e.preventDefault();
+            alert('Error: \n please validate the Captcha test');
+        }
+    });
 
-      if(grecaptcha.getResponse() === "") {
-        e.preventDefault();
-        alert('Error: \n please validate the Captcha test');
-     }
+   // Reference to the Cleave.js instance
+let phoneNumber = null;
 
-  });
+// Function to initialize Cleave.js with the phoneRegionCode
+function initializeCleave(regionCode) {
+    if (phoneNumber) {
+        phoneNumber.destroy(); // Destroy the existing Cleave instance to avoid conflicts
+    }
+
+    // Initialize a new Cleave instance with the updated phone region
+    phoneNumber = new Cleave('#PhoneNumber', {
+        phone: true,
+        phoneRegionCode: regionCode || 'US', // Default to 'US' if no region code provided
+    });
+}
+
+// Initialize Cleave.js for the first time
+initializeCleave('US');
+
+// Get the country select element
+const countrySelect = document.querySelector('[name="CountryCode"]');
+
+// Listen for changes in the country select list
+countrySelect.addEventListener('change', (event) => {
+    const selectedCountryCode = event.target.value; // Get the selected country code
+    console.log('selectedCountryCode', selectedCountryCode);
+
+    // Reinitialize Cleave.js with the selected country code
+    initializeCleave(selectedCountryCode);
+});
 
     let cardCVV = new Cleave('#CardCvv', {
         blocks: [3],
@@ -218,10 +253,12 @@
         creditCard: true
     });
 
-  let ccDate = new Cleave('#CardExpiration', {
+    let ccDate = new Cleave('#CardExpiration', {
         date: true,
         datePattern: ['m', 'y']
     });
+
+    
 
  </script>
  

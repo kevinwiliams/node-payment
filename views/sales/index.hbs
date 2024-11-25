@@ -1,5 +1,14 @@
 <div class="container">
-    <table class="table small dtSales">
+    <div class="mb-3">
+      <label for="serviceFilter" class="form-label">Filter by Service Name</label>
+      <select class="form-select" id="serviceFilter" onchange="filterTableByService(this.value)">
+        <option value="">All Services</option>
+        {{#each distinctServices}}
+          <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <table class="table small dtSales" id="salesTable">
       <thead>
         <tr>
           <th>Service Name</th>
@@ -17,7 +26,7 @@
           <th>Payment Date</th>
           <th>Status</th>
           <th>Notes</th>
-          <th>Approved</th>
+          {{!-- <th>Approved</th> --}}
         </tr>
       </thead>
       <tbody>
@@ -39,7 +48,7 @@
           <td>{{formatTimeDate dataValues.paymentDate}}</td>
           <td>{{dataValues.paymentStatus}}</td>
           <td>{{dataValues.paymentNotes}}</td>
-          <td>{{dataValues.isApproved}}</td>
+          {{!-- <td>{{dataValues.isApproved}}</td> --}}
         </tr>
         {{/each}}
       </tbody>
@@ -50,10 +59,42 @@
 <script src="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/b-2.3.6/b-html5-2.3.6/b-print-2.3.6/r-2.4.1/sb-1.4.2/sp-2.1.2/datatables.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.js"></script>
 <script>
+  
+
     $(document).ready(function () {
-        $('.dtSales').DataTable({
+      const table = $('#salesTable').DataTable({
             "lengthChange": false,
-            "pageLength": 30
+            "order": [[9, 'desc']], // Default ordering by the 4th column (date)
+            "pageLength": 30,
+            "dom": 'Bfrtip', // Add the buttons to the table
+            "buttons": [
+              'copy', // Copy to clipboard
+              'excel', // Export to Excel
+              'pdf',  // Export to PDF
+              {
+                "extend": 'print',
+                "text": 'Print',
+                customize: function (win) {
+                  $(win.document.body).css('font-size', '10pt'); // Optional styling
+                  $(win.document.body)
+                    .find('table')
+                    .addClass('compact')
+                    .css('font-size', 'inherit');
+                },
+              },
+            ],
         });
+
+        // Handle the service name filter
+      $('#serviceFilter').on('change', function () {
+        const selectedService = $(this).val();
+        if (selectedService) {
+          // Apply search filter to the second column (Service Name)
+          table.column(0).search(selectedService).draw();
+        } else {
+          // Reset the filter if no service is selected
+          table.column(0).search('').draw();
+        }
+      });
     });
 </script>

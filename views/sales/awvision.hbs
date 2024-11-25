@@ -1,0 +1,85 @@
+<div class="container">
+    <table class="table small dtSales">
+      <thead>
+        <tr>
+          {{!-- <th>Service Name</th> --}}
+          <th>Card Owner</th>
+          <th>Email Address</th>
+          <th>Contact</th>
+          {{!-- <th>Card Type</th> --}}
+          {{!-- <th>Card Expiry</th> --}}
+          {{!-- <th>Last Four</th> --}}
+          {{!-- <th>Transaction ID</th> --}}
+          {{!-- <th>Auth Code</th> --}}
+          {{!-- <th>Order ID</th> --}}
+          <th>Ref Number</th>
+          <th>Curr</th>
+          <th>Amount</th>
+          <th>Payment Date</th>
+          {{!-- <th>Status</th> --}}
+          <th>Notes</th>
+          {{!-- <th>Approved</th> --}}
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Use server-side templating to populate table rows -->
+        {{#each sales}}
+        <tr>
+          {{!-- <td>{{dataValues.serviceName}}</td> --}}
+          <td>{{dataValues.cardOwner}}</td>
+          <td>{{dataValues.emailAddress}}</td>
+          <td>{{dataValues.contactNumber}}</td>
+          {{!-- <td>{{dataValues.cardType}}</td> --}}
+          {{!-- <td>{{dataValues.cardExpiry}}</td> --}}
+          {{!-- <td>{{dataValues.lastFour}}</td> --}}
+          {{!-- <td>{{dataValues.transactionId}}</td> --}}
+          {{!-- <td>{{dataValues.authCode}}</td> --}}
+          {{!-- <td>{{dataValues.orderId}}</td> --}}
+          <td>{{dataValues.refNumber}}</td>
+          <td>{{dataValues.currency}}</td>
+          <td>{{dataValues.amount}}</td>
+          <td>{{formatTimeDate dataValues.paymentDate}}</td>
+          {{!-- <td>{{dataValues.paymentStatus}}</td> --}}
+          <td>{{dataValues.paymentNotes}}</td>
+          {{!-- <td>{{dataValues.isApproved}}</td> --}}
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+    <!-- Scripts -->
+<script src="/assets/js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/b-2.3.6/b-html5-2.3.6/b-print-2.3.6/r-2.4.1/sb-1.4.2/sp-2.1.2/datatables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.js"></script>
+<script>
+    $(document).ready(function () {
+        /*$('.dtSales').DataTable({
+            "lengthChange": false,
+            "pageLength": 30
+        });*/
+
+        $('.dtSales').DataTable({
+            "lengthChange": false,
+            "pageLength": 30,
+            "dom": 'Bfrtip', // Include Buttons in the DataTable's DOM
+            "buttons": [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export to Excel',
+                    title: 'Sales Data'
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: 'Export to PDF',
+                    title: 'Sales Data',
+                    orientation: 'landscape', // Optional: Change orientation
+                    pageSize: 'A4' // Optional: Change page size
+                },
+                {
+                    extend: 'print',
+                    text: 'Print Table'
+                }
+            ]
+        });
+    });
+</script>

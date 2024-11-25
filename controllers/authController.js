@@ -24,30 +24,38 @@ const postLogin = async (req, res) => {
     const { email, password, rememberMe} = req.body;
     try {
         // Query the database to find the user by username
-        const result = await sequelize.query(`SELECT * FROM [dbo].[users] WHERE [email] = '${email}'`, { type: sequelize.QueryTypes.SELECT });
+        //const result = await sequelize.query(`SELECT * FROM [dbo].[users] WHERE [email] = '${email}'`, { type: sequelize.QueryTypes.SELECT });
+        const result = await sequelize.query(
+            `SELECT * FROM [dbo].[users] WHERE [email] = :email`,
+            {
+              replacements: { email }, // Parameterized query to prevent SQL injection
+              type: sequelize.QueryTypes.SELECT,
+            }
+          );
         // console.log('result', result);
         const user = result[0];
         if (!user) {
-            res.render('auth/login', { error: 'Invalid username or password' });
-            return;
+            console.log('User not found:', email);
+            return res.render('auth/login', { error: 'Invalid username or password' });
+            
         }
         // Compare the password hash
         const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch) {
-            res.render('auth/login', { error: 'Incorrect username/password'});
-            return;
+            return res.render('auth/login', { error: 'Incorrect username/password'});
+            
         }
 
         // Set user session
-        req.session.user = user; // Example: Storing user data in session
+        req.session.user = { username: user.username, email: user.email, code: user.securityStamp }; // Example: Storing user data in session
         
         req.session.isAuthenticated = true;
-        res.redirect('/admin/dashboard'); // Redirect to home page
+        return res.redirect('/admin/dashboard'); // Redirect to home page
         // res.redirect(returnUrl || '/dashboard'); // Redirect to home page
         // res.render('dashboard/index', {layout: 'layout'}); // Redirect to home page
     } catch (error) {
         console.error('Error logging in:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 };
 
