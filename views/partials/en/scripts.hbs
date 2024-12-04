@@ -292,8 +292,8 @@ $(document).ready(function() {
     $('#category').on('change', function() {
         var categoryId = $(this).val();
         var categoryName = $(this).find('option:selected').text();
-        console.log('categoryId', categoryId);
-        console.log('categoryName', categoryName);
+        //console.log('categoryId', categoryId);
+        //console.log('categoryName', categoryName);
         $('#categoryName').val(categoryName);
 
         if(!categoryId){
@@ -311,7 +311,7 @@ $(document).ready(function() {
                 // Append radio buttons for each service
                 appendRadioButtons(response.services);
 
-               
+               if(response.services.length == 0){ $('#serviceOptions').html('<b>Options not available at this time. Please try another category.</b>'); }
 
                 // Show the services
                 $('#categoryList').show();
