@@ -76,7 +76,7 @@ async function getAWVisionSales(req, res){
       where: {
         isApproved: 1,
         serviceName: {
-          [Op.like]: 'Event Tickets : Vision%'
+          [Op.like]: 'Event Tickets : All Woman%'
         }
       },
       order: [['paymentDate', 'DESC']]
