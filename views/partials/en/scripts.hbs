@@ -1,4 +1,11 @@
 <script>
+    // Global GLightbox instance
+    var lightbox = GLightbox({
+        selector: '.glightbox', // The class used for the lightbox links
+        touchNavigation: true,
+        //loop: true,
+        zoomable: true,
+    });
 // Function to create radio button and associated elements
 function createRadioButton(index, service) {
     // Get login button to show on radio selection
@@ -22,8 +29,8 @@ function createRadioButton(index, service) {
 
     // Create div to contain the radio button and associated elements
     var div = document.createElement('div');
-    div.classList.add('form-check');
-    div.classList.add('pb-3');
+    div.classList.add('form-check', 'pb-3');
+
     div.appendChild(radioButton);
     div.appendChild(label);
 
@@ -63,7 +70,8 @@ function createRadioButton(index, service) {
                         new Cleave(el, {numeral: true, numeralPositiveOnly: true});
                     });
                 }
-            } else {
+            } 
+            else {
                 // Hide price input and textarea for other radio buttons
                 if (quantityList) quantityList.style.display = 'none';
                 if (quantityLbl) quantityLbl.style.display = 'none';
@@ -101,10 +109,8 @@ function createRadioButton(index, service) {
         // Create input fields for additional data
 
         var quantityDiv = document.createElement('div');
-        quantityDiv.classList.add('form-floating');
-        quantityDiv.classList.add('col-lg-2');
-        quantityDiv.classList.add('col-md-4');
-        quantityDiv.classList.add('col-sm-2');
+        quantityDiv.classList.add('form-floating', 'justify-content-between', 'align-items-center',  'd-flex', 'gap-2');
+        //quantityDiv.classList.add('col-lg-2', 'col-md-4', 'col-sm-2');
         div.appendChild(quantityDiv);
 
 
@@ -113,16 +119,10 @@ function createRadioButton(index, service) {
         quantityDropdown.id = 'quantity';
         quantityDropdown.classList.add('form-select');
         quantityDropdown.style.display = 'none'; // Hide dropdown initially
-        var qty1 = new Option('1', '1');
-        var qty2 = new Option('2', '2');
-        var qty3 = new Option('3', '3');
-        var qty4 = new Option('4', '4');
-        var qty5 = new Option('5', '5');
-        quantityDropdown.appendChild(qty1);
-        quantityDropdown.appendChild(qty2);
-        quantityDropdown.appendChild(qty3);
-        quantityDropdown.appendChild(qty4);
-        quantityDropdown.appendChild(qty5);
+        [1, 2, 3, 4, 5].forEach(function (qty) {
+            var option = new Option(qty, qty);
+            quantityDropdown.appendChild(option);
+        });
         quantityDiv.appendChild(quantityDropdown);
        /* var quantityInput = document.createElement('input');
         quantityInput.type = 'number';
@@ -138,29 +138,49 @@ function createRadioButton(index, service) {
         quantityLbl.style.display = 'none';
         quantityDiv.appendChild(quantityLbl);
 
-        
+        // Image handling (optional, with lightbox)
+        if (service.image) {
+            var imageContainer = document.createElement('div');
+            imageContainer.classList.add('image-container', 'position-relative');
+            
+            var imgWrapper = document.createElement('a');
+            imgWrapper.href = service.image;
+            imgWrapper.dataset.title = service.name;
+            imgWrapper.classList.add('glightbox');
+
+            var img = document.createElement('img');
+            img.src = service.image;
+            img.alt = service.name + ' image';
+            img.classList.add('service-image', 'rounded', 'image-fluid');
+            img.style.maxWidth = '100px'; // Adjust width as needed
+            img.style.height = 'auto';   // Maintain aspect ratio
+
+            var magnifyIcon = document.createElement('i');
+            magnifyIcon.classList.add('bi', 'bi-search', 'magnifier-icon');
+
+            imgWrapper.appendChild(img);
+            imageContainer.appendChild(imgWrapper);
+            imageContainer.appendChild(magnifyIcon);
+            quantityDiv.appendChild(imageContainer);
+        }
     
-    } else {
+    } 
+    else {
 
         var priceInputGroup = document.createElement('div');
-        priceInputGroup.classList.add('input-group');
-        priceInputGroup.classList.add('d-flex');
-        priceInputGroup.classList.add('mb-2');
+        priceInputGroup.classList.add('input-group', 'd-flex', 'mb-2');
+
 
         var currencyDropdown = document.createElement('select');
         currencyDropdown.name = 'currency';
         currencyDropdown.id = 'currency';
-        currencyDropdown.classList.add('form-control');
-        currencyDropdown.classList.add('me-1');
-        currencyDropdown.classList.add('w-10');
+        currencyDropdown.classList.add('form-control', 'me-1', 'w-10');
         currencyDropdown.style.display = 'none'; // Hide dropdown initially
-        var selectOption = new Option('Choose Currency', '');
-        selectOption.selected = true;
-        var jmdOption = new Option('JMD', 'JMD');
-        var usdOption = new Option('USD', 'USD');
-        currencyDropdown.appendChild(selectOption);
-        currencyDropdown.appendChild(jmdOption);
-        currencyDropdown.appendChild(usdOption);
+       ['Choose Currency', 'JMD', 'USD'].forEach(function (cur, idx) {
+            var option = new Option(cur, idx === 0 ? '' : cur);
+            if (idx === 0) option.selected = true;
+            currencyDropdown.appendChild(option);
+        });
         // priceInputGroup.appendChild(currencyDropdown);
 
         // Create a new input group for the price input
@@ -176,8 +196,6 @@ function createRadioButton(index, service) {
         dollarSign.style.display = 'none'; // Hide price input initially
 
         priceWrapper.appendChild(currencyDropdown);
-
-
         priceWrapper.appendChild(dollarSign);
 
 
@@ -186,8 +204,7 @@ function createRadioButton(index, service) {
         priceInput.id = 'price';
         priceInput.name = 'price';
         priceInput.placeholder = '00.00';
-        priceInput.classList.add('form-control');
-        priceInput.classList.add('flex-grow-1');
+        priceInput.classList.add('form-control', 'flex-grow-1');
         priceInput.style.display = 'none'; // Hide price input initially
         priceInputGroup.appendChild(priceInput);
 
@@ -197,6 +214,9 @@ function createRadioButton(index, service) {
 
         div.appendChild(priceInputGroup);
 
+        var infodiv = document.createElement('div');
+        infodiv.classList.add('justify-content-between', 'align-items-center', 'd-flex', 'gap-2');
+
         var notesText = document.createElement('textarea');
         notesText.name = 'otherInfo';
         notesText.id = 'otherInfo';
@@ -204,7 +224,36 @@ function createRadioButton(index, service) {
         notesText.placeholder = 'Enter additional notes re your payment';
         notesText.classList.add('form-control');
         notesText.style.display = 'none'; // Hide textarea initially
-        div.appendChild(notesText);
+        infodiv.appendChild(notesText);
+
+        if (service.image) {
+            
+            var imageContainer = document.createElement('div');
+            imageContainer.classList.add('image-container', 'position-relative');
+
+            var imgWrapper = document.createElement('a');
+            imgWrapper.href = service.image;
+            imgWrapper.dataset.title = service.name;
+            imgWrapper.classList.add('glightbox');
+
+            var img = document.createElement('img');
+            img.src = service.image;
+            img.alt = service.name + ' image';
+            img.classList.add('service-image', 'rounded', 'image-fluid');
+            img.style.maxWidth = '100px'; // Adjust width as needed
+            img.style.height = 'auto';   // Maintain aspect ratio
+            imgWrapper.appendChild(img);
+
+            var magnifyIcon = document.createElement('i');
+            magnifyIcon.classList.add('bi', 'bi-search', 'magnifier-icon');
+
+            imageContainer.appendChild(imgWrapper);
+            imageContainer.appendChild(magnifyIcon);
+
+            infodiv.appendChild(imageContainer);
+        }
+
+        div.appendChild(infodiv);
     }
 
     // var addBreak = document.createElement('br');
@@ -213,10 +262,7 @@ function createRadioButton(index, service) {
     var descriptionInput = document.createElement('span');
     descriptionInput.name = 'description';
     descriptionInput.innerHTML = service.description; 
-    descriptionInput.classList.add('row'); 
-    descriptionInput.classList.add('px-2'); 
-    descriptionInput.classList.add('small'); 
-    descriptionInput.classList.add('text-secondary'); 
+    descriptionInput.classList.add('row', 'px-2',  'd-flex', 'small', 'text-secondary'); 
     div.appendChild(descriptionInput);
 
     return div;
@@ -264,8 +310,13 @@ $(document).ready(function() {
                 $('#serviceOptions').empty();
                 // Append radio buttons for each service
                 appendRadioButtons(response.services);
+
+               
+
                 // Show the services
                 $('#categoryList').show();
+                lightbox.reload();
+                //lightbox = GLightbox({ selector: '.glightbox' });
             },
             error: function(err) {
                 console.error(err);
@@ -330,7 +381,8 @@ $(document).ready(function() {
         // Submit the form
         this.submit();
     });
-
+    
 });
+
 
 </script>

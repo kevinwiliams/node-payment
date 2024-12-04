@@ -13,13 +13,6 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// Custom middleware to make session object available globally
-app.use((req, res, next) => {
-    // Attach session object to res.locals
-    res.locals.session = req.session;
-    next();
-});
-
 // Body parser middleware
 app.use(bodyParser.urlencoded({
     extended: true 
@@ -39,7 +32,7 @@ app.use(session({
     store: store,
     secret: 'secret',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         secure: false,
         httpOnly: true,

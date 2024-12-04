@@ -6,7 +6,7 @@
         <h5 class="modal-title" id="editServiceModalLabel">Edit Service</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="editServiceForm" name="editServiceForm" role="form" method="POST" class="g-3 needs-validation" data-request-url="/admin/dashboard/updateservice">
+      <form id="editServiceForm" name="editServiceForm" role="form" method="POST" class="g-3 needs-validation" data-request-url="/admin/dashboard/updateservice" enctype="multipart/form-data">
         <div class="modal-body">
           <!-- Input fields for editing values -->
           <input type="hidden" class="form-control" id="serviceId" name="serviceId">
@@ -41,6 +41,10 @@
           <div class="mb-3">
             <label for="serviceEpaperDays" class="form-label">EPAPER Days</label>
             <input type="number" class="form-control" id="serviceEpaperDays" name="serviceEpaperDays">
+          </div>
+          <div class="mb-3">
+            <label for="serviceImage" class="form-label">Upload Image</label>
+            <input type="file" class="form-control" id="serviceImage" name="serviceImage" accept="image/*">
           </div>
           <div class="mb-3">
             <div class="form-check">

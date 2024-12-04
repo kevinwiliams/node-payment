@@ -1,5 +1,45 @@
 <div class="container mt-5">
   <div class="row row-cols-1 row-cols-md-2 g-4">
+    
+      <!-- Services Card -->
+    <div class="col">
+      <div class="card">
+       <div class="card-header d-flex justify-content-between align-items-center">
+            Services
+            <button type="button" class="btn btn-sm btn-primary" id="createNewServiceBtn" data-bs-toggle="modal" data-bs-target="#editServiceModal">Create New</button>
+        </div>
+        <div class="card-body">
+          <table class="table small dtService">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Active</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each services}}
+              <tr>
+                <td><img src="{{image}}" alt="{{name}}" style="width: 100px; height: auto;"></td>
+                <td>{{name}}</td>
+                <td>{{Category.name}}</td>
+                <td>{{currency}} {{price}}</td>
+                <td>
+                  <span class="badge {{#if (eq active false)}}bg-danger{{else}}bg-success{{/if}}"><i class='bx bx-{{#if (eq active false)}}x{{else}}check{{/if}}'></i></span>
+                </td>
+                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{serviceId}}"><i class='bx bx-edit-alt bx-sm text-muted'></i></a></td>
+              </tr>
+            {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {{> dashboard/serviceModal }}
+    
     <!-- Categories Card -->
     <div class="col">
       <div class="card">
@@ -36,43 +76,39 @@
     </div>
     {{> dashboard/categoryModal }}
 
-      <!-- Services Card -->
+     <!-- Subscribers Card -->
     <div class="col">
       <div class="card">
-       <div class="card-header d-flex justify-content-between align-items-center">
-            Services
-            <button type="button" class="btn btn-sm btn-primary" id="createNewServiceBtn" data-bs-toggle="modal" data-bs-target="#editServiceModal">Create New</button>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            Subscribers
+            <button type="button" class="btn btn-sm btn-primary">Full View</button>
         </div>
         <div class="card-body">
-          <table class="table small dtService">
+          <table class="table small">
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Active</th>
+                <th>Email</th>
+                <th>Registration Date</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {{#each services}}
+              {{#each subscribers}}
               <tr>
-                <td>{{name}}</td>
-                <td>{{Category.name}}</td>
-                <td>{{currency}} {{price}}</td>
-                <td>
-                  <span class="badge {{#if (eq active false)}}bg-danger{{else}}bg-success{{/if}}"><i class='bx bx-{{#if (eq active false)}}x{{else}}check{{/if}}'></i></span>
-                </td>
-                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{serviceId}}"><i class='bx bx-edit-alt bx-sm text-muted'></i></a></td>
+                <td>{{dataValues.firstName}} {{dataValues.lastName}}</td>
+                <td>{{dataValues.planDesc}}</td>
+                <td>{{dataValues.createdAt}}</td>
+                <td><a href="#" class="view-sub" data-bs-toggle="modal" data-bs-target="#viewSubModal" data-id="{{dataValues.salesId}}"><i class='bx bx-search-alt bx-sm text-muted'></i></a></td>
               </tr>
-            {{/each}}
+              {{/each}}
+       
             </tbody>
           </table>
         </div>
       </div>
     </div>
-    {{> dashboard/serviceModal }}
-    
+
     <!-- Sales Card -->
     <div class="col">
       <div class="card">
@@ -105,38 +141,7 @@
       </div>
     </div>
   
-    <!-- Subscribers Card -->
-    <div class="col">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            Subscribers
-            <button type="button" class="btn btn-sm btn-primary">Full View</button>
-        </div>
-        <div class="card-body">
-          <table class="table small">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Registration Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {{#each subscribers}}
-              <tr>
-                <td>{{dataValues.firstName}} {{dataValues.lastName}}</td>
-                <td>{{dataValues.planDesc}}</td>
-                <td>{{dataValues.createdAt}}</td>
-                <td><a href="#" class="view-sub" data-bs-toggle="modal" data-bs-target="#viewSubModal" data-id="{{dataValues.salesId}}"><i class='bx bx-search-alt bx-sm text-muted'></i></a></td>
-              </tr>
-              {{/each}}
-       
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+   
 
   </div>
 </div>

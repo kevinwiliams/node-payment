@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const dashController = require('../controllers/dashboardController');
+const upload = require('../helpers/upload');
 
 router.get('/', dashController.getDashboard);
 
@@ -10,9 +11,9 @@ router.post('/deletecategory', dashController.deleteCategory);
 router.post('/createcategory', dashController.createCategory);
 
 router.post('/getservice', dashController.getService);
-router.post('/updateservice', dashController.updateService);
+router.post('/updateservice', upload.single('serviceImage'), dashController.updateService);
+router.post('/createservice', upload.single('serviceImage'), dashController.createService);
 router.post('/deleteservice', dashController.deleteService);
-router.post('/createservice', dashController.createService);
 
 router.get('/sales', dashController.getSales);
 router.get('/sales/awvision', dashController.getAWVisionSales);

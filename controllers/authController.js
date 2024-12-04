@@ -13,7 +13,7 @@ function generateUUID() {
 const getLogin = (req, res) => {
     console.log('isAuthenticated', req.session.isAuthenticated);
     if (req.session.isAuthenticated) {
-        res.redirect('/admin/dashboard');
+        return res.redirect('/admin/dashboard');
     }
     const { returnUrl } = req.query;
     res.render('auth/login', {   returnUrl, title: 'Login'});
@@ -63,12 +63,12 @@ const postLogin = async (req, res) => {
 const getRegister = async (req, res) => {
 
     if (!req.session.isAuthenticated) {
-        res.redirect('/auth/login');
+        return res.redirect('/auth/login');
     }
 
     // const roles = await AspNetRoles.findAll();
     // Render the registration form
-    res.render('auth/register', { title: 'Register', userData: req.session.user});
+    return res.render('auth/register', { title: 'Register', userData: req.session.user});
 };
 
 // POST: /Account/Register
@@ -95,7 +95,7 @@ const postRegister = async (req, res) => {
         });
 
         // Redirect to home page after successful registration
-        res.redirect('/auth/register');
+        return res.redirect('/auth/register');
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).send('Internal Server Error');

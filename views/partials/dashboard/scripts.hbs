@@ -8,7 +8,8 @@
 
         $('.dtService').DataTable({
             lengthChange: false,
-            dom: '<"row pb-3"<"col-lg-6"><"col-lg-6">>tip'
+            dom: '<"row pb-3"<"col-lg-6"><"col-lg-6">>tip',
+            pageLength: 5
         });
     });
 
@@ -163,19 +164,19 @@
 
     $('#editServiceForm').submit(function(event) {
         event.preventDefault();
+        // Prepare FormData for AJAX submission
+        const formData = new FormData(this);
+        // Add `serviceActive` checkbox value explicitly
+        const isActive = $('#serviceActive').is(':checked');
+        formData.set('serviceActive', isActive); 
+
         $.ajax({
             url: $(this).data('request-url'), // URL from data-request-url attribute
-            method: 'POST', 
-            data: {
-                serviceId: $('#serviceId').val(),
-                serviceCategory: $('#serviceCategory').val(),
-                serviceName: $('#serviceName').val(),
-                serviceCurrency: $('#serviceCurrency').val(),
-                servicePrice: $('#servicePrice').val(),
-                serviceDesc: $('#serviceDesc').val(),
-                serviceEpaperDays: $('#serviceEpaperDays').val(),
-                serviceActive: $('#serviceActive').is(':checked')
-            },
+            method: 'POST',
+            data: formData,
+            processData: false, // Required for FormData
+            contentType: false, // Required for FormData 
+            
             success: function(response) {
                 // Handle success response
                 // console.log('Service created successfully:', response);

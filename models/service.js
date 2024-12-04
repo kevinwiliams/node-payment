@@ -37,6 +37,10 @@ const Service = sequelize.define('Service', {
         allowNull: false,
         defaultValue: true
     },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false

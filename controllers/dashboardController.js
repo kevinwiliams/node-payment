@@ -4,6 +4,7 @@ const Sale = require('../models/sale');
 const Subscriber = require('../models/subscriber');
 const { Op } = require('sequelize');
 const { Sequelize } = require('sequelize');
+const path = require('path');
 
 
 // GET all users
@@ -11,11 +12,16 @@ async function getDashboard(req, res){
     try {
       //console.log('');
       if(!req.session.isAuthenticated){
-          res.redirect('/auth/login');
+          return res.redirect('/auth/login');
       }
       //   const users = await User.findAll();
       const categories = await Category.findAll({ order:[ ['name', 'ASC'] ] });
       const services = await Service.findAll({ order:[ ['categoryId', 'ASC'] ], include: [Category] });
+      services.forEach(service => {
+        if (!service.image) {
+          service.image = '/uploads/not-available.png';
+        }
+      });
       const sales = await Sale.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
       const subscribers = await Subscriber.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
       const serviceList = JSON.stringify(services);
@@ -144,6 +150,15 @@ async function deleteCategory(req, res) {
 async function createService(req, res) {
   try {
       const { serviceCategory, serviceName, serviceCurrency, servicePrice, serviceDesc, serviceEpaperDays, serviceActive } = req.body;
+      const { filename } = req.file; // File information from Multer
+
+      // Validate input
+      if (!serviceCategory || !serviceName || !serviceCurrency || !servicePrice) {
+        return res.status(400).json({ success: false, message: 'Missing required fields.' });
+      }
+      // Handle uploaded image
+      const serviceImage = req.file ? path.join('/uploads', filename) : null;
+
       const service = await Service.create({  
         categoryId: parseInt(serviceCategory), 
         name: serviceName, 
@@ -151,8 +166,10 @@ async function createService(req, res) {
         price: parseFloat(servicePrice), 
         description: serviceDesc, 
         epaperDays: serviceEpaperDays, 
-        active: serviceActive 
+        active: serviceActive,
+        image: serviceImage
       });
+
       res.status(201).json({ success: true, service});
   } catch (error) {
       res.status(500).json({ success: false, message: error.message });
@@ -174,6 +191,10 @@ async function getService(req, res){
 async function updateService(req, res) {
   try {
       const { serviceId, serviceCategory, serviceName, serviceCurrency, servicePrice, serviceDesc, serviceEpaperDays, serviceActive } = req.body;
+      // Validate input
+      if (!serviceCategory || !serviceName || !serviceCurrency || !servicePrice) {
+        return res.status(400).json({ success: false, message: 'Missing required fields.' });
+    }
       const service = await Service.findByPk(serviceId);
       if (!service) {
           return res.status(404).json({ success: false, message: 'Service not found' });
@@ -185,6 +206,12 @@ async function updateService(req, res) {
       service.description = serviceDesc;
       service.epaperDays = serviceEpaperDays;
       service.active = serviceActive;
+
+      // Update image if uploaded
+      if (req.file) {
+        service.image = `/uploads/${req.file.filename}`;
+      }
+
       await service.save();
       res.json({ success: true, service });
   } catch (error) {

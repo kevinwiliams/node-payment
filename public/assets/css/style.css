@@ -2116,3 +2116,18 @@ section {
 #footer .credits a:hover {
   color: white;
 }
+
+.image-container {
+  position: relative; /* Ensures the icon is positioned relative to the container */
+  display: inline-block;
+}
+
+.magnifier-icon {
+  position: absolute;
+  top: 0px; /* Adjust for spacing from the top */
+  right: 0px; /* Adjust for spacing from the right */
+  font-size: 1rem; /* Adjust size of the icon */
+  color: #000; /* Set icon color */
+  padding: 5px; /* Optional: add padding around the icon */
+  pointer-events: none; /* Ensure the icon does not interfere with interactions */
+}
