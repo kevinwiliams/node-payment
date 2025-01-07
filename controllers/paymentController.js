@@ -11,6 +11,7 @@ const Util = require('../helpers/util');
 const { connectDB } = require('../config/db');
 const config = require('../config/env');
 const Category = require('../models/category');
+const Service = require('../models/service');
 var store = require('store/dist/store.modern');
 
 function generateUUID() {
@@ -27,11 +28,20 @@ exports.authenticate = async (req, res) => {
         const paymentInfo = req.session.paymentInfo;
         const {CardPan, CardCvv, CardExpiration, CardholderName, FirstName, LastName, Line1, Line2, EmailAddress, TotalAmount, CurrencyCode, RepEmailAddress, PhoneNumber} = req.body;
         // console.log('body', req.body);
-        const currency = (CurrencyCode == 'JMD') ? '388' : '840';
+        let currency = (CurrencyCode == 'JMD') ? '388' : '840';
         const cleanCardExpiration = CardExpiration.replace(/\//g, '');
         const cardExp = cleanCardExpiration.slice(2) + CardExpiration.slice(0, 2);
         const cardDigits = CardPan.replace(/\s+/g, '');
-        const price = TotalAmount.replace(/,/g, '');
+        let price = TotalAmount.replace(/,/g, '');
+        const quantity = (paymentInfo.quantity) ? parseInt(paymentInfo.quantity) : 1;
+
+        const selectedService = await Service.findOne({ where: { serviceId: parseInt(paymentInfo.serviceId) } });
+        if(selectedService){
+            if(selectedService.price > 0){
+                price = (quantity * selectedService.price);
+                currency = (selectedService.currency == 'JMD') ? '388' : '840';
+            }
+        }
 
         const authData = {
             TransactionIdentifier: generateUUID(),
