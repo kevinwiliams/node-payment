@@ -1,11 +1,11 @@
 <script>
-    // Global GLightbox instance
-    var lightbox = GLightbox({
-        selector: '.glightbox', // The class used for the lightbox links
-        touchNavigation: true,
-        //loop: true,
-        zoomable: true,
-    });
+// Global GLightbox instance
+var lightbox = GLightbox({
+    selector: '.glightbox', // The class used for the lightbox links
+    touchNavigation: true,
+    //loop: true,
+    zoomable: true,
+});
 // Function to create radio button and associated elements
 function createRadioButton(index, service) {
     // Get login button to show on radio selection
@@ -30,7 +30,7 @@ function createRadioButton(index, service) {
     // Create div to contain the radio button and associated elements
     var div = document.createElement('div');
     div.classList.add('form-check', 'pb-3');
-
+    
     div.appendChild(radioButton);
     div.appendChild(label);
 
@@ -107,30 +107,21 @@ function createRadioButton(index, service) {
         div.appendChild(currenyHidden);
 
         // Create input fields for additional data
-
         var quantityDiv = document.createElement('div');
-        quantityDiv.classList.add('form-floating', 'justify-content-between', 'align-items-center',  'd-flex', 'gap-2');
-        //quantityDiv.classList.add('col-lg-2', 'col-md-4', 'col-sm-2');
+        quantityDiv.classList.add('form-floating', 'align-items-center',  'd-flex', 'gap-5');
         div.appendChild(quantityDiv);
 
 
         var quantityDropdown = document.createElement('select');
         quantityDropdown.name = 'quantity';
         quantityDropdown.id = 'quantity';
-        quantityDropdown.classList.add('form-select');
+        quantityDropdown.classList.add('form-select', 'w-25');
         quantityDropdown.style.display = 'none'; // Hide dropdown initially
         [1, 2, 3, 4, 5].forEach(function (qty) {
             var option = new Option(qty, qty);
             quantityDropdown.appendChild(option);
         });
         quantityDiv.appendChild(quantityDropdown);
-       /* var quantityInput = document.createElement('input');
-        quantityInput.type = 'number';
-        quantityInput.name = 'quantity';
-        quantityInput.id = 'quantity';
-        quantityInput.classList.add('form-control');
-        quantityInput.value = 1;
-        quantityDiv.appendChild(quantityInput);*/
 
         var quantityLbl = document.createElement('label');
         quantityLbl.setAttribute('for', 'quantity');
@@ -155,6 +146,7 @@ function createRadioButton(index, service) {
             img.style.maxWidth = '100px'; // Adjust width as needed
             img.style.height = 'auto';   // Maintain aspect ratio
 
+            //add magnify icon to image
             var magnifyIcon = document.createElement('i');
             magnifyIcon.classList.add('bi', 'bi-search', 'magnifier-icon');
 
@@ -181,7 +173,6 @@ function createRadioButton(index, service) {
             if (idx === 0) option.selected = true;
             currencyDropdown.appendChild(option);
         });
-        // priceInputGroup.appendChild(currencyDropdown);
 
         // Create a new input group for the price input
         var priceWrapper = document.createElement('div');
@@ -226,6 +217,7 @@ function createRadioButton(index, service) {
         notesText.style.display = 'none'; // Hide textarea initially
         infodiv.appendChild(notesText);
 
+        // Add image to categories with no preset prices
         if (service.image) {
             
             var imageContainer = document.createElement('div');
@@ -259,6 +251,7 @@ function createRadioButton(index, service) {
     // var addBreak = document.createElement('br');
     // div.appendChild(addBreak);
 
+    // Show services description below input boxes
     var descriptionInput = document.createElement('span');
     descriptionInput.name = 'description';
     descriptionInput.innerHTML = service.description; 
@@ -311,15 +304,17 @@ $(document).ready(function() {
                 // Append radio buttons for each service
                 appendRadioButtons(response.services);
 
-               if(response.services.length == 0){ $('#serviceOptions').html('<b>Options not available at this time. Please try another category.</b>'); }
+                if(response.services.length == 0){ 
+                    $('#serviceOptions').html('<b>Options not available at this time. Please try another category.</b>'); 
+                }
 
                 // Show the services
                 $('#categoryList').show();
+                //Reload lightbox to find new elements on page (if available)
                 lightbox.reload();
-                //lightbox = GLightbox({ selector: '.glightbox' });
             },
             error: function(err) {
-                console.error(err);
+                console.error('Error loading services', err);
                 alert('Error loading services');
             }
         });
@@ -336,8 +331,6 @@ $(document).ready(function() {
             return;
         }
 
-        
-                
         // Retrieve the selected service details
         var serviceName = selectedService.data('text');
         var serviceDesc = selectedService.data('desc');
