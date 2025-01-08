@@ -47,6 +47,10 @@ async function getMain(req, res){
   async function loadPaymentInfo(req, res) {
     try {
         console.log('paymentInfo', req.body);
+        
+        if (store.has('paymentInfo')) {
+          store.delete('paymentInfo');
+        }
     
         const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, currencyhd, price, otherInfo, description, totalAmount, count } = req.body;
         // Assuming there's only one category and service selected
