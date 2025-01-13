@@ -48,8 +48,8 @@ async function getMain(req, res){
     try {
         console.log('paymentInfo', req.body);
         
-        if (store.has('paymentInfo')) {
-          store.delete('paymentInfo');
+        if (req.session.paymentInfo) {
+          delete req.session.paymentInfo;
         }
     
         const { category, service, serviceName, serviceText, categoryName, categoryId, pricehd, currency, currencyhd, price, otherInfo, description, totalAmount, count } = req.body;
