@@ -1,233 +1,241 @@
-const sequelize = require('../config/db').sequelize;
+const { QueryTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
-const User = require('../models/user');
-const moment = require('moment');
-const Util = require('../helpers/util');
 const { v4: uuidv4 } = require('uuid');
+
+const sequelize = require('../config/db').sequelize;
+const { withBasePath } = require('../helpers/basePath');
+const User = require('../models/user');
+const Util = require('../helpers/util');
 
 function generateUUID() {
     return uuidv4();
 }
 
-// GET: /Account/Login
+function normalizeEmail(email) {
+    return String(email || '').trim().toLowerCase();
+}
+
+function renderLogin(res, error = '') {
+    return res.render('auth/login', {
+        title: 'Login',
+        error,
+    });
+}
+
 const getLogin = (req, res) => {
-    console.log('isAuthenticated', req.session.isAuthenticated);
     if (req.session.isAuthenticated) {
-        return res.redirect('/admin/dashboard');
+        return res.redirect(withBasePath('/admin/dashboard', req.app.locals.basePath));
     }
-    const { returnUrl } = req.query;
-    res.render('auth/login', {   returnUrl, title: 'Login'});
+
+    return renderLogin(res);
 };
 
-// POST: /Account/Login
 const postLogin = async (req, res) => {
-    const { email, password, rememberMe} = req.body;
+    const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || '');
+
     try {
-        // Query the database to find the user by username
-        //const result = await sequelize.query(`SELECT * FROM [dbo].[users] WHERE [email] = '${email}'`, { type: sequelize.QueryTypes.SELECT });
         const result = await sequelize.query(
-            `SELECT * FROM [dbo].[users] WHERE [email] = :email`,
+            'SELECT * FROM [dbo].[users] WHERE [email] = :email',
             {
-              replacements: { email }, // Parameterized query to prevent SQL injection
-              type: sequelize.QueryTypes.SELECT,
+                replacements: { email },
+                type: QueryTypes.SELECT,
             }
-          );
-        // console.log('result', result);
+        );
+
         const user = result[0];
         if (!user) {
-            console.log('User not found:', email);
-            return res.render('auth/login', { error: 'Invalid username or password' });
-            
-        }
-        // Compare the password hash
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
-        if (!isMatch) {
-            return res.render('auth/login', { error: 'Incorrect username/password'});
-            
+            return renderLogin(res, 'Invalid username or password.');
         }
 
-        // Set user session
-        req.session.user = { username: user.username, email: user.email, code: user.securityStamp }; // Example: Storing user data in session
-        
-        req.session.isAuthenticated = true;
-        return res.redirect('/admin/dashboard'); // Redirect to home page
-        // res.redirect(returnUrl || '/dashboard'); // Redirect to home page
-        // res.render('dashboard/index', {layout: 'layout'}); // Redirect to home page
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch) {
+            return renderLogin(res, 'Invalid username or password.');
+        }
+
+        return req.session.regenerate((err) => {
+            if (err) {
+                console.error('Error regenerating session:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+
+            req.session.user = {
+                userId: user.userId,
+                username: user.username,
+                email: user.email,
+            };
+            req.session.isAuthenticated = true;
+
+            return req.session.save((saveError) => {
+                if (saveError) {
+                    console.error('Error saving session after login:', saveError);
+                    return res.status(500).send('Internal Server Error');
+                }
+
+                return res.redirect(withBasePath('/admin/dashboard', req.app.locals.basePath));
+            });
+        });
     } catch (error) {
         console.error('Error logging in:', error);
         return res.status(500).send('Internal Server Error');
     }
 };
 
-// GET: /Account/Register
 const getRegister = async (req, res) => {
-
-    if (!req.session.isAuthenticated) {
-        return res.redirect('/auth/login');
-    }
-
-    // const roles = await AspNetRoles.findAll();
-    // Render the registration form
-    return res.render('auth/register', { title: 'Register', userData: req.session.user});
+    return res.render('auth/register', { title: 'Register', userData: req.session.user });
 };
 
-// POST: /Account/Register
 const postRegister = async (req, res) => {
     try {
-        const { email, userName, password, confirmPassword, otherInfo } = req.body;
+        const email = normalizeEmail(req.body.email);
+        const userName = String(req.body.userName || '').trim();
+        const password = String(req.body.password || '');
+        const confirmPassword = String(req.body.confirmPassword || '');
+        const otherInfo = String(req.body.otherInfo || '').trim();
 
-        // Check if passwords match
-        if (password !== confirmPassword) {
-            return res.status(400).send('Passwords do not match');
+        if (!userName || !email || !password) {
+            return res.status(400).render('auth/register', {
+                title: 'Register',
+                error: 'Username, email, and password are required.',
+                formData: { email, userName, otherInfo },
+            });
         }
 
-        // Hash the password
+        if (password !== confirmPassword) {
+            return res.status(400).render('auth/register', {
+                title: 'Register',
+                error: 'Passwords do not match.',
+                formData: { email, userName, otherInfo },
+            });
+        }
+
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).render('auth/register', {
+                title: 'Register',
+                error: 'A user with that email already exists.',
+                formData: { email, userName, otherInfo },
+            });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user in the database
-        const user = await User.create({
+        await User.create({
             username: userName,
-            email: email,
-            otherInfo: otherInfo,
-            registrationDate: sequelize.fn('GETUTCDATE'),
+            email,
+            otherInfo,
+            registrationDate: new Date(),
             passwordHash: hashedPassword,
             securityStamp: generateUUID(),
         });
 
-        // Redirect to home page after successful registration
-        return res.redirect('/auth/register');
+        return res.redirect(withBasePath('/admin/users', req.app.locals.basePath));
     } catch (error) {
         console.error('Error registering user:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 };
 
-// GET: /Account/ForgotPassword
 const getForgotPassword = (req, res) => {
-    // Render the forgot password form
-    res.render('auth/forgotpassword', { title: 'Forgot Password'});
+    return res.render('auth/forgotpassword', { title: 'Forgot Password' });
 };
 
-// POST: /Account/ForgotPassword
 const postForgotPassword = async (req, res) => {
     try {
-        // Implement your forgot password logic here
-        // Extract email from request body
-        const { email } = req.body;
-        // Check if email is valid
+        const email = normalizeEmail(req.body.email);
+
         if (!email) {
-            return res.status(400).send('Email is required');
+            return res.status(400).render('auth/forgotpassword', {
+                title: 'Forgot Password',
+                errorMessage: 'Email is required.',
+            });
         }
 
-        const user = await User.findOne({ where: { email: email } });
-        console.log('user', user);
+        const user = await User.findOne({ where: { email } });
         if (user) {
-            // Generate callback URL
-            const code = user.security_stamp;
-            const callbackUrl = `${req.protocol}://${req.get('host')}/auth/resetpassword?code=${code}`;
-            const dataToRender = {
-                CallBackUrl: callbackUrl
-            };
-            const subject = `Reset Password`;
-            const body = await Util.renderViewToString('./views/emails/passwordreset.hbs', dataToRender);
-            const emailSent = await Util.sendMail(email, subject, body);
-  
-            res.render('auth/forgotpasswordconfirmation');
-        }else{
-            res.render('auth/forgotpassword');
+            const callbackPath = withBasePath('/auth/resetpassword', req.app.locals.basePath);
+            const callbackUrl = `${req.protocol}://${req.get('host')}${callbackPath}?code=${user.securityStamp}`;
+            const body = await Util.renderViewToString('./views/emails/passwordreset.hbs', {
+                callbackUrl,
+                email,
+            });
+
+            await Util.sendToMailQueue(email, 'Reset Password', body);
         }
 
-       
+        return res.render('auth/forgotpasswordconfirmation', { title: 'Forgot Password Confirmation' });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+        console.error('Error sending forgot-password email:', error);
+        return res.status(500).send('Internal Server Error');
     }
 };
 
-// GET: /Account/ResetPassword
 const getResetPassword = (req, res) => {
     const { code } = req.query;
-    // Render the reset password form with the code parameter
-    res.render('auth/resetpassword', { code,  title: 'Reset Password'});
+    return res.render('auth/resetpassword', { code, title: 'Reset Password' });
 };
 
-// POST: /Account/ResetPassword
 const postResetPassword = async (req, res) => {
-    const { email, code, password, confirmPassword } = req.body;
+    const email = normalizeEmail(req.body.email);
+    const code = String(req.body.code || '').trim();
+    const password = String(req.body.password || '');
+    const confirmPassword = String(req.body.confirmPassword || '');
+
     try {
-
-        if (password === confirmPassword) {
-
-            const user = await User.findOne({ where: { email: email, securityStamp: code } });
-            if (user) {
-                const isMatch = await bcrypt.compare(password, user.passwordHash);
-
-                if(isMatch){
-                    const result = await changePasswordDB(user.userId, password);
-
-                    if (result.success) {
-                        return res.render('auth/resetpassword', {Message: 'ChangePasswordSuccess'});
-                    } else {
-                        res.locals.errors = result.errors;
-                        return res.render('auth/resetpassword', { ...req.body, Message: result.errors});
-                    }
-                } else{
-                    
-                    return res.render('auth/resetpassword', { ...req.body, Message: 'Old password does not match!'});
-                }
-            }
-            
-        } else{
-            return res.render('auth/resetpassword', { ...req.body, Message: 'Passwords do not match!'});
+        if (!email || !code || !password) {
+            return res.status(400).render('auth/resetpassword', {
+                ...req.body,
+                title: 'Reset Password',
+                Message: 'Email, code, and password are required.',
+            });
         }
 
-        // Implement your reset password logic here
-        // Example: Reset user's password in the database
-        res.render('auth/resetpassword');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
-};
+        if (password !== confirmPassword) {
+            return res.status(400).render('auth/resetpassword', {
+                ...req.body,
+                title: 'Reset Password',
+                Message: 'Passwords do not match!',
+            });
+        }
 
-// GET: /Account/ResetPasswordConfirmation
-const getResetPasswordConfirmation = (req, res) => {
-    // Render the reset password confirmation page
-    res.render('auth/resetpasswordconfirmation', { title: 'Reset Password Confirmation'});
-};
-
-// POST: /Account/LogOff
-const postLogout = (req, res) => {
-    try {
-        delete req.session.user; // Example: Clear user session on logout
-        delete req.session.userData; // Example: Clear user session on logout
-        delete req.session.isAuthenticated; // Example: Clear user session on logout
-        res.redirect('/auth/login');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
-};
-
-async function changePasswordDB(userId, newPassword) {
-    try {
-        // Find the user by userId
-        const user = await User.findByPk(userId);
+        const user = await User.findOne({ where: { email, securityStamp: code } });
         if (!user) {
-            return { success: false, errors: ['User not found'] };
+            return res.status(400).render('auth/resetpassword', {
+                ...req.body,
+                title: 'Reset Password',
+                Message: 'The reset link is invalid or has expired.',
+            });
         }
-        // Update the user's password hash
-        user.PasswordHash = await bcrypt.hash(newPassword, 10);
-        // Save the updated user
+
+        user.passwordHash = await bcrypt.hash(password, 10);
+        user.securityStamp = generateUUID();
         await user.save();
 
-        return { success: true };
+        return res.render('auth/resetpassword', {
+            title: 'Reset Password',
+            Message: 'ChangePasswordSuccess',
+        });
     } catch (error) {
-        console.error('Error changing password:', error);
-        return { success: false, errors: ['Internal Server Error'] };
+        console.error('Error resetting password:', error);
+        return res.status(500).send('Internal Server Error');
     }
 };
 
+const getResetPasswordConfirmation = (req, res) => {
+    return res.render('auth/resetpasswordconfirmation', { title: 'Reset Password Confirmation' });
+};
+
+const postLogout = (req, res) => {
+    req.session.destroy((error) => {
+        if (error) {
+            console.error('Error logging out:', error);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        res.clearCookie('connect.sid');
+        return res.redirect(withBasePath('/auth/login', req.app.locals.basePath));
+    });
+};
 
 module.exports = {
     getLogin,

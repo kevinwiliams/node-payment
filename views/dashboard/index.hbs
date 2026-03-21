@@ -1,96 +1,194 @@
-<div class="container mt-5">
-  <div class="row row-cols-1 row-cols-md-2 g-4">
-    
-      <!-- Services Card -->
-    <div class="col">
-      <div class="card">
-       <div class="card-header d-flex justify-content-between align-items-center">
-            Services
-            <button type="button" class="btn btn-sm btn-primary" id="createNewServiceBtn" data-bs-toggle="modal" data-bs-target="#editServiceModal">Create New</button>
+<div class="container admin-shell py-4">
+  <div class="admin-page-head mb-4">
+    <div>
+      <span class="admin-eyebrow">Operations</span>
+      <h1 class="admin-page-title mb-2">Dashboard</h1>
+      <p class="admin-page-copy mb-0">Manage services, categories, recent payments, and subscriber activity from one place.</p>
+    </div>
+    <div class="admin-head-actions">
+      <a href="{{withBasePath '/admin/dashboard/sales'}}" class="btn btn-outline-secondary">View Sales</a>
+      <a href="{{withBasePath '/admin/users'}}" class="btn btn-primary-custom text-white">Manage Users</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+      <div class="admin-metric-card">
+        <span class="admin-metric-label">Services</span>
+        <strong class="admin-metric-value">{{services.length}}</strong>
+        <span class="admin-metric-note">Configured payment services</span>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="admin-metric-card">
+        <span class="admin-metric-label">Categories</span>
+        <strong class="admin-metric-value">{{categories.length}}</strong>
+        <span class="admin-metric-note">Payment categories available</span>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="admin-metric-card">
+        <span class="admin-metric-label">Recent Sales</span>
+        <strong class="admin-metric-value">{{sales.length}}</strong>
+        <span class="admin-metric-note">Latest transactions loaded</span>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="admin-metric-card">
+        <span class="admin-metric-label">Subscribers</span>
+        <strong class="admin-metric-value">{{subscribers.length}}</strong>
+        <span class="admin-metric-note">Latest subscriber records loaded</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-xl-7">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Services</h2>
+            <p class="admin-panel-copy mb-0">Create, review, and update the services exposed to the payment flow.</p>
+          </div>
+          <button type="button" class="btn btn-primary-custom text-white" id="createNewServiceBtn" data-bs-toggle="modal" data-bs-target="#editServiceModal">Create Service</button>
         </div>
-        <div class="card-body">
-          <table class="table small dtService">
+        <div class="admin-table-wrap">
+          <table class="table admin-table align-middle small dtService">
             <thead>
               <tr>
-                <th>Image</th>
-                <th>Name</th>
+                <th>Service</th>
                 <th>Category</th>
                 <th>Price</th>
-                <th>Active</th>
-                <th></th>
+                <th>Status</th>
+                <th class="text-end">Action</th>
               </tr>
             </thead>
             <tbody>
               {{#each services}}
               <tr>
-                <td><img src="{{image}}" alt="{{name}}" style="width: 100px; height: auto;"></td>
-                <td>{{name}}</td>
+                <td>
+                  <div class="admin-service-cell">
+                    <img src="{{image}}" alt="{{name}}" class="admin-service-thumb">
+                    <div>
+                      <div class="admin-table-title">{{name}}</div>
+                      <div class="admin-table-meta">{{description}}</div>
+                    </div>
+                  </div>
+                </td>
                 <td>{{Category.name}}</td>
                 <td>{{currency}} {{price}}</td>
                 <td>
-                  <span class="badge {{#if (eq active false)}}bg-danger{{else}}bg-success{{/if}}"><i class='bx bx-{{#if (eq active false)}}x{{else}}check{{/if}}'></i></span>
+                  <span class="admin-status {{#if active}}is-active{{else}}is-inactive{{/if}}">
+                    {{#if active}}Active{{else}}Inactive{{/if}}
+                  </span>
                 </td>
-                <td><a href="#" class="edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{serviceId}}"><i class='bx bx-edit-alt bx-sm text-muted'></i></a></td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-secondary edit-service" data-bs-toggle="modal" data-bs-target="#editServiceModal" data-id="{{serviceId}}">
+                    Edit
+                  </button>
+                </td>
               </tr>
-            {{/each}}
+              {{/each}}
             </tbody>
           </table>
         </div>
       </div>
     </div>
-    {{> dashboard/serviceModal }}
-    
-    <!-- Categories Card -->
-    <div class="col">
-      <div class="card">
-       <div class="card-header d-flex justify-content-between align-items-center">
-            Categories
-            <button type="button" class="btn btn-sm btn-primary" id="createNewCategoryBtn" data-bs-toggle="modal" data-bs-target="#editCategoryModal">Create New</button>
+
+    <div class="col-xl-5">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Categories</h2>
+            <p class="admin-panel-copy mb-0">Keep category labels and descriptions tidy for the public checkout flow.</p>
+          </div>
+          <button type="button" class="btn btn-outline-secondary" id="createNewCategoryBtn" data-bs-toggle="modal" data-bs-target="#editCategoryModal">Create Category</button>
         </div>
-        <div class="card-body">
-          <table class="table small dtCategory">
+        <div class="admin-table-wrap">
+          <table class="table admin-table align-middle small dtCategory">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Active</th>
-                <th></th>
+                <th>Category</th>
+                <th>Status</th>
+                <th class="text-end">Action</th>
               </tr>
             </thead>
             <tbody>
-            {{#each categories}}
+              {{#each categories}}
               <tr>
-                <td>{{dataValues.name}}</td>
-                <td>{{dataValues.description}}</td>
                 <td>
-                  <span class="badge {{#if (eq dataValues.active false)}}bg-danger{{else}}bg-success{{/if}}"><i class='bx bx-{{#if (eq dataValues.active false)}}x{{else}}check{{/if}}'></i></span>
+                  <div class="admin-table-title">{{dataValues.name}}</div>
+                  <div class="admin-table-meta">{{dataValues.description}}</div>
                 </td>
-                <td><a href="#" class="edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}"><i class='bx bx-edit-alt bx-sm text-muted'></i></a></td>
-                {{!-- <td><a href="#" class="edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}">edit</a></td> --}}
+                <td>
+                  <span class="admin-status {{#if dataValues.active}}is-active{{else}}is-inactive{{/if}}">
+                    {{#if dataValues.active}}Active{{else}}Inactive{{/if}}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-secondary edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}">
+                    Edit
+                  </button>
+                </td>
               </tr>
-            {{/each}}
+              {{/each}}
             </tbody>
           </table>
         </div>
       </div>
     </div>
-    {{> dashboard/categoryModal }}
 
-     <!-- Subscribers Card -->
-    <div class="col">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            Subscribers
-            <button type="button" class="btn btn-sm btn-primary">Full View</button>
+    <div class="col-xl-6">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Recent Sales</h2>
+            <p class="admin-panel-copy mb-0">The latest payment records for a quick status check.</p>
+          </div>
+          <a href="{{withBasePath '/admin/dashboard/sales'}}" class="btn btn-outline-secondary">Open Full View</a>
         </div>
-        <div class="card-body">
-          <table class="table small">
+        <div class="admin-table-wrap">
+          <table class="table admin-table align-middle small">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Amount</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each sales}}
+              <tr>
+                <td>
+                  <div class="admin-table-title">{{dataValues.serviceName}}</div>
+                  <div class="admin-table-meta">{{dataValues.paymentStatus}}</div>
+                </td>
+                <td>{{dataValues.currency}} {{formatNumber dataValues.amount}}</td>
+                <td>{{formatTimeDate dataValues.paymentDate}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-6">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Recent Subscribers</h2>
+            <p class="admin-panel-copy mb-0">Latest signups pulled from the subscription feed.</p>
+          </div>
+          <span class="admin-inline-note">Latest 10</span>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="table admin-table align-middle small">
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Email</th>
-                <th>Registration Date</th>
-                <th></th>
+                <th>Plan</th>
+                <th>Registered</th>
               </tr>
             </thead>
             <tbody>
@@ -98,41 +196,7 @@
               <tr>
                 <td>{{dataValues.firstName}} {{dataValues.lastName}}</td>
                 <td>{{dataValues.planDesc}}</td>
-                <td>{{dataValues.createdAt}}</td>
-                <td><a href="#" class="view-sub" data-bs-toggle="modal" data-bs-target="#viewSubModal" data-id="{{dataValues.salesId}}"><i class='bx bx-search-alt bx-sm text-muted'></i></a></td>
-              </tr>
-              {{/each}}
-       
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sales Card -->
-    <div class="col">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            Sales
-            <a href="/admin/dashboard/sales" class="btn btn-sm btn-primary">Full View</a>
-        </div>
-        <div class="card-body">
-          <table class="table small">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Amount</th>
-                <th>Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {{#each sales}}
-              <tr>
-                <td>{{dataValues.serviceName}}</td>
-                <td>{{dataValues.currency}} {{dataValues.amount}}</td>
-                <td>{{formatTimeDate dataValues.paymentDate}}</td>
-                <td><a href="#" class="view-sale" data-bs-toggle="modal" data-bs-target="#viewSaleModal" data-id="{{dataValues.salesId}}"><i class='bx bx-search-alt bx-sm text-muted'></i></a></td>
+                <td>{{formatTimeDate dataValues.createdAt}}</td>
               </tr>
               {{/each}}
             </tbody>
@@ -140,13 +204,13 @@
         </div>
       </div>
     </div>
-  
-   
-
   </div>
 </div>
-  <!-- Scripts -->
-<script src="/assets/js/jquery-3.7.1.min.js"></script>
+
+{{> dashboard/serviceModal }}
+{{> dashboard/categoryModal }}
+
+<script src="{{withBasePath '/assets/js/jquery-3.7.1.min.js'}}"></script>
 <script src="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/b-2.3.6/b-html5-2.3.6/b-print-2.3.6/r-2.4.1/sb-1.4.2/sp-2.1.2/datatables.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.js"></script>
 {{> dashboard/scripts }}

@@ -1,6 +1,6 @@
 <!-- login.hbs -->
 {{!-- <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4"> --}}
-    <div class="container">
+    <div class="container" style="margin-top: 50px;">
         <div class="row justify-content-center">
             <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
 
@@ -12,7 +12,7 @@
                             <h5 class="card-title text-center pb-0 fs-4">Authourized Access Only </h5>
                         </div>
 
-                        <form action="/auth/login" method="post" class="row g-3 needs-validation php-email-form" role="form" novalidate>
+                        <form action="{{withBasePath '/auth/login'}}" method="post" class="row g-3 needs-validation php-email-form" role="form" novalidate>
                             {{#if error}}
                                 <div class="alert alert-danger" role="alert">
                                         <span>{{error}}</span>
@@ -44,7 +44,7 @@
                                 <button class="btn btn-primary w-100" type="submit">Login</button>
                             </div>
                             <div class="col-12">
-                                <p class="small mb-0"><a href="/auth/forgotpassword" class="small">Forgot your password?</a></p>
+                                <p class="small mb-0"><a href="{{withBasePath '/auth/forgotpassword'}}" class="small">Forgot your password?</a></p>
                             </div>
 
                         </form>
@@ -58,5 +58,5 @@
     </div>
 {{!-- </section> --}}
 <!-- Scripts -->
-<script src="/assets/js/jquery-3.7.1.min.js"></script>
-<script src="/assets/js/jquery.validate.min.js"></script>
+<script src="{{withBasePath '/assets/js/jquery-3.7.1.min.js'}}"></script>
+<script src="{{withBasePath '/assets/js/jquery.validate.min.js'}}"></script>

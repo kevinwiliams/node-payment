@@ -11,35 +11,29 @@ const headers = {
     'Host': config.processingHost,
 };
 
-exports.initiateAuthentication = async (data) => {
-    return axios.post('https://' + config.processingHost + '/Api/spi/auth', data, { 
+async function postToGateway(path, payload) {
+    try {
+        const response = await axios.post('https://' + config.processingHost + path, payload, {
         headers,
-        timeout: 20000 // 20 seconds timeout
-    })
-    .then(response => response.data)
-    .catch(error => {
-        console.error('Error during initiateAuthentication HTTP:', error);
-    });
+        timeout: 20000,
+        });
+
+        return response.data;
+    } catch (error) {
+        const gatewayError = new Error(error.response?.data?.Message || error.message || 'Gateway request failed.');
+        gatewayError.details = error.response?.data || null;
+        throw gatewayError;
+    }
+}
+
+exports.initiateAuthentication = async (data) => {
+    return postToGateway('/Api/spi/auth', data);
 };
 
 exports.completePayment = async (spiToken) => {
-    return axios.post('https://' + config.processingHost + '/Api/spi/Payment', spiToken, { 
-        headers,
-        timeout: 20000 // 20 seconds timeout
-    })
-    .then(response => response.data)
-    .catch(error => {
-        console.error('Error during completePayment HTTP:', error);
-    });
+    return postToGateway('/Api/spi/Payment', spiToken);
 };
 
 exports.capturePayment = async (captureData) => {
-    return axios.post('https://' + config.processingHost + '/Api/capture', captureData, { 
-        headers,
-        timeout: 20000 // 20 seconds timeout
-        })
-        .then(response => response.data)
-        .catch(error => {
-            console.error('Error during capturePayment HTTP:', error);
-        });
+    return postToGateway('/Api/capture', captureData);
 };

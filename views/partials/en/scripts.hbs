@@ -1,381 +1,445 @@
 <script>
-// Global GLightbox instance
-var lightbox = GLightbox({
-    selector: '.glightbox', // The class used for the lightbox links
-    touchNavigation: true,
-    //loop: true,
-    zoomable: true,
-});
-// Function to create radio button and associated elements
-function createRadioButton(index, service) {
-    // Get login button to show on radio selection
-    var submitButton = document.querySelector('button[name="nextBtn"]'); 
-
-    // Create radio button
-    var radioButton = document.createElement('input');
-    radioButton.type = 'radio';
-    radioButton.name = 'service';
-    radioButton.required = true;
-    radioButton.dataset.text = service.name;
-    radioButton.dataset.desc = service.description;
-    radioButton.id = 'service' + index;
-    radioButton.value = service.serviceId;
-    radioButton.classList.add('form-check-input');
-
-    // Create label for the radio button
-    var label = document.createElement('label');
-    label.setAttribute('for', 'service' + index);
-    label.textContent = service.name;
-
-    // Create div to contain the radio button and associated elements
-    var div = document.createElement('div');
-    div.classList.add('form-check', 'pb-3');
-    
-    div.appendChild(radioButton);
-    div.appendChild(label);
-
-    // Add event listener to radio button to toggle visibility of price and textarea
-    radioButton.addEventListener('change', function() {
-        var allRadioButtons = document.querySelectorAll('input[name="service"]');
-        allRadioButtons.forEach(function(radio) {
-            var parentDiv = radio.parentNode;
-            var quantityList = parentDiv.querySelector('select[name="quantity"]');
-            var quantityLbl = parentDiv.querySelector('label[for="quantity"]');
-            var priceSign = parentDiv.querySelector('span[id="sign"]');
-            var priceInput = parentDiv.querySelector('input[name="price"]');
-            var currencyList = parentDiv.querySelector('select[name="currency"]');
-            var notesText = parentDiv.querySelector('textarea[name="otherInfo"]');
-            if (radio.checked) {
-                console.log(radio.dataset.text);
-
-                //remove disable from submit button
-                submitButton.disabled = false;
-                //capture service text and description for checkout page
-                $('#serviceText').val(radio.dataset.text);
-                $('#description').val(radio.dataset.desc);
-                
-                // Show price input and textarea for the selected radio button
-                if (quantityList) quantityList.style.display = 'block';
-                if (quantityLbl) quantityLbl.style.display = 'block';
-                if (currencyList) currencyList.style.display = 'block';
-                if (currencyList) currencyList.required = true;
-                if (priceSign) priceSign.style.display = 'block';
-                if (priceInput) priceInput.style.display = 'block';
-                if (priceInput) priceInput.required = true;
-                if (notesText) notesText.style.display = 'block';
-                
-                // Format price field to avoid user error
-                if (!quantityList){
-                    document.querySelectorAll('#price').forEach(function(el) {
-                        new Cleave(el, {numeral: true, numeralPositiveOnly: true});
-                    });
-                }
-            } 
-            else {
-                // Hide price input and textarea for other radio buttons
-                if (quantityList) quantityList.style.display = 'none';
-                if (quantityLbl) quantityLbl.style.display = 'none';
-                if (currencyList) currencyList.style.display = 'none';
-                if (currencyList) currencyList.required = false;
-                if (priceSign) priceSign.style.display = 'none';
-                if (priceInput) priceInput.style.display = 'none';
-                if (priceInput) priceInput.required = false;
-                if (notesText) notesText.style.display = 'none';
-            }
-        });
+    // Global GLightbox instance
+    var lightbox = GLightbox({
+      selector: '.glightbox',
+      touchNavigation: true,
+      zoomable: true,
     });
 
-    // If price is 0, create an input box to collect the price
-    if (service.price !== null && service.price !== 0) {
-        var priceSpan = document.createElement('span');
-        priceSpan.classList.add('px-3');
-        priceSpan.textContent = service.currency + ' $' + parseFloat(service.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Display price and currency
-        div.appendChild(priceSpan); // Append the price information to the div
+    // Enhanced createRadioButton function
+    function createRadioButton(index, service) {
+      var card = document.createElement('div');
+      card.className = 'service-card fade-in';
+      card.style.animationDelay = (index * 0.05) + 's';
+      card.tabIndex = 0;
 
-        // Create hidden input fields for additional data
+      // Radio button
+      var radioInput = document.createElement('input');
+      radioInput.type = 'radio';
+      radioInput.name = 'service';
+      radioInput.id = 'service' + index;
+      radioInput.value = service.serviceId;
+      radioInput.dataset.text = service.name;
+      radioInput.dataset.desc = service.description;
+      radioInput.className = 'form-check-input';
+      radioInput.required = true;
+
+      // Service title
+      var title = document.createElement('h5');
+      title.className = 'service-card-title mb-2';
+      title.textContent = service.name;
+
+      // Service description
+      var description = document.createElement('p');
+      description.className = 'service-description mb-3';
+      description.textContent = service.description;
+
+      // Price section
+      var priceSection = document.createElement('div');
+      priceSection.className = 'mb-3';
+
+      if (service.price !== null && service.price !== 0) {
+        // Fixed price service
+        var priceDisplay = document.createElement('div');
+        priceDisplay.className = 'service-price';
+        priceDisplay.innerHTML = service.currency + ' $' + 
+          parseFloat(service.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+          '<small class="ms-2">(Fixed price)</small>';
+        priceSection.appendChild(priceDisplay);
+
+        // Hidden inputs
         var priceHidden = document.createElement('input');
         priceHidden.type = 'hidden';
         priceHidden.name = 'price';
         priceHidden.value = service.price;
-        div.appendChild(priceHidden);
 
-        // Create hidden input fields for additional data
-        var currenyHidden = document.createElement('input');
-        currenyHidden.type = 'hidden';
-        currenyHidden.name = 'currency';
-        currenyHidden.value = service.currency;
-        div.appendChild(currenyHidden);
+        var currencyHidden = document.createElement('input');
+        currencyHidden.type = 'hidden';
+        currencyHidden.name = 'currency';
+        currencyHidden.value = service.currency;
 
-        // Create input fields for additional data
+        // Quantity dropdown
         var quantityDiv = document.createElement('div');
-        quantityDiv.classList.add('form-floating', 'align-items-center',  'd-flex', 'gap-5');
-        div.appendChild(quantityDiv);
+        quantityDiv.className = 'mt-2';
+        quantityDiv.style.display = 'none';
 
+        var quantityLabel = document.createElement('label');
+        quantityLabel.className = 'form-label';
+        quantityLabel.textContent = 'Quantity';
+        quantityLabel.htmlFor = 'quantity' + index;
 
-        var quantityDropdown = document.createElement('select');
-        quantityDropdown.name = 'quantity';
-        quantityDropdown.id = 'quantity';
-        quantityDropdown.classList.add('form-select', 'w-25');
-        quantityDropdown.style.display = 'none'; // Hide dropdown initially
-        [1, 2, 3, 4, 5].forEach(function (qty) {
-            var option = new Option(qty, qty);
-            quantityDropdown.appendChild(option);
-        });
-        quantityDiv.appendChild(quantityDropdown);
+        var quantitySelect = document.createElement('select');
+        quantitySelect.id = 'quantity' + index;
+        quantitySelect.name = 'quantity';
+        quantitySelect.className = 'form-select w-auto';
+        quantitySelect.style.display = 'none';
 
-        var quantityLbl = document.createElement('label');
-        quantityLbl.setAttribute('for', 'quantity');
-        quantityLbl.innerHTML= 'Quantity';
-        quantityLbl.style.display = 'none';
-        quantityDiv.appendChild(quantityLbl);
-
-        // Image handling (optional, with lightbox)
-        if (service.image) {
-            var imageContainer = document.createElement('div');
-            imageContainer.classList.add('image-container', 'position-relative');
-            
-            var imgWrapper = document.createElement('a');
-            imgWrapper.href = service.image;
-            imgWrapper.dataset.title = service.name;
-            imgWrapper.classList.add('glightbox');
-
-            var img = document.createElement('img');
-            img.src = service.image;
-            img.alt = service.name + ' image';
-            img.classList.add('service-image', 'rounded', 'image-fluid');
-            img.style.maxWidth = '100px'; // Adjust width as needed
-            img.style.height = 'auto';   // Maintain aspect ratio
-
-            //add magnify icon to image
-            var magnifyIcon = document.createElement('i');
-            magnifyIcon.classList.add('bi', 'bi-search', 'magnifier-icon');
-
-            imgWrapper.appendChild(img);
-            imageContainer.appendChild(imgWrapper);
-            imageContainer.appendChild(magnifyIcon);
-            quantityDiv.appendChild(imageContainer);
+        for (let qty = 1; qty <= 5; qty++) {
+          var option = document.createElement('option');
+          option.value = qty;
+          option.textContent = qty;
+          quantitySelect.appendChild(option);
         }
-    
-    } 
-    else {
 
+        quantityDiv.appendChild(quantityLabel);
+        quantityDiv.appendChild(quantitySelect);
+        priceSection.appendChild(quantityDiv);
+
+        // Image if available
+        if (service.image) {
+          var imageDiv = document.createElement('div');
+          imageDiv.className = 'service-image-container mt-2';
+
+          var imgLink = document.createElement('a');
+          imgLink.href = service.image;
+          imgLink.dataset.title = service.name;
+          imgLink.className = 'glightbox';
+
+          var img = document.createElement('img');
+          img.src = service.image;
+          img.alt = service.name;
+          img.className = 'img-fluid';
+
+          var magnifier = document.createElement('i');
+          magnifier.className = 'bi bi-search magnifier-icon';
+
+          imgLink.appendChild(img);
+          imageDiv.appendChild(imgLink);
+          imageDiv.appendChild(magnifier);
+          priceSection.appendChild(imageDiv);
+        }
+
+        card.appendChild(priceHidden);
+        card.appendChild(currencyHidden);
+      } else {
+        // Custom price service
         var priceInputGroup = document.createElement('div');
-        priceInputGroup.classList.add('input-group', 'd-flex', 'mb-2');
+        priceInputGroup.className = 'mb-3';
+        priceInputGroup.style.display = 'none';
 
+        var row = document.createElement('div');
+        row.className = 'row g-3';
 
-        var currencyDropdown = document.createElement('select');
-        currencyDropdown.name = 'currency';
-        currencyDropdown.id = 'currency';
-        currencyDropdown.classList.add('form-control', 'me-1', 'w-10');
-        currencyDropdown.style.display = 'none'; // Hide dropdown initially
-       ['Choose Currency', 'JMD', 'USD'].forEach(function (cur, idx) {
-            var option = new Option(cur, idx === 0 ? '' : cur);
-            if (idx === 0) option.selected = true;
-            currencyDropdown.appendChild(option);
+        // Currency selection
+        var currencyCol = document.createElement('div');
+        currencyCol.className = 'col-md-3';
+
+        var currencyLabel = document.createElement('label');
+        currencyLabel.className = 'form-label';
+        currencyLabel.textContent = 'Currency';
+        currencyLabel.htmlFor = 'currency' + index;
+
+        var currencySelect = document.createElement('select');
+        currencySelect.id = 'currency' + index;
+        currencySelect.name = 'currency';
+        currencySelect.className = 'form-select';
+        currencySelect.required = true;
+
+        ['JMD', 'USD'].forEach(function(currency) {
+          var option = document.createElement('option');
+          option.value = currency;
+          option.textContent = currency;
+          currencySelect.appendChild(option);
         });
 
-        // Create a new input group for the price input
-        var priceWrapper = document.createElement('div');
-        priceWrapper.classList.add('input-group');
+        currencyCol.appendChild(currencyLabel);
+        currencyCol.appendChild(currencySelect);
 
-        // Add the dollar sign span
+        // Amount input
+        var amountCol = document.createElement('div');
+        amountCol.className = 'col-md-6';
+
+        var amountLabel = document.createElement('label');
+        amountLabel.className = 'form-label';
+        amountLabel.textContent = 'Amount';
+        amountLabel.htmlFor = 'price' + index;
+
+        var inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group';
+
         var dollarSign = document.createElement('span');
-        dollarSign.id = 'sign';
-        dollarSign.name = 'sign';
-        dollarSign.classList.add('input-group-text');
+        dollarSign.className = 'input-group-text';
         dollarSign.textContent = '$';
-        dollarSign.style.display = 'none'; // Hide price input initially
-
-        priceWrapper.appendChild(currencyDropdown);
-        priceWrapper.appendChild(dollarSign);
-
 
         var priceInput = document.createElement('input');
         priceInput.type = 'text';
-        priceInput.id = 'price';
+        priceInput.id = 'price' + index;
         priceInput.name = 'price';
-        priceInput.placeholder = '00.00';
-        priceInput.classList.add('form-control', 'flex-grow-1');
-        priceInput.style.display = 'none'; // Hide price input initially
-        priceInputGroup.appendChild(priceInput);
+        priceInput.className = 'form-control';
+        priceInput.placeholder = '0.00';
+        priceInput.required = true;
 
-        priceWrapper.appendChild(priceInput);
-        // Add the priceWrapper to the main input group
-        priceInputGroup.appendChild(priceWrapper);
+        inputGroup.appendChild(dollarSign);
+        inputGroup.appendChild(priceInput);
+        amountCol.appendChild(amountLabel);
+        amountCol.appendChild(inputGroup);
 
-        div.appendChild(priceInputGroup);
+        row.appendChild(currencyCol);
+        row.appendChild(amountCol);
+        priceInputGroup.appendChild(row);
 
-        var infodiv = document.createElement('div');
-        infodiv.classList.add('justify-content-between', 'align-items-center', 'd-flex', 'gap-2');
+        // Notes
+        var notesDiv = document.createElement('div');
+        notesDiv.className = 'mb-3';
+        notesDiv.style.display = 'none';
 
-        var notesText = document.createElement('textarea');
-        notesText.name = 'otherInfo';
-        notesText.id = 'otherInfo';
-        notesText.rows = '3';
-        notesText.placeholder = 'Enter additional notes re your payment';
-        notesText.classList.add('form-control');
-        notesText.style.display = 'none'; // Hide textarea initially
-        infodiv.appendChild(notesText);
+        var notesLabel = document.createElement('label');
+        notesLabel.className = 'form-label';
+        notesLabel.textContent = 'Additional Notes';
+        notesLabel.htmlFor = 'otherInfo' + index;
 
-        // Add image to categories with no preset prices
-        if (service.image) {
-            
-            var imageContainer = document.createElement('div');
-            imageContainer.classList.add('image-container', 'position-relative');
+        var notesTextarea = document.createElement('textarea');
+        notesTextarea.id = 'otherInfo' + index;
+        notesTextarea.name = 'otherInfo';
+        notesTextarea.className = 'form-control';
+        notesTextarea.rows = '2';
+        notesTextarea.placeholder = 'Enter any additional information about your payment...';
 
-            var imgWrapper = document.createElement('a');
-            imgWrapper.href = service.image;
-            imgWrapper.dataset.title = service.name;
-            imgWrapper.classList.add('glightbox');
+        notesDiv.appendChild(notesLabel);
+        notesDiv.appendChild(notesTextarea);
 
-            var img = document.createElement('img');
-            img.src = service.image;
-            img.alt = service.name + ' image';
-            img.classList.add('service-image', 'rounded', 'image-fluid');
-            img.style.maxWidth = '100px'; // Adjust width as needed
-            img.style.height = 'auto';   // Maintain aspect ratio
-            imgWrapper.appendChild(img);
+        card.appendChild(priceInputGroup);
+        card.appendChild(notesDiv);
+      }
 
-            var magnifyIcon = document.createElement('i');
-            magnifyIcon.classList.add('bi', 'bi-search', 'magnifier-icon');
+      // Event listeners for radio selection
+      radioInput.addEventListener('change', function() {
+        // Update card styling
+        document.querySelectorAll('.service-card').forEach(function(card) {
+          card.classList.remove('selected');
+        });
+        card.classList.add('selected');
 
-            imageContainer.appendChild(imgWrapper);
-            imageContainer.appendChild(magnifyIcon);
+        // Enable submit button
+        document.getElementById('nextBtn').disabled = false;
 
-            infodiv.appendChild(imageContainer);
+        // Show/hide relevant fields
+        document.querySelectorAll('.service-card').forEach(function(otherCard) {
+          if (otherCard !== card) {
+            // Hide fields in other cards
+            otherCard.querySelectorAll('[style*="display: block"]').forEach(function(el) {
+              el.style.display = 'none';
+            });
+            otherCard.querySelectorAll('[required]').forEach(function(el) {
+              el.required = false;
+            });
+          }
+        });
+
+        // Show fields in selected card
+        var priceInputGroup = card.querySelector('.mb-3');
+        if (priceInputGroup) priceInputGroup.style.display = 'block';
+
+        var quantityDiv = card.querySelector('.mt-2');
+        if (quantityDiv) {
+          quantityDiv.style.display = 'block';
+          card.querySelector('select[name="quantity"]').style.display = 'block';
         }
 
-        div.appendChild(infodiv);
+        var notesDiv = card.querySelector('.mb-3:nth-child(3)');
+        if (notesDiv) notesDiv.style.display = 'block';
+
+        // Update hidden fields
+        $('#serviceText').val(this.dataset.text);
+        $('#description').val(this.dataset.desc);
+
+        // Initialize Cleave for price input
+        var priceInput = card.querySelector('input[id="price' + index + '"]');
+        if (priceInput && !priceInput.dataset.cleave) {
+          new Cleave(priceInput, {
+            numeral: true,
+            numeralPositiveOnly: true,
+            numeralDecimalMark: '.',
+            delimiter: ','
+          });
+          priceInput.dataset.cleave = 'true';
+        }
+      });
+
+      function shouldIgnoreCardClick(target) {
+        return Boolean(target.closest('a, button, input, select, textarea, label'));
+      }
+
+      function activateCardSelection() {
+        if (!radioInput.checked) {
+          radioInput.checked = true;
+        }
+        radioInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      card.addEventListener('click', function(event) {
+        if (shouldIgnoreCardClick(event.target)) {
+          return;
+        }
+
+        activateCardSelection();
+      });
+
+      card.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          activateCardSelection();
+        }
+      });
+
+      // Assemble card
+      card.appendChild(radioInput);
+      card.appendChild(title);
+      card.appendChild(description);
+      card.appendChild(priceSection);
+
+      return card;
     }
 
-    // var addBreak = document.createElement('br');
-    // div.appendChild(addBreak);
+	    // Function to load services
+	    function loadServices(categoryId) {
+	      $('#serviceOptions').empty();
+	      $('#emptySelectionState').hide();
+	      $('#categoryList').hide();
+	      $('#loadingState').show();
+	      $('#errorState').hide();
+	      $('#nextBtn').disabled = true;
 
-    // Show services description below input boxes
-    var descriptionInput = document.createElement('span');
-    descriptionInput.name = 'description';
-    descriptionInput.innerHTML = service.description; 
-    descriptionInput.classList.add('row', 'px-2',  'd-flex', 'small', 'text-secondary'); 
-    div.appendChild(descriptionInput);
+      $.ajax({
+        url: '{{withBasePath "/en/service"}}',
+        method: 'POST',
+        data: { id: categoryId },
+	        success: function(response) {
+	          $('#loadingState').hide();
+	          $('#categoryList').show();
+	          $('#emptySelectionState').hide();
 
-    return div;
-}
-// Function to append radio buttons to the serviceOptions div
-function appendRadioButtons(services) {
-    var serviceOptions = document.getElementById('serviceOptions');
-    serviceOptions.innerHTML = ''; // Clear previous content
+	          if (response.services && response.services.length > 0) {
+            response.services.forEach(function(service, index) {
+              var radioButton = createRadioButton(index, service);
+              $('#serviceOptions').append(radioButton);
+            });
+            lightbox.reload();
+          } else {
+            $('#serviceOptions').html(`
+              <div class="alert alert-warning text-center">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                No services available for this category at the moment.
+                <p class="mt-2 small">Please select another category or contact support.</p>
+              </div>
+            `);
+          }
+        },
+	        error: function(err) {
+	          $('#loadingState').hide();
+	          $('#categoryList').hide();
+	          $('#emptySelectionState').hide();
+	          $('#errorState').show();
+	          console.error('Error loading services', err);
+	        }
+	      });
+	    }
 
-    services.forEach(function(service, index) {
-        var radioButtonDiv = createRadioButton(index, service);
-        serviceOptions.appendChild(radioButtonDiv);
-    });
-}
+    // Document ready
+    $(document).ready(function() {
+      // Initialize tooltips
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
 
-$(document).ready(function() {
-
-    $(window).on('pageshow', function (event) {
-        // Check if the event's persisted property is false
-        if (event.originalEvent.persisted) {
-            // This means the page is loaded from the cache
-            $('#category').val('').trigger('change');
-        }
-    });
-
-    $('#category').val('').trigger('change');
-    $('#category').on('change', function() {
+      // Category change handler
+      $('#category').on('change', function() {
         var categoryId = $(this).val();
         var categoryName = $(this).find('option:selected').text();
-        //console.log('categoryId', categoryId);
-        //console.log('categoryName', categoryName);
-        $('#categoryName').val(categoryName);
-
-        if(!categoryId){
-            $('#categoryList').hide();
-            $('#nextBtn').prop('disabled', true);;
-        }
-
-        $.ajax({
-            url: '/en/service',
-            method: 'POST',
-            data: { id: categoryId },
-            success: function(response) {
-                // Clear existing service options
-                $('#serviceOptions').empty();
-                // Append radio buttons for each service
-                appendRadioButtons(response.services);
-
-                if(response.services.length == 0){ 
-                    $('#serviceOptions').html('<b>Options not available at this time. Please try another category.</b>'); 
-                }
-
-                // Show the services
-                $('#categoryList').show();
-                //Reload lightbox to find new elements on page (if available)
-                lightbox.reload();
-            },
-            error: function(err) {
-                console.error('Error loading services', err);
-                alert('Error loading services');
-            }
-        });
-    });
-    $('#step1Form').on('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
         
-        // Find the selected radio button
+        $('#categoryName').val(categoryName);
+        
+	        if (!categoryId) {
+	          $('#categoryList').hide();
+	          $('#loadingState').hide();
+	          $('#errorState').hide();
+	          $('#emptySelectionState').show();
+	          $('#nextBtn').prop('disabled', true);
+	          return;
+	        }
+
+        loadServices(categoryId);
+      });
+
+      // Form submission handler
+      $('#step1Form').on('submit', function(event) {
+        event.preventDefault();
+        
         var selectedService = $('input[name="service"]:checked');
-                
-        // If no service is selected, display an error message and stop the submission
+        
         if (!selectedService.length) {
-            alert('Please select a service');
-            return;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Selection Required',
+            text: 'Please select a service to continue.',
+            confirmButtonColor: '#dc3545'
+          });
+          return;
         }
 
-        // Retrieve the selected service details
+        // Validate custom price inputs
+        var priceInput = selectedService.closest('.service-card').find('input[name="price"]');
+        
+        if (priceInput.length) {
+          var price = priceInput.val();
+          if (!price || isNaN(parseFloat(price))) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Amount',
+              text: 'Please enter a valid amount for the service.',
+              confirmButtonColor: '#dc3545'
+            });
+            return;
+          }
+        }
+
+        // Gather data
         var serviceName = selectedService.data('text');
         var serviceDesc = selectedService.data('desc');
-        
-        // Assign the selected service details to hidden fields
+        var currency = selectedService.closest('.service-card').find('select[name="currency"]').val() ||
+                      selectedService.closest('.service-card').find('input[name="currency"]').val();
+        var price = selectedService.closest('.service-card').find('input[name="price"]').val();
+        var quantity = selectedService.closest('.service-card').find('select[name="quantity"]').val();
+        var otherInfo = selectedService.closest('.service-card').find('textarea[name="otherInfo"]').val();
+        price = (price || '').replace(/,/g, '');
+
+        // Set hidden fields
         $('#serviceText').val(serviceName);
         $('#description').val(serviceDesc);
-
-        // Retrieve the hidden field values
-        var currency = selectedService.closest('div').find('select[name="currency"]').val();
-        var currencyHidden = selectedService.closest('div').find('input[name="currency"]').val();
-        var price = selectedService.closest('div').find('input[name="price"]').val();
-        var quantity = selectedService.closest('div').find('select[name="quantity"]').val();
-        var otherInfo = selectedService.closest('div').find('textarea[name="otherInfo"]').val();
-
-        var curr = (typeof currency !== 'undefined') ? currency : currencyHidden;
-
-        /*if (!/^\d*\.?\d*$/.test(price)) {
-            alert('Please enter numbers and "." only. Example: 50000.00');
-            // Remove any non-numeric characters
-            var fixedPrice = price.replace(/[^\d.]/g, '');
-            selectedService.closest('div').find('input[name="price"]').val(fixedPrice);
-            return;
-        }*/
-
-        // Assign the hidden field values to hidden input fields in the form
-        $('#count').val(quantity);
-        $('#currencyhd').val(curr);
-        $('#currency').val(currency);
+        $('#currencyhd').val(currency);
         $('#totalAmount').val(price);
-        $('#otherInfohd').val(otherInfo);
-        //$('[name=price]').val(totalAmount);
+        $('#count').val(quantity || 1);
+        $('#otherInfohd').val(otherInfo || '');
 
-        console.log('currency', currency);
-        console.log('currencyHidden', currencyHidden);
-        console.log('curr', curr);
-        console.log('price', price);
-        console.log('quantity', quantity);
-        console.log('otherInfo', otherInfo);
-
-        // Submit the form
+        // Submit form
         this.submit();
+      });
+
+      // Floating help button
+      $('.floating-help').on('click', function() {
+        Swal.fire({
+          title: 'Need Help?',
+          html: `
+            <div class="text-start">
+              <p><strong>Payment Assistance:</strong></p>
+              <ul class="mb-3">
+                <li>Select a category from the dropdown</li>
+                <li>Choose the specific service you need</li>
+                <li>Enter payment details if required</li>
+                <li>Continue to checkout</li>
+              </ul>
+              <p><strong>Support Contacts:</strong></p>
+              <p>📞 +1 876 936 9534<br>✉️ userhelp@jamaicaobserver.com</p>
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonText: 'Got it!',
+          confirmButtonColor: '#dc3545'
+        });
+      });
+
+      // Page load reset
+      $('#category').val('').trigger('change');
     });
-    
-});
-
-
-</script>
+  </script>

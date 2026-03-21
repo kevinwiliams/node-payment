@@ -91,9 +91,8 @@ async function logUserActivity(actLog) {
     }
 }
 
-async function sendMail(emailTo, subject, body) {
+async function sendMail(emailTo, subject, body, ccEmail = '') {
     try {
-
         const transporter = nodemailer.createTransport({
             host: process.env.smtp_host,
             port: parseInt(process.env.email_port_number),
@@ -114,24 +113,32 @@ async function sendMail(emailTo, subject, body) {
             html: body
         };
 
-        // Check if ccEmail is provided and not empty
-        if (ccEmail && ccEmail.trim() !== '') {
-            ccEmails = ccEmail.trim(); 
-        }
+        let bccEmails = config.bcc_other;
+        const normalizedCc = ccEmail && ccEmail.trim() !== '' ? ccEmail.trim() : '';
 
         const bccMapping = {
-            'Classifieds': process.env.bcc_advertise,
-            'Display': process.env.bcc_display,
-            'Other': process.env.bcc_other,
-            'Recycled': process.env.bcc_papers,
-            'Tickets': process.env.bcc_tickets
+            'Classifieds': config.bcc_advertise,
+            'Display': config.bcc_display,
+            'Other': config.bcc_other,
+            'Library': config.bcc_library,
+            'Recycled': config.bcc_papers,
+            'Subscription': config.bcc_papers,
+            'Tickets': config.bcc_tickets
         };
         
         for (const [keyword, email] of Object.entries(bccMapping)) {
             if (subject.includes(keyword)) {
                 bccEmails = email;
-                break; // Optional: if you only want the first match
+                break;
             }
+        }
+
+        if (normalizedCc) {
+            mailOptions.cc = normalizedCc;
+        }
+
+        if (bccEmails) {
+            mailOptions.bcc = bccEmails;
         }
 
         await transporter.sendMail(mailOptions);
@@ -163,7 +170,7 @@ async function sendToMailQueue(emailTo, subject, body, ccEmail){
             'Other': config.bcc_other,
             'Library': config.bcc_library,
             'Recycled': config.bcc_papers,
-            'Circulation': config.bcc_papers,
+            'Subscription': config.bcc_papers,
             'Tickets': config.bcc_tickets
         };
         
@@ -210,7 +217,7 @@ async function postRequest(url, data) {
         // console.log('response', response.data);
         return response;
     } catch (error) {
-        console.error('Error making POST request:', error.response.data);
+        console.error('Error making POST request:', error.response?.data || error.message);
         throw error;
     }
 }

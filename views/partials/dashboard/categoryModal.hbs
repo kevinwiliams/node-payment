@@ -1,27 +1,25 @@
 <!-- Edit Modal -->
 <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="editCategoryForm" name="editCategoryForm" role="form" method="POST" class="g-3 needs-validation" data-request-url="/admin/dashboard/updatecategory">
+      <form id="editCategoryForm" name="editCategoryForm" role="form" method="POST" class="g-3 needs-validation" data-request-url="{{withBasePath '/admin/dashboard/updatecategory'}}">
         <div class="modal-body">
-          <!-- Input fields for editing values -->
           <input type="hidden" class="form-control" id="categoryId" name="categoryId">
           
           <div class="mb-3">
             <label for="categoryName" class="form-label">Category</label>
-            <input type="text" class="form-control" id="categoryName" name="categoryName">
+            <input type="text" class="form-control" id="categoryName" name="categoryName" required>
           </div>
           <div class="mb-3">
             <label for="categoryDesc" class="form-label">Description</label>
             <textarea class="form-control" id="categoryDesc" name="categoryDesc" rows="3"></textarea>
           </div>
           <div class="mb-3">
-            
-            <div class="form-check">
+            <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" value="" id="categoryActive" name="categoryActive">
               <label class="form-check-label" for="categoryActive">
                 Active
@@ -29,9 +27,9 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" id="deleteCategoryBtn">Delete</button>
-          <button type="submit" class="btn btn-primary" id="updateCategoryBtn">Update</button>
+        <div class="modal-footer admin-modal-footer">
+          <button type="button" class="btn btn-outline-danger" id="deleteCategoryBtn">Delete</button>
+          <button type="submit" class="btn btn-primary-custom text-white" id="updateCategoryBtn">Update</button>
         </div>
       </form>
     </div>

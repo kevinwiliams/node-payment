@@ -7,6 +7,7 @@ router.get('/', mainController.getMain);
 router.post('/checkout', mainController.loadPaymentInfo);
 router.post('/service', mainController.getService);
 router.post('/auth', paymentController.authenticate);
+router.get('/confirmation', paymentController.confirmationLanding);
 router.post('/confirmation', paymentController.completePayment);
 
 router.get('/terms', (req, res) => {

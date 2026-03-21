@@ -1,265 +1,490 @@
-<!-- Step 1: Introduction Page -->
-
-
-<!-- Step 2: Checkout Page -->
 <div id="step2" class="container">
   <div class="row justify-content-center">
-    <div class="col-lg-10 col-md-10 col-sm-12">
+    <div class="col-lg-12 col-md-12 col-sm-12">
       <div class="my-4">
-        <p class="lead">Please enter your payment details below:</p>
+        <p class="lead mb-1">Complete your payment</p>
+        <p class="text-muted mb-0">Review your order and enter your billing details below.</p>
       </div>
+
       {{#if error}}
-        <ul class="text-danger">
-            <li>{{error}}</li>
-        </ul>
-        {{/if}}
-      <form id="step2Form" class="php-email-form" action="/en/auth" name="paymentForm" role="form" method="post" class="form-horizontal">
-        <!-- Billing Information Fields -->
-      
+      <ul class="text-danger">
+        <li>{{error}}</li>
+      </ul>
+      {{/if}}
+
+      <form id="checkoutForm" class="php-email-form" action="{{withBasePath '/en/auth'}}" name="paymentForm" role="form" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
         <div class="container">
-        <div class="row">
-        
-            <div class="col-md-4 order-lg-2 order-sm-1 py-4">
-                <div class="card p-4">
-                    <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Your Cart</span>
-                    <span class="badge rounded-pill bg-secondary">{{paymentInfo.quantity}}</span>
-                    </h4>
-                    
-                    <li class="list-group-item d-flex justify-content-between lh-condensed pb-2">
-                        <div>
-                            <h6 class="my-0 text-uppercase">{{paymentInfo.categoryName}}</h6>
-                            <small class="text-muted">{{paymentInfo.description}}</small>
-                        </div>
-                        <span class="text-muted">${{formatNumber paymentInfo.price}}</span> 
-                        <input type="hidden" name="TotalAmount" value="{{ paymentInfo.price}}">
-                        <input type="hidden" name="CurrencyCode" value="{{paymentInfo.currency}}">
-                    </li>
-                    <hr>
-                    <li class="list-group-item d-flex justify-content-between lh-condensed pb-3">
-                    <div>
-                            <h6 class="my-0">Notes</h6>
-                            <small class="text-muted">{{paymentInfo.otherInfo}}</small>
-                        </div>
-                    </li>
-                    {{!-- <hr> --}}
-                    {{!-- <li class="list-group-item d-flex justify-content-between bg-light py-3 pe-3 ps-2">
-                        <div class="text-success">
-                            <h6 class="my-0">Promo code</h6>
-                            <small>EXAMPLECODE</small>
-                        </div>
-                        <span class="text-success">-$500</span>
-                    </li> --}}
-                    
-                    <div class="card-footer d-flex justify-content-between pb-2">
-                    <span>Total ({{paymentInfo.currency}})</span>
-                    <strong>${{formatNumber paymentInfo.price}}</strong>
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="checkout-card checkout-card-muted fade-in">
+                <div class="card-header">
+                  Order Summary
+                </div>
+                <div class="card-body">
+                  <div class="order-summary-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h6 class="text-uppercase mb-1">{{paymentInfo.categoryName}}</h6>
+                        <small class="text-muted">{{paymentInfo.description}}</small>
+                      </div>
+                      <span class="text-success fw-bold">${{formatNumber paymentInfo.price}}</span>
                     </div>
 
-                    
-                    {{!-- <form class="card">
-                        <div class="input-group py-4">
-                            <input type="text" class="form-control" placeholder="Promo code">
-                            <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary">
-                                Redeem
-                            </button>
-                            </div>
-                        </div>
-                    </form> --}}
+                    {{#if paymentInfo.quantity}}
+                    <div class="mt-2">
+                      <span class="badge bg-light text-dark border">
+                        Quantity: {{paymentInfo.quantity}}
+                      </span>
+                    </div>
+                    {{/if}}
+                  </div>
+
+                  {{#if paymentInfo.otherInfo}}
+                  <div class="order-summary-item">
+                    <h6 class="mb-1">Notes</h6>
+                    <small class="text-muted">{{paymentInfo.otherInfo}}</small>
+                  </div>
+                  {{/if}}
+
+                  <div class="order-total fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="total-label">Total Amount</span>
+                      <div class="text-end">
+                        <div class="total-amount">${{formatNumber paymentInfo.price}}</div>
+                        <small class="text-muted">{{paymentInfo.currency}}</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="summary-meta">
+                    <small class="text-muted d-block">Cards accepted: Visa, Mastercard, Amex</small>
+                  </div>
+
+                  <div class="text-center mt-3 fade-in summary-ssl">
+                    <img
+                      src="{{withBasePath '/assets/img/secure-ssl-services.png'}}"
+                      alt="SSL Secure Payment"
+                      class="img-fluid"
+                      style="max-width: 180px;"
+                    >
+                  </div>
                 </div>
-                <div class="row justify-content-center py-5">
-                <img src="/assets/img/secure-ssl-services.png" style="max-width: 250px">
               </div>
-                
             </div>
-            
-            <div class="col-md-8 order-lg-1 order-sm-2 py-4">
-                <h4 class="mb-3">Billing Address</h4>
-                <div class="row">
-                <div class="col mb-4">
-                    <label for="First name"> First Name </label>
-                    <input type="text" class="form-control" placeholder="First name" aria-label="First name" name="FirstName" required value="{{BillingAddress.FirstName}}">
-                </div>
-                <div class="col mb-4">
-                    <label for="Last name"> Last Name </label>
-                    <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" name="LastName" required value="{{BillingAddress.LastName}}">
-                </div>
-                </div>
-                
-                <div class="mb-4">
-                    <label for="email">Email </label>
-                    <input type="email" class="form-control" placeholder="you@example.com" aria-label="email" name="EmailAddress" required value="{{BillingAddress.EmailAddress}}">
-                    <small class="text-muted">Your payment receipt will sent to this email</small>
-                </div>
 
-                 <div class="mb-4">
-                    <label for="email">Sales Rep Email <span class="text-muted">(optional)</span> </label>
-                    <input type="email" class="form-control" placeholder="you@example.com" aria-label="email" name="RepEmailAddress">
-                    <small class="text-muted">A copy of the payment receipt will sent to this email</small>
+            <div class="col-lg-8">
+              <div class="checkout-card fade-in">
+                <div class="card-header">
+                  Billing Information
                 </div>
-                
-                <div class="mb-4">
-                    <label for="Address">Address</label>
-                    <input type="text" class="form-control" placeholder="1234 Main St" aria-label="Address" name="Line1" required value="{{BillingAddress.Line1}}">
-                </div>
-                
-                <div class="mb-4">
-                    <label for="Address2">Address Line 2 </label>
-                    <input type="text" class="form-control" placeholder="Appartment or suite" aria-label="Address2" name="Line2" value="{{BillingAddress.Line2}}">
-                </div>
-                
-                <div class="row">
-                     <div class="col-lg-4 col-sm-12">
-                    <label for="StateParish">State/Parish</label>
-                    <input type="text" class="form-control" aria-label="State" name="StateParish" required value="{{BillingAddress.City}}">
-                </div>
-                <div class="col-lg-4 col-sm-12">
-                    <label for="country">Country</label>
-                    <select class="form-select" name="CountryCode" required>
-                        <option value="" selected="selected">Select Country</option>
-                        {{#each countries}}
-                        <option value="{{ this.code }}">{{ this.name }}</option>
-                        {{/each}}
-                    </select>
-                </div>
-               
-                <div class="col-lg-3 col-sm-4 mb-4">
-                    <label for="zip">Zip Code</label>
-                    <input type="text" class="form-control" aria-label="zip">
-                </div>
-                
-                <div class="mb-4 col-sm-4">
-                    <label for="contact">Contact Number</label>
-                    <input type="text" class="form-control" placeholder="876 555 5555" aria-label="contact" name="PhoneNumber" id="PhoneNumber" required value="{{BillingAddress.PhoneNumber}}">
-                    {{!-- <small class="text-muted">Contact information</small> --}}
-                </div>
-                <hr class="mb-4">
-                
-                <h4 class="mb-3">Payment Details</h4>
+                <div class="card-body">
+                  <div class="section-intro">
+                    <p class="mb-0">Your receipt will be sent to the email address you provide below.</p>
+                  </div>
+                  <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                      <label for="FirstName" class="form-label">First Name</label>
+                      <div class="input-icon-group">
+                        <i class="bi bi-person field-icon"></i>
+                        <input type="text" class="form-control" id="FirstName" name="FirstName" placeholder="John" required value="{{formData.firstName}}">
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="LastName" class="form-label">Last Name</label>
+                      <div class="input-icon-group">
+                        <i class="bi bi-person field-icon"></i>
+                        <input type="text" class="form-control" id="LastName" name="LastName" placeholder="Doe" required value="{{formData.lastName}}">
+                      </div>
+                    </div>
+                  </div>
 
-                
-                <div class="row">
-                    <div class="col mb-4">
-                    <label for="Card1">
-                        Name on card
-                    </label>
-                    <input type="text" class="form-control"aria-label="card1" name="CardholderName" required>
-                    <small class="text-muted">
-                        Full name, as displayed on the card
-                    </small>
+                  <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                      <label for="EmailAddress" class="form-label">Email Address</label>
+                      <div class="input-icon-group">
+                        <i class="bi bi-envelope-at field-icon"></i>
+                        <input type="email" class="form-control" id="EmailAddress" name="EmailAddress" placeholder="john.doe@example.com" required value="{{formData.emailAddress}}">
+                      </div>
+                      <div class="form-text-helper">
+                        Your payment receipt will be sent to this email
+                      </div>
                     </div>
-                    
-                    <div class="col-lg-6 col-sm-12 mb-4">
-                    <label for="Card2">
-                        Card Number
-                    </label>
-                    <input type="text" class="form-control" placeholder="1234 5678 9012 3456" aria-label="Card2" name="CardPan" id="CardPan" required>
+                    <div class="col-md-6 mb-3">
+                      <label for="RepEmailAddress" class="form-label">Sales Rep Email <span class="text-muted">(optional)</span></label>
+                      <div class="input-icon-group">
+                        <i class="bi bi-person-lines-fill field-icon"></i>
+                        <input type="email" class="form-control" id="RepEmailAddress" name="RepEmailAddress" placeholder="sales.rep@example.com" value="{{formData.repEmailAddress}}">
+                      </div>
+                      <div class="form-text-helper">
+                        Copy of receipt will be sent to this email
+                      </div>
                     </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="Line1" class="form-label">Street Address</label>
+                    <div class="input-icon-group">
+                      <i class="bi bi-geo-alt field-icon"></i>
+                      <input type="text" class="form-control" id="Line1" name="Line1" placeholder="1234 Main Street" required value="{{formData.line1}}">
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="Line2" class="form-label">Address Line 2 <span class="text-muted">(optional)</span></label>
+                    <div class="input-icon-group">
+                      <i class="bi bi-building field-icon"></i>
+                      <input type="text" class="form-control" id="Line2" name="Line2" placeholder="Apartment, suite, or unit" value="{{formData.line2}}">
+                    </div>
+                  </div>
+
+                  <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                      <label for="StateParish" class="form-label">State/Parish</label>
+                      <div class="input-icon-group">
+                        <i class="bi bi-map field-icon"></i>
+                        <input type="text" class="form-control" id="StateParish" name="StateParish" placeholder="Kingston" required value="{{formData.stateParish}}">
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label for="CountryCode" class="form-label">Country</label>
+                      <div class="select-icon-group country-select-wrapper">
+                        <i class="bi bi-flag field-icon"></i>
+                        <select class="form-select" id="CountryCode" name="CountryCode" required>
+                          <option value="" disabled>Select Country</option>
+                          {{#each countries}}
+                          <option value="{{this.code}}" {{#if (eq this.code ../formData.countryCode)}}selected{{/if}}>{{this.name}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label for="PostalCode" class="form-label">ZIP/Postal Code</label>
+                      <div class="input-icon-group">
+                        <i class="bi bi-mailbox field-icon"></i>
+                        <input type="text" class="form-control" id="PostalCode" name="PostalCode" placeholder="KGN 05" required value="{{formData.postalCode}}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="PhoneNumber" class="form-label">Contact Number</label>
+                    <div class="input-icon-group">
+                      <i class="bi bi-telephone field-icon"></i>
+                      <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" placeholder="(876) 555-1234" required value="{{formData.phoneNumber}}">
+                    </div>
+                    <div class="form-text-helper">
+                      Include country code if outside Jamaica
+                    </div>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <div class="mb-4">
+                    <h5 class="section-heading mb-3">Payment Details</h5>
+
+                    <div class="mb-4">
+                      <label for="CardholderName" class="form-label">Name on Card</label>
+                      <div class="input-icon-group">
+                        <i class="bi bi-person-vcard field-icon"></i>
+                        <input type="text" class="form-control" id="CardholderName" name="CardholderName" placeholder="JOHN A DOE" required value="{{formData.cardholderName}}">
+                      </div>
+                      <div class="form-text-helper">
+                        Full name as shown on your card
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                      <label for="CardPan" class="form-label">Card Number</label>
+                      <div class="input-icon-group card-input-group">
+                        <i class="bi bi-credit-card field-icon card-icon"></i>
+                        <input type="text" class="form-control" id="CardPan" name="CardPan" placeholder="1234 5678 9012 3456" required autocomplete="cc-number">
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-4 mb-3">
+                        <label for="CardExpiration" class="form-label">Expiration Date</label>
+                        <div class="input-icon-group">
+                          <i class="bi bi-calendar-event field-icon"></i>
+                          <input type="text" class="form-control" id="CardExpiration" name="CardExpiration" placeholder="MM/YY" required autocomplete="cc-exp">
+                        </div>
+                      </div>
+
+                      <div class="col-md-4 mb-3">
+                        <label for="CardCvv" class="form-label">CVV Code</label>
+                        <div class="input-icon-group">
+                          <i class="bi bi-shield-lock field-icon"></i>
+                          <input type="password" class="form-control" id="CardCvv" name="CardCvv" placeholder="123" maxlength="4" autocomplete="off" required>
+                        </div>
+                        <div class="form-text-helper">
+                          3 or 4 digits on your card
+                        </div>
+                      </div>
+
+                      <div class="col-md-4 mb-3 mt-4">
+                        <div class="card cvv-hint">
+                          <div class="card-body p-2">
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                              <i class="bi bi-info-circle me-1"></i>
+                              CVV is the security code on your card
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {{#if recaptchaSiteKey}}
+                  <div class="mb-4">
+                    <div class="g-recaptcha" data-sitekey="{{recaptchaSiteKey}}"></div>
+                    <div class="form-text-helper mt-2">
+                      Please verify that you are not a robot
+                    </div>
+                  </div>
+                  {{/if}}
+
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-between pt-3 border-top">
+                    <a href="{{withBasePath '/en/'}}" class="btn btn-outline-secondary">
+                      Back to Services
+                    </a>
+                    <button type="submit" class="btn btn-primary-custom px-5" id="submitBtn">
+                      <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      Complete Payment
+                    </button>
+                  </div>
+
+                  <div class="checkout-note mt-4">
+                    <p class="mb-0 small">Transactions are encrypted and processed through a 3D Secure-enabled payment gateway.</p>
+                  </div>
                 </div>
-                
-                <div class="row">
-                    <div class="col-lg-3 col-sm-4 col-md-4 mb-3">
-                    <label for="Card3">
-                        Expiration
-                    </label>
-                    <input type="text" class="form-control"aria-label="card3" placeholder="MM/YY" name="CardExpiration" id="CardExpiration" required>
-                    </div>
-                    
-                    <div class="col-lg-2 col-sm-3 col-md-4 mb-3">
-                    <label for="Card4">
-                        CVV
-                    </label>
-                    <input type="password" class="form-control"  aria-label="Card4" name="CardCvv" id="CardCvv" autocomplete="off" maxlength="3" required>
-                    </div>
-                </div>
-                
-                </div>
-            
-            <hr class="mb-4">
-                <div class="g-recaptcha" data-sitekey="6LduK3kkAAAAACHroigWMKD_BTHPWgI_8QD-otvj"></div>
-            <div class="d-grid gap-2 pt-2">
-                {{!-- <button class="g-recaptcha btn btn-danger btn-lg" 
-                data-sitekey="6LduK3kkAAAAACHroigWMKD_BTHPWgI_8QD-otvj" 
-                data-callback='onSubmit' 
-                data-action='submit'
-                type="submit">Continue to Checkout</button> --}}
-                <button class="btn btn-primary btn-lg" type="submit"> 
-                Continue to Checkout
-                </button>
+              </div>
             </div>
-            
-            </div>
-        
+          </div>
         </div>
-    </div>
       </form>
     </div>
   </div>
-  </div>
-    <!-- Scripts -->
-    <script src="/assets/js/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
-  <script src="/assets/vendor/cleave/cleave-phone.i18n.js"></script>
+</div>
 
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  
+<script src="{{withBasePath '/assets/js/jquery-3.7.1.min.js'}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+<script src="{{withBasePath '/assets/vendor/cleave/cleave-phone.i18n.js'}}"></script>
+{{#if recaptchaSiteKey}}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{{/if}}
+<script src="{{withBasePath '/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'}}"></script>
+<script src="{{withBasePath '/assets/vendor/sweetalert/sweetalert2.min.js'}}"></script>
+
 <script>
+  $(document).ready(function() {
+    const checkoutForm = $('#checkoutForm');
+    const submitBtn = $('#submitBtn');
 
-   $('form').on('submit',function(e){
-        if(grecaptcha.getResponse() === "") {
-            e.preventDefault();
-            alert('Error: \n please validate the Captcha test');
+    const countryPhoneCodes = {
+      'JM': 'JM',
+      'US': 'US',
+      'CA': 'CA',
+      'GB': 'GB'
+    };
+
+    let phoneCleave = null;
+    let ccNumberCleave = null;
+    let ccDateCleave = null;
+    let cvvCleave = null;
+
+    function initializeFormatters() {
+      const countryCode = $('#CountryCode').val();
+      const phoneRegionCode = countryPhoneCodes[countryCode] || 'US';
+
+      if (phoneCleave) phoneCleave.destroy();
+      phoneCleave = new Cleave('#PhoneNumber', {
+        phone: true,
+        phoneRegionCode: phoneRegionCode,
+        onValueChanged: function(e) {
+          validatePhone(e.target.value);
         }
-    });
+      });
 
-   // Reference to the Cleave.js instance
-let phoneNumber = null;
+      if (ccNumberCleave) ccNumberCleave.destroy();
+      ccNumberCleave = new Cleave('#CardPan', {
+        creditCard: true,
+        onCreditCardTypeChanged: function(type) {
+          updateCardIcon(type);
+        }
+      });
 
-// Function to initialize Cleave.js with the phoneRegionCode
-function initializeCleave(regionCode) {
-    if (phoneNumber) {
-        phoneNumber.destroy(); // Destroy the existing Cleave instance to avoid conflicts
+      if (ccDateCleave) ccDateCleave.destroy();
+      ccDateCleave = new Cleave('#CardExpiration', {
+        date: true,
+        datePattern: ['m', 'y'],
+        onValueChanged: function(e) {
+          validateExpiryDate(e.target.value);
+        }
+      });
+
+      if (cvvCleave) cvvCleave.destroy();
+      cvvCleave = new Cleave('#CardCvv', {
+        blocks: [4],
+        numericOnly: true,
+        onValueChanged: function(e) {
+          validateCVV(e.target.value);
+        }
+      });
     }
 
-    // Initialize a new Cleave instance with the updated phone region
-    phoneNumber = new Cleave('#PhoneNumber', {
-        phone: true,
-        phoneRegionCode: regionCode || 'US', // Default to 'US' if no region code provided
+    function updateCardIcon(cardType) {
+      const cardIcon = $('.card-icon');
+      cardIcon.removeClass('text-primary text-warning text-success text-info text-muted');
+
+      switch(cardType) {
+        case 'visa':
+          cardIcon.addClass('text-primary');
+          break;
+        case 'mastercard':
+          cardIcon.addClass('text-warning');
+          break;
+        case 'amex':
+          cardIcon.addClass('text-success');
+          break;
+        default:
+          cardIcon.addClass('text-muted');
+      }
+    }
+
+    function validatePhone(phone) {
+      const phoneRegex = /^[\+]?[1-9][\d]{6,15}$/;
+      const isValid = phoneRegex.test(phone.replace(/\D/g, ''));
+      toggleFieldValidation('#PhoneNumber', isValid, 'Please enter a valid phone number');
+      return isValid;
+    }
+
+    function validateExpiryDate(date) {
+      if (!date || date.length < 5) return false;
+
+      const [month, year] = date.split('/');
+      const now = new Date();
+      const currentYear = now.getFullYear() % 100;
+      const currentMonth = now.getMonth() + 1;
+      const expiryYear = parseInt(year, 10);
+      const expiryMonth = parseInt(month, 10);
+
+      const isValid = expiryMonth >= 1 &&
+        expiryMonth <= 12 &&
+        ((expiryYear > currentYear) ||
+        (expiryYear === currentYear && expiryMonth >= currentMonth));
+
+      toggleFieldValidation('#CardExpiration', isValid, 'Card has expired');
+      return isValid;
+    }
+
+    function validateCVV(cvv) {
+      const isValid = cvv.length >= 3 && cvv.length <= 4;
+      toggleFieldValidation('#CardCvv', isValid, 'CVV must be 3-4 digits');
+      return isValid;
+    }
+
+    function validateEmail(email, selector) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValid = emailRegex.test(email);
+      toggleFieldValidation(selector, isValid, 'Please enter a valid email');
+      return isValid;
+    }
+
+    function toggleFieldValidation(selector, isValid, message) {
+      const field = $(selector);
+      let feedback = field.siblings('.invalid-feedback');
+
+      if (!isValid && field.val()) {
+        field.addClass('is-invalid');
+        if (feedback.length === 0) {
+          field.after(`<div class="invalid-feedback">${message}</div>`);
+        }
+      } else {
+        field.removeClass('is-invalid');
+        feedback.remove();
+      }
+    }
+
+    $('.form-control').on('blur', function() {
+      const field = $(this);
+      const value = field.val();
+
+      if (!value && field.prop('required')) {
+        field.addClass('is-invalid');
+        return;
+      }
+
+      switch(field.attr('id')) {
+        case 'EmailAddress':
+          validateEmail(value, '#EmailAddress');
+          break;
+        case 'RepEmailAddress':
+          if (value) validateEmail(value, '#RepEmailAddress');
+          break;
+        case 'PhoneNumber':
+          validatePhone(value);
+          break;
+        case 'CardExpiration':
+          validateExpiryDate(value);
+          break;
+        case 'CardCvv':
+          validateCVV(value);
+          break;
+      }
     });
-}
 
-// Initialize Cleave.js for the first time
-initializeCleave('US');
-
-// Get the country select element
-const countrySelect = document.querySelector('[name="CountryCode"]');
-
-// Listen for changes in the country select list
-countrySelect.addEventListener('change', (event) => {
-    const selectedCountryCode = event.target.value; // Get the selected country code
-    console.log('selectedCountryCode', selectedCountryCode);
-
-    // Reinitialize Cleave.js with the selected country code
-    initializeCleave(selectedCountryCode);
-});
-
-    let cardCVV = new Cleave('#CardCvv', {
-        blocks: [3],
-        numericOnly: true
+    $('#CountryCode').on('change', function() {
+      initializeFormatters();
     });
 
-    let ccNumber = new Cleave('#CardPan', {
-        creditCard: true
+    checkoutForm.on('submit', function(e) {
+      e.preventDefault();
+
+      if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse() === '') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Security Check Required',
+          text: 'Please complete the reCAPTCHA verification.',
+          confirmButtonColor: '#dc3545'
+        });
+        return;
+      }
+
+      let isValid = true;
+      $('[required]').each(function() {
+        if (!$(this).val()) {
+          $(this).addClass('is-invalid');
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please fill in all required fields.',
+          confirmButtonColor: '#dc3545'
+        });
+        return;
+      }
+
+      submitBtn.addClass('loading').prop('disabled', true);
+
+      setTimeout(() => {
+        this.submit();
+      }, 300);
     });
 
-    let ccDate = new Cleave('#CardExpiration', {
-        date: true,
-        datePattern: ['m', 'y']
+    $('.form-control').on('focus', function() {
+      $(this).parent().addClass('focused');
+    }).on('blur', function() {
+      $(this).parent().removeClass('focused');
     });
 
-    
-
- </script>
- 
-
+    initializeFormatters();
+  });
+</script>

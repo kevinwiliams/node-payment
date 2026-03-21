@@ -1,100 +1,109 @@
-<div class="container">
-    <div class="mb-3">
-      <label for="serviceFilter" class="form-label">Filter by Service Name</label>
-      <select class="form-select" id="serviceFilter" onchange="filterTableByService(this.value)">
-        <option value="">All Services</option>
-        {{#each distinctServices}}
-          <option value="{{this}}">{{this}}</option>
-        {{/each}}
-      </select>
+<div class="container admin-shell py-4">
+  <div class="admin-page-head mb-4">
+    <div>
+      <span class="admin-eyebrow">Reporting</span>
+      <h1 class="admin-page-title mb-2">Sales Information</h1>
+      <p class="admin-page-copy mb-0">Search, filter, and export transaction records from the payment system.</p>
     </div>
-    <table class="table small dtSales" id="salesTable">
-      <thead>
-        <tr>
-          <th>Service Name</th>
-          {{!-- <th>Email Address</th> --}}
-          <th>Card Owner</th>
-          <th>Card Type</th>
-          {{!-- <th>Card Expiry</th> --}}
-          <th>Last Four</th>
-          {{!-- <th>Transaction ID</th> --}}
-          <th>Auth Code</th>
-          <th>Order ID</th>
-          <th>Ref Number</th>
-          <th>Curr</th>
-          <th>Amount</th>
-          <th>Payment Date</th>
-          <th>Status</th>
-          <th>Notes</th>
-          {{!-- <th>Approved</th> --}}
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Use server-side templating to populate table rows -->
-        {{#each sales}}
-        <tr>
-          <td>{{dataValues.serviceName}}</td>
-          {{!-- <td>{{dataValues.emailAddress}}</td> --}}
-          <td>{{dataValues.cardOwner}}</td>
-          <td>{{dataValues.cardType}}</td>
-          {{!-- <td>{{dataValues.cardExpiry}}</td> --}}
-          <td>{{dataValues.lastFour}}</td>
-          {{!-- <td>{{dataValues.transactionId}}</td> --}}
-          <td>{{dataValues.authCode}}</td>
-          <td>{{dataValues.orderId}}</td>
-          <td>{{dataValues.refNumber}}</td>
-          <td>{{dataValues.currency}}</td>
-          <td>{{dataValues.amount}}</td>
-          <td>{{formatTimeDate dataValues.paymentDate}}</td>
-          <td>{{dataValues.paymentStatus}}</td>
-          <td>{{dataValues.paymentNotes}}</td>
-          {{!-- <td>{{dataValues.isApproved}}</td> --}}
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
+    <div class="admin-head-actions">
+      <a href="{{withBasePath '/admin/dashboard'}}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
   </div>
-    <!-- Scripts -->
-<script src="/assets/js/jquery-3.7.1.min.js"></script>
+
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <div>
+        <h2 class="admin-panel-title">Transactions</h2>
+        <p class="admin-panel-copy mb-0">Filter by service name, then use the table tools to export what you need.</p>
+      </div>
+      <div class="admin-sales-filter">
+        <label for="serviceFilter" class="form-label mb-1">Service Filter</label>
+        <select class="form-select" id="serviceFilter">
+          <option value="">All Services</option>
+          {{#each distinctServices}}
+            <option value="{{this}}">{{this}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="table admin-table align-middle small dtSales" id="salesTable">
+        <thead>
+          <tr>
+            <th>Service Name</th>
+            <th>Card Owner</th>
+            <th>Card Type</th>
+            <th>Last Four</th>
+            <th>Auth Code</th>
+            <th>Order ID</th>
+            <th>Ref Number</th>
+            <th>Curr</th>
+            <th>Amount</th>
+            <th>Payment Date</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each sales}}
+          <tr>
+            <td>{{dataValues.serviceName}}</td>
+            <td>{{dataValues.cardOwner}}</td>
+            <td>{{dataValues.cardType}}</td>
+            <td>{{dataValues.lastFour}}</td>
+            <td>{{dataValues.authCode}}</td>
+            <td>{{dataValues.orderId}}</td>
+            <td>{{dataValues.refNumber}}</td>
+            <td>{{dataValues.currency}}</td>
+            <td>{{formatNumber dataValues.amount}}</td>
+            <td>{{formatTimeDate dataValues.paymentDate}}</td>
+            <td>{{dataValues.paymentStatus}}</td>
+            <td>{{dataValues.paymentNotes}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="{{withBasePath '/assets/js/jquery-3.7.1.min.js'}}"></script>
 <script src="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/b-2.3.6/b-html5-2.3.6/b-print-2.3.6/r-2.4.1/sb-1.4.2/sp-2.1.2/datatables.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.js"></script>
 <script>
-  
-
-    $(document).ready(function () {
-      const table = $('#salesTable').DataTable({
-            "lengthChange": false,
-            //"order": [[9, 'desc']], // Default ordering by the 4th column (date)
-            "pageLength": 30,
-            "dom": 'Bfrtip', // Add the buttons to the table
-            "buttons": [
-              'copy', // Copy to clipboard
-              'excel', // Export to Excel
-              'pdf',  // Export to PDF
-              {
-                "extend": 'print',
-                "text": 'Print',
-                customize: function (win) {
-                  $(win.document.body).css('font-size', '10pt'); // Optional styling
-                  $(win.document.body)
-                    .find('table')
-                    .addClass('compact')
-                    .css('font-size', 'inherit');
-                },
-              },
-            ],
-        });
-
-        // Handle the service name filter
-      $('#serviceFilter').on('change', function () {
-        const selectedService = $(this).val();
-        if (selectedService) {
-          // Apply search filter to the second column (Service Name)
-          table.column(0).search(selectedService).draw();
-        } else {
-          // Reset the filter if no service is selected
-          table.column(0).search('').draw();
-        }
-      });
+  $(document).ready(function () {
+    const table = $('#salesTable').DataTable({
+      lengthChange: false,
+      pageLength: 30,
+      responsive: true,
+      autoWidth: false,
+      dom: '<"admin-datatable-head d-flex justify-content-between align-items-center"fB>rt<"admin-datatable-foot"ip>',
+      buttons: [
+        'copy',
+        'excel',
+        'pdf',
+        {
+          extend: 'print',
+          text: 'Print',
+          customize: function (win) {
+            $(win.document.body).css('font-size', '10pt');
+            $(win.document.body).find('table').addClass('compact').css('font-size', 'inherit');
+          },
+        },
+      ],
+      language: {
+        search: '',
+        searchPlaceholder: 'Search transactions'
+      }
     });
+
+    $('#serviceFilter').on('change', function () {
+      const selectedService = $(this).val();
+      if (selectedService) {
+        table.column(0).search(selectedService).draw();
+      } else {
+        table.column(0).search('').draw();
+      }
+    });
+  });
 </script>

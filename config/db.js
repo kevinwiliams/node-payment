@@ -1,73 +1,79 @@
+require('dotenv').config();
+
 const { Sequelize } = require('sequelize');
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 let adhocDB;
 
-const sequelize = new Sequelize('[db]', '[user]', '[password]', {
-  host: 'localhost',
-  dialect: 'mssql',
-  dialectOptions: {
-    options: {
-      trustServerCertificate: true,
-      encrypt: false, // If you are connecting to Azure SQL Database, set this to true
-    },
-  },
-});
+function toBoolean(value, defaultValue) {
+    if (value === undefined) {
+        return defaultValue;
+    }
 
-// Define the session store
-const store = new SequelizeStore({
-  db: sequelize,
-  tableName: 'sessions', // Specify table name for storing sessions
-  // checkExpirationInterval: 15 * 60 * 1000, // How often to check for expired sessions (15 min)
-  // expiration: 24 * 60 * 60 * 1000 // How long sessions should be kept (24 hours)
-});
-
-// Sync the model with the database
-store.sync()
-    .then(() => {
-        console.log('Session table synchronized');
-    })
-    .catch(err => {
-        console.error('Error synchronizing session table:', err);
-    });
-
-const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Connected to MSSQL database');
-  } catch (error) {
-    console.error('Error connecting to database:', error.message);
-  }
+    return value === 'true';
 }
 
-const connectAdhocDB = async () => {
-  if (!adhocDB) {
-    adhocDB = new Sequelize('[db]', '[user]', '[password]', {
-      host: 'localhost',
-      dialect: 'mssql',
-      dialectOptions: {
-        options: {
-          trustServerCertificate: true,
-          encrypt: false,
-        },
-      },
-    });
+function getRequired(name) {
+    const value = process.env[name];
 
-    try {
-      await adhocDB.authenticate();
-      console.log('Adhoc database connection has been established successfully.');
-    } catch (error) {
-      console.error('Unable to connect to the adhoc database:', error);
-      throw error;
+    if (!value) {
+        throw new Error(`${name} must be configured in the environment.`);
     }
-  }
-  return adhocDB;
+
+    return value;
+}
+
+function buildDatabaseConfig(databaseName) {
+    return {
+        host: getRequired('DB_HOST'),
+        dialect: 'mssql',
+        logging: false,
+        dialectOptions: {
+            options: {
+                trustServerCertificate: toBoolean(process.env.DB_TRUST_SERVER_CERTIFICATE, true),
+                encrypt: toBoolean(process.env.DB_ENCRYPT, false),
+            },
+        },
+    };
+}
+
+const sequelize = new Sequelize(
+    getRequired('DB_NAME'),
+    getRequired('DB_USER'),
+    getRequired('DB_PASSWORD'),
+    buildDatabaseConfig(process.env.DB_NAME)
+);
+
+const store = new SequelizeStore({
+    db: sequelize,
+    tableName: 'sessions',
+});
+
+const connectDB = async () => {
+    await sequelize.authenticate();
+    console.log('Connected to MSSQL database');
 };
 
-module.exports = { 
-  sequelize, 
-  connectDB, 
-  connectAdhocDB, 
-  store, adhocDB
+const connectAdhocDB = async () => {
+    if (!adhocDB) {
+        adhocDB = new Sequelize(
+            getRequired('ADHOC_DB_NAME'),
+            getRequired('DB_USER'),
+            getRequired('DB_PASSWORD'),
+            buildDatabaseConfig(process.env.ADHOC_DB_NAME)
+        );
+
+        await adhocDB.authenticate();
+        console.log('Adhoc database connection has been established successfully.');
+    }
+
+    return adhocDB;
+};
+
+module.exports = {
+    sequelize,
+    connectDB,
+    connectAdhocDB,
+    store,
 };

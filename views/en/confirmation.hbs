@@ -1,51 +1,165 @@
-<div class="container about">
-
-        <div class="row content pb-5">
-          <div class="col-lg-6">
-            <h2>Payment Confirmation</h2>
-            {{!-- <h3>Voluptatem dignissimos provident quasi corporis voluptates sit assum perenda sruen jonee trave</h3> --}}
-            {{#if paymentResponse.Approved}}
-                <h3>Transaction Approved</h3>
-                <p>Authorization Code: {{paymentResponse.AuthorizationCode}}</p>
-                <!-- Other payment completion data -->
-                {{#if repEmail}}
-                <div class="row py-3">
-                    <small class="text-muted">A copy of this your payment confirmation was also sent to {{repEmail}}.</small>
-                    {{!-- <form action="/en/copyrecpt" method="post" name="recptForm" id="recptForm">
-                        <input type="text" name="ccEmail" id="ccEmail" placeholder="Enter sales rep email address" class="form-control">
-                        <button class="btn btn-danger my-3" type="submit">Send Copy</button>
-                    </form> --}}
-                </div>
-                {{/if}}
-            {{else}}
-                <h3>Transaction Declined</h3>
-                <p>Error Message: {{paymentResponse.ResponseMessage}}</p>
-            {{/if}}
-          </div>
-            
-          <div class="col-lg-6 pt-4 pt-lg-0">
-            <p>
-              Please see your transaction and service summary below:
-            </p>
-            <ul>
-              <li><i class="ri-check-double-line"></i>Service - {{serviceName}}</li>
-              <li><i class="ri-check-double-line"></i> More details</li>
-              <li><i class="ri-check-double-line"></i> Notes - {{paymentNotes}}</li>
-            </ul>
-            <hr>
-            <p class="fst-italic">
-              Transaction Details
-            </p>
-            <ul class="small">
-              <li><i class="ri-check-double-line"></i> Card Holder: {{cardOwner}}</li>
-              <li><i class="ri-check-double-line"></i> Card Info: {{cardType}} - **** **** **** {{lastFour}}</li>
-              <li><i class="ri-check-double-line"></i> Total Chaged: <strong>{{currency}}${{formatNumber amount}}</strong></li>
-              <li><i class="ri-check-double-line"></i> Reference: {{refNumber}}</li>
-
-
-            </ul>
-          </div>
-          
+<div class="container confirmation-page pt-5">
+  <div class="row justify-content-center">
+    <div class="col-xl-10">
+      <div class="confirmation-hero {{#if paymentResponse.Approved}}confirmation-hero-approved{{else}}confirmation-hero-declined{{/if}} fade-in">
+        <div class="confirmation-status-icon">
+          {{#if paymentResponse.Approved}}
+          <i class="bi bi-check2-circle"></i>
+          {{else}}
+          <i class="bi bi-exclamation-triangle"></i>
+          {{/if}}
         </div>
 
+        <div class="confirmation-hero-copy">
+          <p class="confirmation-eyebrow mb-2">Payment Confirmation</p>
+          {{#if paymentResponse.Approved}}
+          <h1 class="confirmation-title">Transaction Approved</h1>
+          <p class="confirmation-subtitle mb-0">
+            Your payment was received successfully and your receipt details are shown below.
+          </p>
+          {{else}}
+          <h1 class="confirmation-title">Transaction Declined</h1>
+          <p class="confirmation-subtitle mb-0">
+            We were unable to complete this payment. Review the response below before trying again.
+          </p>
+          {{/if}}
+        </div>
+
+        <div class="confirmation-amount">
+          <span class="confirmation-amount-label">Total</span>
+          <strong>{{currency}} ${{formatNumber amount}}</strong>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-xl-10">
+      <div class="row">
+        <div class="col-lg-7">
+          <div class="checkout-card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Receipt Summary</span>
+              <span class="confirmation-badge {{#if paymentResponse.Approved}}confirmation-badge-approved{{else}}confirmation-badge-declined{{/if}}">
+                {{#if paymentResponse.Approved}}Approved{{else}}Declined{{/if}}
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="confirmation-message {{#if paymentResponse.Approved}}confirmation-message-approved{{else}}confirmation-message-declined{{/if}}">
+                <div class="confirmation-message-icon">
+                  {{#if paymentResponse.Approved}}
+                  <i class="bi bi-shield-check"></i>
+                  {{else}}
+                  <i class="bi bi-info-circle"></i>
+                  {{/if}}
+                </div>
+                <div>
+                  <strong class="d-block mb-1">{{paymentResponse.ResponseMessage}}</strong>
+                  {{#if paymentResponse.Approved}}
+                  <span>Your authorization code is <strong>{{paymentResponse.AuthorizationCode}}</strong>.</span>
+                  {{else}}
+                  <span>Please verify your billing and card details before attempting the transaction again.</span>
+                  {{/if}}
+                </div>
+              </div>
+
+              {{#if repEmail}}
+              <div class="confirmation-inline-note">
+                <i class="bi bi-envelope-check"></i>
+                <span>A copy of this confirmation was also sent to {{repEmail}}.</span>
+              </div>
+              {{/if}}
+
+              <div class="confirmation-section">
+                <h5 class="confirmation-section-title">Service Details</h5>
+                <div class="confirmation-detail-grid">
+                  <div class="confirmation-detail-card">
+                    <span class="confirmation-detail-label">Service</span>
+                    <strong>{{serviceName}}</strong>
+                  </div>
+                  <div class="confirmation-detail-card">
+                    <span class="confirmation-detail-label">Customer</span>
+                    <strong>{{cardOwner}}</strong>
+                  </div>
+                  <div class="confirmation-detail-card">
+                    <span class="confirmation-detail-label">Email</span>
+                    <strong>{{emailAddress}}</strong>
+                  </div>
+                  <div class="confirmation-detail-card">
+                    <span class="confirmation-detail-label">Contact</span>
+                    <strong>{{contactNumber}}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {{#if paymentNotes}}
+              <div class="confirmation-section">
+                <h5 class="confirmation-section-title">Notes</h5>
+                <div class="confirmation-note-block">
+                  {{paymentNotes}}
+                </div>
+              </div>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="checkout-card checkout-card-muted fade-in">
+            <div class="card-header">Transaction Details</div>
+            <div class="card-body">
+              <div class="confirmation-data-list">
+                <div class="confirmation-data-row">
+                  <span>Payment Date</span>
+                  <strong>{{formatTimeDate paymentDate}}</strong>
+                </div>
+                <div class="confirmation-data-row">
+                  <span>Card</span>
+                  <strong>{{cardType}} ending in {{lastFour}}</strong>
+                </div>
+                <div class="confirmation-data-row">
+                  <span>Expiry</span>
+                  <strong>{{cardExpiry}}</strong>
+                </div>
+                <div class="confirmation-data-row">
+                  <span>Amount</span>
+                  <strong>{{currency}} ${{formatNumber amount}}</strong>
+                </div>
+                <div class="confirmation-data-row">
+                  <span>Reference</span>
+                  <strong>{{refNumber}}</strong>
+                </div>
+                <div class="confirmation-data-row">
+                  <span>Transaction ID</span>
+                  <strong class="confirmation-break">{{transactionId}}</strong>
+                </div>
+                <div class="confirmation-data-row">
+                  <span>Order ID</span>
+                  <strong class="confirmation-break">{{orderId}}</strong>
+                </div>
+                <div class="confirmation-data-row">
+                  <span>Authorization</span>
+                  <strong>{{authCode}}</strong>
+                </div>
+              </div>
+
+              <div class="confirmation-support">
+                <h6>Need help?</h6>
+                <p class="mb-2">Contact our support team if you have questions about this transaction.</p>
+                <p class="mb-1"><strong>Phone:</strong> +1 876 936 9534</p>
+                <p class="mb-0"><strong>Email:</strong> userhelp@jamaicaobserver.com</p>
+              </div>
+
+              <div class="confirmation-actions">
+                <a href="{{withBasePath '/en/'}}" class="btn btn-outline-secondary">Back to Services</a>
+                {{#unless paymentResponse.Approved}}
+                <a href="{{withBasePath '/en/'}}" class="btn btn-primary-custom">Try Again</a>
+                {{/unless}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

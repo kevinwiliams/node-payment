@@ -1,56 +1,142 @@
-<!-- Step 1: Introduction Page -->
-<div class="container py-4">
+<div class="container py-4 main-landing-wrap">
   <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="content">
-            <h4>Welcome to our Payment Gateway!</h4>
-            <p class="pb-4">
-            Trust us for secure transactions  -  Jamaica Observer Limited, Always Ahead!
+    <div class="col-xl-11">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body main-intro-card">
+          {{#if error}}
+          <div class="alert alert-danger" role="alert">
+            {{error}}
+          </div>
+          {{/if}}
+          <div class="text-center mb-2">
+            <i class="bi bi-shield-check intro-icon text-success"></i>
+            <h3 class="mt-3 intro-title">Welcome to Jamaica Observer Payment Gateway</h3>
+            <p class="intro-subtitle text-muted mb-0">
+              Secure transactions, quick processing, and support when you need it.
             </p>
-            <p>
-               {{#if error}}
-                    <p class="text-bold text-danger">{{error}}</p>
-                {{/if}}
-            </p>
-        </div>
-      <form id="step1Form" class="pb-5" method="post" action="/en/checkout">
-           <div class="">
-        <div class="section-title">
-          <h2>Please select a payment category below</h2>
+          </div>
         </div>
       </div>
-        <div class="mb-3 py-1">
-          <select class="form-select" id="category" name="category" required>
-            <option value="" selected>Select Service</option>
-             {{#each categories}}
-                <option value="{{ this.dataValues.categoryId }}">{{ this.dataValues.name }}</option>
-            {{/each}}
-          </select>
-          
-        </div>
+
+      <form id="step1Form" method="post" action="{{withBasePath '/en/checkout'}}">
         <input id="categoryName" name="categoryName" type="hidden">
-          <input id="currencyhd" name="currencyhd" type="hidden" />
-            <input id="otherInfohd" name="otherInfo" type="hidden" />
-            <input id="totalAmount" name="totalAmount" type="hidden" />
-            <input id="count" name="count" type="hidden" />
+        <input id="currencyhd" name="currencyhd" type="hidden" />
+        <input id="otherInfohd" name="otherInfo" type="hidden" />
+        <input id="totalAmount" name="totalAmount" type="hidden" />
+        <input id="count" name="count" type="hidden" />
+        <input id="serviceText" name="serviceText" type="hidden" />
+        <input id="description" name="description" type="hidden" />
 
-        <div id="categoryList" class="mb-3 py-3" style="display: none;">
-            <div class="section-title">
-          <h2>Please select the service you want to pay for</h2>
-            <input id="serviceText" name="serviceText" type="hidden" />
-            <input id="description" name="description" type="hidden" />
-            
+        <div class="row g-4 landing-form-grid">
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-sm landing-panel landing-panel-muted landing-sticky">
+              <div class="card-body">
+                <div class="landing-section">
+                  <h4 class="card-title selection-title mb-2">
+                    <i class="bi bi-grid-3x3-gap-fill me-2 text-primary-red"></i>
+                    Select Payment Category
+                  </h4>
+                  <p class="text-muted selection-copy mb-3">Choose the type of service you want to pay for.</p>
 
+                  <div class="select-icon-group mb-3">
+                    <i class="bi bi-grid-3x3-gap field-icon"></i>
+                    <select class="form-select category-select" id="category" name="category" required>
+                      <option value="" selected disabled>Choose a service category...</option>
+                      {{#each categories}}
+                      <option value="{{categoryId}}">{{name}}</option>
+                      {{/each}}
+                    </select>
+                  </div>
+
+                  <div id="categoryHelper" class="small text-muted landing-helper">
+                    <i class="bi bi-arrow-down-circle-fill me-1"></i>Select a category to view available services.
+                  </div>
+                </div>
+
+                <div class="landing-section quick-guide">
+                  <h5 class="landing-side-title">Before you continue</h5>
+                  <ul class="landing-side-list">
+                    <li>Select one service from the list.</li>
+                    <li>Enter amount details if the service is flexible-priced.</li>
+                    <li>Continue to the secure checkout page to complete billing.</li>
+                  </ul>
+                </div>
+
+                <div class="landing-section border-top pt-3 mb-0">
+                  <button type="submit" class="btn btn-primary-custom text-white w-100" name="nextBtn" id="nextBtn" disabled>
+                    Continue to Checkout
+                    <i class="bi bi-arrow-right ms-2"></i>
+                  </button>
+                  <p class="landing-submit-note text-muted mb-0">
+                    Your card details are entered on the next step and processed through a 3D Secure-enabled gateway.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-sm landing-panel">
+              <div class="card-body">
+                <div id="categoryList" class="fade-in" style="display: none;">
+                  <div class="landing-section mb-3">
+                    <h4 class="card-title selection-title mb-2">
+                      <i class="bi bi-list-check me-2 text-primary-red"></i>
+                      Available Services
+                    </h4>
+                    <p class="text-muted selection-copy mb-0">Select the specific service you need.</p>
+                  </div>
+
+                  <div id="serviceOptions">
+                    <!-- Services will be loaded here -->
+                  </div>
+                </div>
+
+                <div id="loadingState" class="text-center py-5" style="display: none;">
+                  <div class="spinner-border text-primary-red" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="mt-3 text-muted mb-0">Loading available services...</p>
+                </div>
+
+                <div id="errorState" class="alert alert-danger mb-0" style="display: none;">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <span id="errorMessage">Failed to load services. Please try again.</span>
+                </div>
+
+                <div id="emptySelectionState" class="landing-empty-state">
+                  <div class="landing-empty-icon">
+                    <i class="bi bi-credit-card-2-front"></i>
+                  </div>
+                  <h5 class="mb-2">Choose a category to get started</h5>
+                  <p class="text-muted mb-0">
+                    Available services will appear here once you select a payment category from the left.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <div class="alert alert-light border landing-security-note mb-0">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-shield-lock-fill me-3 fs-4 text-success"></i>
+                  <div>
+                    <h6 class="mb-1"><strong>Secure Payment Processing</strong></h6>
+                    <p class="mb-0 small">
+                      This portal uses SSL encryption. Look for the padlock icon in your browser address bar. Major credit cards are supported.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-            <div id="serviceOptions">Loading...</div>
-        </div>
-        <button type="submit" class="btn btn-danger" name="nextBtn" id="nextBtn" disabled>Next Step</button>
       </form>
     </div>
   </div>
 </div>
   <!-- Scripts -->
-<script src="/assets/js/jquery-3.7.1.min.js"></script>
+<script src="{{withBasePath '/assets/js/jquery-3.7.1.min.js'}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 

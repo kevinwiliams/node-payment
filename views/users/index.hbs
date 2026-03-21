@@ -1,13 +1,60 @@
-<div class="container">
-  <a href="/admin/users/create">Add User</a>
-    <h4>Users List</h4>
+<div class="container admin-shell py-4">
+  <div class="admin-page-head mb-4">
+    <div>
+      <span class="admin-eyebrow">Access</span>
+      <h1 class="admin-page-title mb-2">Admin Users</h1>
+      <p class="admin-page-copy mb-0">Manage administrator accounts, contact details, and access recovery notes.</p>
+    </div>
+    <div class="admin-head-actions">
+      <a href="{{withBasePath '/admin/users/create'}}" class="btn btn-primary-custom text-white">Add User</a>
+    </div>
+  </div>
 
-<ul>
-  {{#each users}}
-  <li>
-    <a href="/admin/users/{{dataValues.userId}}">{{dataValues.username}}</a>
-  </li>
-  {{/each}}
-</ul>
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <div>
+        <h2 class="admin-panel-title">User Directory</h2>
+        <p class="admin-panel-copy mb-0">All administrator accounts in one place.</p>
+      </div>
+      <span class="admin-inline-note">{{users.length}} total</span>
+    </div>
+
+    {{#if users.length}}
+    <div class="admin-table-wrap">
+      <table class="table admin-table align-middle">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Registered</th>
+            <th>Notes</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each users}}
+          <tr>
+            <td>
+              <div class="admin-table-title">{{dataValues.username}}</div>
+              <div class="admin-table-meta">ID {{dataValues.userId}}</div>
+            </td>
+            <td>{{dataValues.email}}</td>
+            <td>{{formatTimeDate dataValues.registrationDate}}</td>
+            <td>{{dataValues.otherInfo}}</td>
+            <td class="text-end">
+              <a href="{{withBasePath (concat '/admin/users/' dataValues.userId)}}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{else}}
+    <div class="admin-empty-state">
+      <div class="admin-empty-icon"><i class="bi bi-people"></i></div>
+      <h3>No admin users found</h3>
+      <p class="mb-0">Create the first administrator account to get started.</p>
+    </div>
+    {{/if}}
+  </div>
 </div>
-

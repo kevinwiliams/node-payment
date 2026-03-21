@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const dashController = require('../controllers/dashboardController');
 const upload = require('../helpers/upload');
+const { ensureAuthenticated } = require('../middleware/auth');
+
+router.use(ensureAuthenticated);
 
 router.get('/', dashController.getDashboard);
 

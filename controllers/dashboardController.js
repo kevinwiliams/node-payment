@@ -6,15 +6,13 @@ const { Op } = require('sequelize');
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
+function parseBoolean(value) {
+  return value === true || value === 'true' || value === 'on' || value === '1';
+}
 
 // GET all users
 async function getDashboard(req, res){
     try {
-      //console.log('');
-      if(!req.session.isAuthenticated){
-          return res.redirect('/auth/login');
-      }
-      //   const users = await User.findAll();
       const categories = await Category.findAll({ order:[ ['name', 'ASC'] ] });
       const services = await Service.findAll({ order:[ ['categoryId', 'ASC'] ], include: [Category] });
       services.forEach(service => {
@@ -97,7 +95,9 @@ async function createCategory(req, res) {
       const category = await Category.create({ 
         name: categoryName, 
         description: categoryDesc, 
-        active: categoryActive 
+        active: parseBoolean(categoryActive),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
       res.status(201).json({success: true, category});
   } catch (error) {
@@ -125,7 +125,7 @@ async function updateCategory(req, res) {
       }
       category.name = categoryName;
       category.description = categoryDesc;
-      category.active = categoryActive;
+      category.active = parseBoolean(categoryActive);
       await category.save();
       res.json({ success: true, category });
   } catch (error) {
@@ -141,7 +141,7 @@ async function deleteCategory(req, res) {
           return res.status(404).json({ success: false, message: 'Category not found' });
       }
       await category.destroy();
-      res.json({ success: false, message: 'Category deleted successfully' });
+      res.json({ success: true, message: 'Category deleted successfully' });
   } catch (error) {
       res.status(500).json({ success: false, message: error.message });
   }
@@ -150,14 +150,13 @@ async function deleteCategory(req, res) {
 async function createService(req, res) {
   try {
       const { serviceCategory, serviceName, serviceCurrency, servicePrice, serviceDesc, serviceEpaperDays, serviceActive } = req.body;
-      const { filename } = req.file; // File information from Multer
 
       // Validate input
       if (!serviceCategory || !serviceName || !serviceCurrency || !servicePrice) {
         return res.status(400).json({ success: false, message: 'Missing required fields.' });
       }
       // Handle uploaded image
-      const serviceImage = req.file ? path.join('/uploads', filename) : null;
+      const serviceImage = req.file ? path.join('/uploads', req.file.filename) : null;
 
       const service = await Service.create({  
         categoryId: parseInt(serviceCategory), 
@@ -166,8 +165,10 @@ async function createService(req, res) {
         price: parseFloat(servicePrice), 
         description: serviceDesc, 
         epaperDays: serviceEpaperDays, 
-        active: serviceActive,
-        image: serviceImage
+        active: parseBoolean(serviceActive),
+        image: serviceImage,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
 
       res.status(201).json({ success: true, service});
@@ -205,7 +206,7 @@ async function updateService(req, res) {
       service.price = parseFloat(servicePrice);
       service.description = serviceDesc;
       service.epaperDays = serviceEpaperDays;
-      service.active = serviceActive;
+      service.active = parseBoolean(serviceActive);
 
       // Update image if uploaded
       if (req.file) {
@@ -227,7 +228,7 @@ async function deleteService(req, res) {
           return res.status(404).json({ success: false, message: 'Service not found' });
       }
       await service.destroy();
-      res.json({ success: false, message: 'Service deleted successfully' });
+      res.json({ success: true, message: 'Service deleted successfully' });
   } catch (error) {
       res.status(500).json({ success: false, message: error.message });
   }

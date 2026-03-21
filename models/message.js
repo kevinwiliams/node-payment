@@ -20,15 +20,6 @@ const defineMessageQueue = async () => {
       tableName: 'messagequeue',
       timestamps: false,
     });
-
-    // Sync the model with the database
-    await MessageQueue.sync()
-      .then(() => {
-        console.log('Database synchronized');
-      })
-      .catch(err => {
-        console.error('Error synchronizing database:', err);
-      });
   }
   return MessageQueue;
 };

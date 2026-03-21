@@ -1,13 +1,13 @@
 {
-    "username": "username",
-    "password": "password",
-    "database": "database",
-    "host": "host",
+    "username": "DB_USER",
+    "password": "DB_PASSWORD",
+    "database": "DB_NAME",
+    "host": "DB_HOST",
     "dialect": "mssql",
     "dialectOptions": {
       "options": {
-        "encrypt": false,        
-          "trustServerCertificate": true
+        "encrypt": false,
+        "trustServerCertificate": true
       }
     }
 }

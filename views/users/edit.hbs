@@ -1,16 +1,116 @@
-<div class="container">
-  <h1>Edit User {{user.dataValues.userId}}</h1>
+<div class="container admin-shell py-4">
+  <div class="admin-page-head mb-4">
+    <div>
+      <span class="admin-eyebrow">Access</span>
+      <h1 class="admin-page-title mb-2">Edit User</h1>
+      <p class="admin-page-copy mb-0">Update account details, rotate the password if needed, or remove the account entirely.</p>
+    </div>
+    <div class="admin-head-actions">
+      <a href="{{withBasePath '/admin/users'}}" class="btn btn-outline-secondary">Back to Users</a>
+    </div>
+  </div>
 
-  <form action="/admin/users/{{user.dataValues.userId}}" method="post">
-    <input type="hidden" name="_method" value="PUT">
+  {{#if error}}
+  <div class="alert alert-danger" role="alert">{{error}}</div>
+  {{/if}}
 
-    <label for="username">Username:</label>
-    <input type="text" name="username" value="{{user.dataValues.username}}" required>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">{{user.dataValues.username}}</h2>
+            <p class="admin-panel-copy mb-0">User ID {{user.dataValues.userId}}</p>
+          </div>
+        </div>
+        <form action="{{withBasePath (concat '/admin/users/' user.dataValues.userId)}}" method="post" class="admin-form-grid">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" id="username" name="username" class="form-control" value="{{user.dataValues.username}}" required>
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" name="email" class="form-control" value="{{user.dataValues.email}}" required>
+            </div>
+            <div class="col-12">
+              <label for="otherInfo" class="form-label">Other Information</label>
+              <textarea id="otherInfo" name="otherInfo" class="form-control" rows="4">{{user.dataValues.otherInfo}}</textarea>
+            </div>
+            <div class="col-md-6">
+              <label for="password" class="form-label">New Password</label>
+              <input type="password" id="password" name="password" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label for="confirmPassword" class="form-label">Confirm New Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control">
+            </div>
+          </div>
 
-    <label for="email">Email:</label>
-    <input type="email" name="email" value="{{user.dataValues.email}}" required>
+          <div class="admin-form-actions admin-form-actions-split">
+            <button type="button" class="btn btn-outline-danger" id="deleteUserBtn">Delete User</button>
+            <div class="d-flex gap-2">
+              <a href="{{withBasePath '/admin/users'}}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary-custom text-white">Save Changes</button>
+            </div>
+          </div>
+        </form>
+        <form action="{{withBasePath (concat '/admin/users/del/' user.dataValues.userId)}}" method="post" id="deleteUserForm" class="d-none"></form>
+      </div>
+    </div>
 
-
-    <input type="submit" value="Update">
-  </form>
+    <div class="col-lg-4">
+      <div class="admin-panel admin-panel-muted">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Account Snapshot</h2>
+            <p class="admin-panel-copy mb-0">Reference details for this admin account.</p>
+          </div>
+        </div>
+        <dl class="admin-detail-list mb-0">
+          <div>
+            <dt>User ID</dt>
+            <dd>{{user.dataValues.userId}}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{user.dataValues.email}}</dd>
+          </div>
+          <div>
+            <dt>Registered</dt>
+            <dd>{{formatTimeDate user.dataValues.registrationDate}}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const deleteButton = document.getElementById('deleteUserBtn');
+    const deleteForm = document.getElementById('deleteUserForm');
+
+    if (!deleteButton || !deleteForm || !window.Swal) {
+      return;
+    }
+
+    deleteButton.addEventListener('click', function (event) {
+      event.preventDefault();
+
+      Swal.fire({
+        title: 'Delete this user?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Delete user'
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          deleteForm.submit();
+        }
+      });
+    });
+  });
+</script>

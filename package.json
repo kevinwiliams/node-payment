@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "postinstall": "node scripts/patch-legacy-buffer-constructors.js"
   },
   "keywords": [],
   "author": "",
@@ -17,23 +18,19 @@
     "cookie-parser": "^1.4.6",
     "crypto-js": "^4.2.0",
     "device-detector-js": "^3.0.3",
-    "dns": "^0.2.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-handlebars": "^7.1.2",
     "express-session": "^1.18.0",
-    "fs": "^0.0.1-security",
     "handlebars": "^4.7.8",
     "moment": "^2.30.1",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
-    "path": "^0.12.7",
     "pg": "^8.11.5",
     "request-ip": "^3.3.0",
     "sequelize": "^6.37.3",
     "store": "^2.0.12",
     "tedious": "^18.1.0",
-    "util": "^0.12.5",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

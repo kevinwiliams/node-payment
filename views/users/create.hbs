@@ -1,51 +1,74 @@
-<div class="container">
-    <!-- Form -->
-    <form action="/admin/users/create" method="POST" class="form-horizontal" role="form">
-        <!-- UserName field -->
-        <div class="form-group">
-            <label for="userName" class="col-md-2 control-label">User Name</label>
-            <div class="col-md-10">
-                <input type="text" id="userName" name="userName" class="form-control" required>
-            </div>
-        </div>
+<div class="container admin-shell py-4">
+  <div class="admin-page-head mb-4">
+    <div>
+      <span class="admin-eyebrow">Access</span>
+      <h1 class="admin-page-title mb-2">Create User</h1>
+      <p class="admin-page-copy mb-0">Add a new administrator and capture any internal notes needed for access management.</p>
+    </div>
+    <div class="admin-head-actions">
+      <a href="{{withBasePath '/admin/users'}}" class="btn btn-outline-secondary">Back to Users</a>
+    </div>
+  </div>
 
-        <!-- Email field -->
-        <div class="form-group">
-            <label for="email" class="col-md-2 control-label">Email</label>
-            <div class="col-md-10">
-                <input type="text" id="email" name="email" class="form-control" required>
-            </div>
-        </div>
+  {{#if error}}
+  <div class="alert alert-danger" role="alert">{{error}}</div>
+  {{/if}}
 
-        <!-- Password field -->
-        <div class="form-group">
-            <label for="password" class="col-md-2 control-label">Password</label>
-            <div class="col-md-10">
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Account Details</h2>
+            <p class="admin-panel-copy mb-0">Use a real email address so password recovery and notifications work correctly.</p>
+          </div>
         </div>
+        <form action="{{withBasePath '/admin/users/create'}}" method="POST" class="admin-form-grid">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="userName" class="form-label">User Name</label>
+              <input type="text" id="userName" name="userName" class="form-control" required value="{{formData.userName}}">
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" name="email" class="form-control" required value="{{formData.email}}">
+            </div>
+            <div class="col-md-6">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label for="otherInfo" class="form-label">Other Information</label>
+              <textarea id="otherInfo" name="otherInfo" class="form-control" rows="4">{{formData.otherInfo}}</textarea>
+            </div>
+          </div>
 
-        <!-- Confirm Password field -->
-        <div class="form-group">
-            <label for="confirmPassword" class="col-md-2 control-label">Confirm Password</label>
-            <div class="col-md-10">
-                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
-            </div>
-        </div>
-        <!-- Other field -->
-        <div class="form-group">
-            <label for="email" class="col-md-2 control-label">Other Information</label>
-            <div class="col-md-10">
-                <textarea type="text" id="otherInfo" name="otherInfo" class="form-control"></textarea>
-            </div>
-        </div>
+          <div class="admin-form-actions">
+            <a href="{{withBasePath '/admin/users'}}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary-custom text-white">Create User</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-        <!-- Submit button -->
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10 py-4">
-                <input type="submit" class="btn btn-primary" value="Register User">
-            </div>
+    <div class="col-lg-4">
+      <div class="admin-panel admin-panel-muted">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Recommended</h2>
+            <p class="admin-panel-copy mb-0">A few quick reminders for admin accounts.</p>
+          </div>
         </div>
-    </form>
-
+        <ul class="admin-side-list">
+          <li>Use a unique password for each administrator.</li>
+          <li>Keep notes concise and operational, not sensitive.</li>
+          <li>Prefer shared team inboxes only when multiple people truly need access.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>

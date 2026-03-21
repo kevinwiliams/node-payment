@@ -35,14 +35,5 @@ const User = sequelize.define('User', {
     timestamps: false 
 });
 
-// Sync the model with the database
-sequelize.sync()
-    .then(() => {
-        console.log('Database synchronized');
-    })
-    .catch(err => {
-        console.error('Error synchronizing database:', err);
-    });
-
 // Export the User model
 module.exports = User;

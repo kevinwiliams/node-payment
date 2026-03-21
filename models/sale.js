@@ -98,14 +98,5 @@ const Sale = sequelize.define('Sale', {
 Sale.belongsTo(
     Category, { foreignKey: 'categoryId' }
 );
-
-// Sync the model with the database
-sequelize.sync()
-    .then(() => {
-        console.log('Database synchronized');
-    })
-    .catch(err => {
-        console.error('Error synchronizing database:', err);
-    });
     
 module.exports = Sale;

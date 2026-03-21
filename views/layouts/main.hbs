@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta name="csrf-token" content="{{csrfToken}}">
 
   <title>{{title}} - Jamaica Observer Payment Portal</title>
   <meta content="" name="description">
@@ -14,7 +15,9 @@
   {{!-- <link rel="icon" href="assets/img/apple-touch-icon.png" rel="apple-touch-icon"> --}}
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" rel="stylesheet">
@@ -22,67 +25,66 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/vendor/sweetalert/sweetalert2.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{withBasePath '/assets/vendor/sweetalert/sweetalert2.min.css'}}" rel="stylesheet">
 
   <!-- Template Main CSS File -->
-  <link href="/assets/css/style.css" rel="stylesheet">
+  <link href="{{withBasePath '/assets/css/style.css'}}" rel="stylesheet">
 
 </head>
 
-<body>
+<body class="{{#if (isAuthenticated)}}admin-mode{{/if}}">
 
   <!-- ======= Header ======= -->
-  <header id="header" class="fixed-top d-flex align-items-center">
+  <header id="header" class="fixed-top d-flex align-items-center {{#if (isAuthenticated)}}admin-header{{/if}}">
     <div class="container d-flex align-items-center">
-
-      <!-- <h1 class="logo me-auto"><a href="/">GATEWAY</a></h1> -->
-      <!-- Uncomment below if you prefer to use an image logo -->
-      <a href="/" class="logo me-auto"><img src="https://www.jamaicaobserver.com/jamaicaobserver/news/wp-content/uploads/sites/4/2023/09/jol_color_logo.png" alt="" class="img-fluid"></a>
+      <a href="{{withBasePath '/'}}" class="logo me-auto">
+        <img src="https://www.jamaicaobserver.com/jamaicaobserver/news/wp-content/uploads/sites/4/2023/09/jol_color_logo.png" alt="Jamaica Observer" class="img-fluid">
+        </a>
 
       <nav id="navbar" class="navbar">
+        {{#if (isAuthenticated)}}
         <ul>
-          <li><a href="/" class="active">Home</a></li>
-
-
+          <li><a href="{{withBasePath '/admin/dashboard'}}" class="{{#if (eq title 'Dashboard')}}active{{/if}}">Dashboard</a></li>
+          <li><a href="{{withBasePath '/admin/users'}}" class="{{#if (or (eq title 'Admin Users') (eq title 'Create new user') (eq title 'Edit User'))}}active{{/if}}">Users</a></li>
+          <li><a href="{{withBasePath '/admin/dashboard/sales'}}" class="{{#if (eq title 'Sales Information')}}active{{/if}}">Sales</a></li>
+          <li><a href="{{withBasePath '/'}}" target="_blank">Public Site</a></li>
+          <li>
+            <form id="logoutForm" class="mb-0" action="{{withBasePath '/auth/logoff'}}" method="post">
+              <button type="submit" class="getstarted admin-signout">Sign Out</button>
+            </form>
+          </li>
+        </ul>
+        {{else}}
+        <ul>
+          <li><a href="{{withBasePath '/'}}" class="active">Home</a></li>
           <li><a href="https://www.jamaicaobserver.com/" class="getstarted" target="_blank">Read the news</a></li>
         </ul>
+        {{/if}}
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
 
     </div>
   </header><!-- End Header -->
 
-  <main id="main">
+  <main id="main" class="{{#if (isAuthenticated)}}admin-main{{/if}}">
 
-    <!-- ======= Breadcrumbs ======= -->
-    <section id="breadcrumbs" class="breadcrumbs">
-      <div class="container">
-
-        <div class="d-flex justify-content-between align-items-center">
-          <h2>{{title}}</h2>
-        {{#if (isAuthenticated)}}
-          <ol>
-            <li><a href="/admin/dashboard">Dashboard</a></li>
-            <li><a href="/admin/users">Users</a></li>
-            {{!-- <li><a href="/admin/dashboard/changepassword">Change Password</a></li>  --}}
-            &nbsp; &nbsp;/&nbsp; &nbsp; 
-            <form id="logoutForm" class="navbar-right" action="/auth/logoff" method="post">
-              <li><a href="javascript:document.getElementById('logoutForm').submit()">Log Out</a></li>
-            </form>
-          </ol>
-        {{/if}}
-        </div>
-
-      </div>
-    </section><!-- End Breadcrumbs -->
-    <!-- ======= Section ======= -->
-    <section class="contact py-1">
+       <!-- ======= Section ======= -->
+    <section class="contact py-1 no-breadcrumbs">
     {{{body}}}
     </section>
     <!-- End Section -->
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
+  {{#if (isAuthenticated)}}
+  <footer id="footer" class="admin-footer">
+    <div class="container">
+      <div class="copyright">
+        Admin workspace for Jamaica Observer Ltd.
+      </div>
+    </div>
+  </footer>
+  {{else}}
   <footer id="footer">
     <div class="footer-top">
       <div class="container">
@@ -119,11 +121,11 @@
           <div class="col-lg-3 col-md-4 footer-links">
             <h4>Useful Links</h4>
             <ul>
-              <li><i class="bx bx-chevron-right"></i> <a href="/en/terms">Terms of service</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="/en/privacy">Privacy policy</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="{{withBasePath '/en/terms'}}">Terms of service</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="{{withBasePath '/en/privacy'}}">Privacy policy</a></li>
               <li><i class="bx bx-chevron-right"></i> <a href="https://www.verisign.com/ssl/ssl-information-center/" target="_blank">About SSL Certificates</a></li>
               <li><i class="bx bx-chevron-right"></i> <a href="https://www.digicert.com/what-is-ssl-tls-https/" target="_blank">How SSL Secures You</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="/auth/login">Login</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="{{withBasePath '/auth/login'}}">Login</a></li>
 
             </ul>
           </div>
@@ -151,17 +153,59 @@
       
     </div>
   </footer><!-- End Footer -->
+  {{/if}}
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
- <script src="/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="/assets/vendor/sweetalert/sweetalert2.min.js"></script>
+ <script src="{{withBasePath '/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'}}"></script>
+  <script src="{{withBasePath '/assets/vendor/sweetalert/sweetalert2.min.js'}}"></script>
   {{!-- <script src="/assets/vendor/cleave/cleave-phone.i18n.js"></script> --}}
  
 
   <!-- Template Main JS File -->
-  <script src="/assets/js/main.js"></script>
+  <script src="{{withBasePath '/assets/js/main.js'}}"></script>
+  <script>
+    (function () {
+      const tokenTag = document.querySelector('meta[name="csrf-token"]');
+      const csrfToken = tokenTag ? tokenTag.getAttribute('content') : '';
+
+      function attachCsrfToForms() {
+        if (!csrfToken) {
+          return;
+        }
+
+        document.querySelectorAll('form[method="post"], form[method="POST"]').forEach(function (form) {
+          if (form.querySelector('input[name="_csrf"]')) {
+            return;
+          }
+
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = '_csrf';
+          input.value = csrfToken;
+          form.appendChild(input);
+        });
+      }
+
+      function configureAjaxCsrf() {
+        if (window.jQuery && csrfToken) {
+          window.jQuery.ajaxSetup({
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader('x-csrf-token', csrfToken);
+            }
+          });
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        attachCsrfToForms();
+        configureAjaxCsrf();
+      });
+
+      configureAjaxCsrf();
+    })();
+  </script>
 
 </body>
 

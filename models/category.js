@@ -33,14 +33,4 @@ const Category = sequelize.define('Category', {
     tableName: 'categories'
 });
 
-// Sync the model with the database
-sequelize.sync()
-    .then(() => {
-        console.log('Database synchronized');
-    })
-    .catch(err => {
-        console.error('Error synchronizing database:', err);
-    });
-
-
 module.exports = Category;

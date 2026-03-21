@@ -76,14 +76,5 @@ const Subscriber = sequelize.define('Subscriber', {
     tableName: 'subscribers', // Specify the table name
     timestamps: false // Disable timestamps (createdAt, updatedAt)
 });
-
-// Sync the model with the database
-sequelize.sync()
-    .then(() => {
-        console.log('Database synchronized');
-    })
-    .catch(err => {
-        console.error('Error synchronizing database:', err);
-    });
     
 module.exports = Subscriber;
