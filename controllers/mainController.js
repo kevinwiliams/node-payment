@@ -114,6 +114,7 @@ async function getMain(req, res){
         const jsonFile = await readFile('./app_data/countries.json');
         const countries = JSON.parse(jsonFile);
         const quantity = normalizeQuantity(req.body.count);
+        const supportsQuantity = service.price !== null && parseFloat(service.price) !== 0;
 
         let currency = service.currency;
         let fullAmount = Number(service.price || 0);
@@ -153,7 +154,7 @@ async function getMain(req, res){
             description: service.description,
             serviceId,
             price: parseFloat(fullAmount.toFixed(2)),
-            quantity,
+            quantity: supportsQuantity ? quantity : null,
             currency,
             otherInfo: category.name.includes('Tickets')
                 ? `${quantity} Ticket(s)`
