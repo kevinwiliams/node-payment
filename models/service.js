@@ -32,6 +32,15 @@ const Service = sequelize.define('Service', {
     epaperDays: {
         type: DataTypes.INTEGER
     },
+    useSubscriptionRates: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    subscriptionRateType: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

@@ -1,10 +1,87 @@
 <script>
+    var publicCsrfToken = (function() {
+      var tokenTag = document.querySelector('meta[name="csrf-token"]');
+      return tokenTag ? tokenTag.getAttribute('content') : '';
+    })();
+
+    function withPublicCsrf(data) {
+      if (!publicCsrfToken) {
+        return data;
+      }
+
+      return Object.assign({ _csrf: publicCsrfToken }, data || {});
+    }
+
+    if (window.jQuery && publicCsrfToken) {
+      $.ajaxSetup({
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('x-csrf-token', publicCsrfToken);
+        }
+      });
+    }
+
     // Global GLightbox instance
     var lightbox = GLightbox({
       selector: '.glightbox',
       touchNavigation: true,
       zoomable: true,
     });
+
+    function isPrintSubscriptionRate(rate) {
+      return String(rate.type || '').toLowerCase() === 'print';
+    }
+
+    function formatRateOptionAmount(amount) {
+      return Number(amount || 0).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function createRateOption(rate, compactLabel) {
+      var option = document.createElement('option');
+      option.value = rate.rateId;
+      option.dataset.currency = rate.currency;
+      option.dataset.amount = rate.amount;
+      option.dataset.notes = rate.notes || '';
+
+      if (compactLabel) {
+        var compactParts = [];
+
+        if (rate.term && rate.termUnit) {
+          compactParts.push(rate.term + ' ' + rate.termUnit);
+        }
+
+        compactParts.push(rate.currency + ' $' + formatRateOptionAmount(rate.amount));
+        option.textContent = compactParts.join(' - ');
+      } else {
+        option.textContent = rate.label;
+      }
+
+      return option;
+    }
+
+    function appendSubscriptionRateOptions(rateSelect, rates) {
+      var printGroups = new Map();
+
+      rates.forEach(function(rate) {
+        if (!isPrintSubscriptionRate(rate)) {
+          rateSelect.appendChild(createRateOption(rate, false));
+          return;
+        }
+
+        var groupKey = [rate.market || '', rate.rateDescription || 'Print'].join('||');
+
+        if (!printGroups.has(groupKey)) {
+          var optGroup = document.createElement('optgroup');
+          optGroup.label = [rate.market, rate.rateDescription].filter(Boolean).join(' - ');
+          printGroups.set(groupKey, optGroup);
+          rateSelect.appendChild(optGroup);
+        }
+
+        printGroups.get(groupKey).appendChild(createRateOption(rate, true));
+      });
+    }
 
     // Enhanced createRadioButton function
     function createRadioButton(index, service) {
@@ -38,7 +115,54 @@
       var priceSection = document.createElement('div');
       priceSection.className = 'mb-3';
 
-      if (service.price !== null && service.price !== 0) {
+      if (service.useSubscriptionRates) {
+        if (Array.isArray(service.subscriptionRates) && service.subscriptionRates.length > 0) {
+        var rateNotice = document.createElement('div');
+        rateNotice.className = 'service-price';
+        rateNotice.innerHTML = '<small>Select a subscription plan</small>';
+        priceSection.appendChild(rateNotice);
+
+        var rateFields = document.createElement('div');
+        rateFields.className = 'mb-3 service-rate-fields';
+        rateFields.style.display = 'none';
+
+        var rateLabel = document.createElement('label');
+        rateLabel.className = 'form-label';
+        rateLabel.textContent = 'Subscription Plan';
+        rateLabel.htmlFor = 'rateId' + index;
+
+        var rateSelect = document.createElement('select');
+        rateSelect.id = 'rateId' + index;
+        rateSelect.name = 'rateId';
+        rateSelect.className = 'form-select';
+        rateSelect.required = true;
+
+        var defaultRateOption = document.createElement('option');
+        defaultRateOption.value = '';
+        defaultRateOption.textContent = 'Choose a subscription plan...';
+        defaultRateOption.selected = true;
+        defaultRateOption.disabled = true;
+        rateSelect.appendChild(defaultRateOption);
+
+        appendSubscriptionRateOptions(rateSelect, service.subscriptionRates);
+
+        var rateHelper = document.createElement('div');
+        rateHelper.className = 'form-text';
+        rateHelper.textContent = 'Choose the subscription plan you want before continuing.';
+
+        rateFields.appendChild(rateLabel);
+        rateFields.appendChild(rateSelect);
+        rateFields.appendChild(rateHelper);
+        priceSection.appendChild(rateFields);
+        } else {
+          radioInput.disabled = true;
+
+          var unavailableAlert = document.createElement('div');
+          unavailableAlert.className = 'alert alert-warning mb-0';
+          unavailableAlert.innerHTML = 'Subscription plans are not available for this service right now.';
+          priceSection.appendChild(unavailableAlert);
+        }
+      } else if (service.price !== null && parseFloat(service.price) !== 0) {
         // Fixed price service
         var priceDisplay = document.createElement('div');
         priceDisplay.className = 'service-price';
@@ -198,8 +322,8 @@
         notesDiv.appendChild(notesLabel);
         notesDiv.appendChild(notesTextarea);
 
-        card.appendChild(priceInputGroup);
-        card.appendChild(notesDiv);
+        priceSection.appendChild(priceInputGroup);
+        priceSection.appendChild(notesDiv);
       }
 
       // Event listeners for radio selection
@@ -228,16 +352,29 @@
 
         // Show fields in selected card
         var priceInputGroup = card.querySelector('.service-custom-fields');
-        if (priceInputGroup) priceInputGroup.style.display = 'block';
+        if (priceInputGroup) {
+          priceInputGroup.style.display = 'block';
+          priceInputGroup.querySelectorAll('input[name="price"], select[name="currency"]').forEach(function(el) {
+            el.required = true;
+          });
+        }
 
         var quantityDiv = card.querySelector('.mt-2');
         if (quantityDiv) {
           quantityDiv.style.display = 'block';
-          card.querySelector('select[name="quantity"]').style.display = 'block';
+          var quantitySelect = card.querySelector('select[name="quantity"]');
+          if (quantitySelect) quantitySelect.style.display = 'block';
         }
 
         var notesDiv = card.querySelector('.service-notes');
         if (notesDiv) notesDiv.style.display = 'block';
+
+        var rateFields = card.querySelector('.service-rate-fields');
+        if (rateFields) {
+          rateFields.style.display = 'block';
+          var rateSelect = rateFields.querySelector('select[name="rateId"]');
+          if (rateSelect) rateSelect.required = true;
+        }
 
         // Update hidden fields
         $('#serviceText').val(this.dataset.text);
@@ -261,6 +398,10 @@
       }
 
       function activateCardSelection() {
+        if (radioInput.disabled) {
+          return;
+        }
+
         if (!radioInput.checked) {
           radioInput.checked = true;
         }
@@ -303,7 +444,7 @@
       $.ajax({
         url: '{{withBasePath "/en/service"}}',
         method: 'POST',
-        data: { id: categoryId },
+        data: withPublicCsrf({ id: categoryId }),
 	        success: function(response) {
 	          $('#loadingState').hide();
 	          $('#categoryList').show();
@@ -397,17 +538,37 @@
         // Gather data
         var serviceName = selectedService.data('text');
         var serviceDesc = selectedService.data('desc');
-        var currency = selectedService.closest('.service-card').find('select[name="currency"]').val() ||
-                      selectedService.closest('.service-card').find('input[name="currency"]').val();
-        var price = selectedService.closest('.service-card').find('input[name="price"]').val();
+        var selectedCard = selectedService.closest('.service-card');
+        var rateSelect = selectedCard.find('select[name="rateId"]');
+        var selectedRateOption = rateSelect.find('option:selected');
+        var currency = rateSelect.length
+                      ? (selectedRateOption.attr('data-currency') || '')
+                      : (selectedCard.find('select[name="currency"]').val() ||
+                        selectedCard.find('input[name="currency"]').val());
+        var price = rateSelect.length
+                  ? (selectedRateOption.attr('data-amount') || '')
+                  : selectedCard.find('input[name="price"]').val();
         var quantity = selectedService.closest('.service-card').find('select[name="quantity"]').val();
-        var otherInfo = selectedService.closest('.service-card').find('textarea[name="otherInfo"]').val();
+        var otherInfo = rateSelect.length
+                      ? (selectedRateOption.attr('data-notes') || '')
+                      : selectedCard.find('textarea[name="otherInfo"]').val();
         price = (price || '').replace(/,/g, '');
+
+        if (rateSelect.length && !rateSelect.val()) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Selection Required',
+            text: 'Please choose a subscription plan to continue.',
+            confirmButtonColor: '#dc3545'
+          });
+          return;
+        }
 
         // Set hidden fields
         $('#serviceText').val(serviceName);
         $('#description').val(serviceDesc);
         $('#currencyhd').val(currency);
+        $('#rateIdhd').val(rateSelect.length ? rateSelect.val() : '');
         $('#totalAmount').val(price);
         $('#count').val(quantity || 1);
         $('#otherInfohd').val(otherInfo || '');

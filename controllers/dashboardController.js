@@ -2,12 +2,67 @@ const Category = require('../models/category');
 const Service = require('../models/service');
 const Sale = require('../models/sale');
 const Subscriber = require('../models/subscriber');
+const definePrintAndSubRate = require('../models/printAndSubRate');
 const { Op } = require('sequelize');
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
 function parseBoolean(value) {
   return value === true || value === 'true' || value === 'on' || value === '1';
+}
+
+function parseNullableString(value) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  const trimmed = String(value).trim();
+  return trimmed === '' ? null : trimmed;
+}
+
+function parseNullableInteger(value) {
+  if (value === undefined || value === null || String(value).trim() === '') {
+    return null;
+  }
+
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function parseNullableFloat(value) {
+  if (value === undefined || value === null || String(value).trim() === '') {
+    return null;
+  }
+
+  const parsed = parseFloat(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function normalizeSubscriptionRateType(value) {
+  const normalized = String(value || '').trim();
+  return normalized || null;
+}
+
+function buildPrintAndSubRatePayload(body) {
+  return {
+    market: parseNullableString(body.rateMarket),
+    type: parseNullableString(body.rateType),
+    rateDescription: parseNullableString(body.rateDescription),
+    printDayPattern: parseNullableString(body.printDayPattern),
+    printTerm: parseNullableInteger(body.printTerm),
+    printTermUnit: parseNullableString(body.printTermUnit),
+    eDayPattern: parseNullableString(body.eDayPattern),
+    term: parseNullableInteger(body.eTerm),
+    termUnit: parseNullableString(body.eTermUnit),
+    currency: parseNullableString(body.rateCurrency),
+    rate: parseNullableFloat(body.rateAmount),
+    sortOrder: parseNullableInteger(body.sortOrder),
+    active: parseBoolean(body.rateActive) ? 1 : 0,
+  };
+}
+
+async function getPrintAndSubRateModel() {
+  return definePrintAndSubRate();
 }
 
 // GET all users
@@ -22,9 +77,28 @@ async function getDashboard(req, res){
       });
       const sales = await Sale.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
       const subscribers = await Subscriber.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
+      let printAndSubRates = [];
+
+      try {
+        const PrintAndSubRate = await getPrintAndSubRateModel();
+        printAndSubRates = await PrintAndSubRate.findAll({
+          order: [['sortOrder', 'ASC'], ['rateId', 'ASC']],
+          raw: true,
+        });
+      } catch (rateError) {
+        console.error('Unable to load print and subscription rates for dashboard', rateError);
+      }
+
       const serviceList = JSON.stringify(services);
       // console.log('services', JSON.stringify(services));
-      res.render('dashboard/index', {title: 'Dashboard', categories, services: JSON.parse(serviceList), sales, subscribers});
+      res.render('dashboard/index', {
+        title: 'Dashboard',
+        categories,
+        services: JSON.parse(serviceList),
+        sales,
+        subscribers,
+        printAndSubRates,
+      });
 
     } catch (err) {
       console.error(err);
@@ -149,10 +223,28 @@ async function deleteCategory(req, res) {
 
 async function createService(req, res) {
   try {
-      const { serviceCategory, serviceName, serviceCurrency, servicePrice, serviceDesc, serviceEpaperDays, serviceActive } = req.body;
+      const {
+        serviceCategory,
+        serviceName,
+        serviceCurrency,
+        servicePrice,
+        serviceDesc,
+        serviceEpaperDays,
+        serviceUseSubscriptionRates,
+        subscriptionRateType,
+        serviceActive,
+      } = req.body;
+      const useSubscriptionRates = parseBoolean(serviceUseSubscriptionRates);
+      const normalizedSubscriptionRateType = useSubscriptionRates
+        ? normalizeSubscriptionRateType(subscriptionRateType) || 'Epaper'
+        : null;
+      const normalizedCurrency = serviceCurrency || (useSubscriptionRates ? 'JMD' : '');
+      const normalizedPrice = servicePrice !== undefined && String(servicePrice).trim() !== ''
+        ? parseFloat(servicePrice)
+        : (useSubscriptionRates ? 0 : NaN);
 
       // Validate input
-      if (!serviceCategory || !serviceName || !serviceCurrency || !servicePrice) {
+      if (!serviceCategory || !serviceName || !normalizedCurrency || Number.isNaN(normalizedPrice)) {
         return res.status(400).json({ success: false, message: 'Missing required fields.' });
       }
       // Handle uploaded image
@@ -161,10 +253,12 @@ async function createService(req, res) {
       const service = await Service.create({  
         categoryId: parseInt(serviceCategory), 
         name: serviceName, 
-        currency: serviceCurrency, 
-        price: parseFloat(servicePrice), 
+        currency: normalizedCurrency, 
+        price: normalizedPrice, 
         description: serviceDesc, 
         epaperDays: serviceEpaperDays, 
+        useSubscriptionRates,
+        subscriptionRateType: normalizedSubscriptionRateType,
         active: parseBoolean(serviceActive),
         image: serviceImage,
         createdAt: new Date(),
@@ -191,9 +285,28 @@ async function getService(req, res){
 
 async function updateService(req, res) {
   try {
-      const { serviceId, serviceCategory, serviceName, serviceCurrency, servicePrice, serviceDesc, serviceEpaperDays, serviceActive } = req.body;
+      const {
+        serviceId,
+        serviceCategory,
+        serviceName,
+        serviceCurrency,
+        servicePrice,
+        serviceDesc,
+        serviceEpaperDays,
+        serviceUseSubscriptionRates,
+        subscriptionRateType,
+        serviceActive,
+      } = req.body;
+      const useSubscriptionRates = parseBoolean(serviceUseSubscriptionRates);
+      const normalizedSubscriptionRateType = useSubscriptionRates
+        ? normalizeSubscriptionRateType(subscriptionRateType) || 'Epaper'
+        : null;
+      const normalizedCurrency = serviceCurrency || (useSubscriptionRates ? 'JMD' : '');
+      const normalizedPrice = servicePrice !== undefined && String(servicePrice).trim() !== ''
+        ? parseFloat(servicePrice)
+        : (useSubscriptionRates ? 0 : NaN);
       // Validate input
-      if (!serviceCategory || !serviceName || !serviceCurrency || !servicePrice) {
+      if (!serviceCategory || !serviceName || !normalizedCurrency || Number.isNaN(normalizedPrice)) {
         return res.status(400).json({ success: false, message: 'Missing required fields.' });
     }
       const service = await Service.findByPk(serviceId);
@@ -202,10 +315,12 @@ async function updateService(req, res) {
       }
       service.categoryId = parseInt(serviceCategory);
       service.name = serviceName;
-      service.currency = serviceCurrency;
-      service.price = parseFloat(servicePrice);
+      service.currency = normalizedCurrency;
+      service.price = normalizedPrice;
       service.description = serviceDesc;
       service.epaperDays = serviceEpaperDays;
+      service.useSubscriptionRates = useSubscriptionRates;
+      service.subscriptionRateType = normalizedSubscriptionRateType;
       service.active = parseBoolean(serviceActive);
 
       // Update image if uploaded
@@ -234,6 +349,80 @@ async function deleteService(req, res) {
   }
 }
 
+async function getPrintAndSubRate(req, res) {
+  try {
+    const { rateId } = req.body;
+    const PrintAndSubRate = await getPrintAndSubRateModel();
+    const rate = await PrintAndSubRate.findByPk(parseInt(rateId, 10), { raw: true });
+
+    if (!rate) {
+      return res.status(404).json({ success: false, message: 'Rate not found.' });
+    }
+
+    return res.json({ success: true, rate });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+async function createPrintAndSubRate(req, res) {
+  try {
+    const PrintAndSubRate = await getPrintAndSubRateModel();
+    const payload = buildPrintAndSubRatePayload(req.body);
+
+    if (!payload.type || !payload.rateDescription || !payload.currency || payload.rate === null) {
+      return res.status(400).json({ success: false, message: 'Type, description, currency, and rate are required.' });
+    }
+
+    const rate = await PrintAndSubRate.create(payload);
+    return res.status(201).json({ success: true, rate });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+async function updatePrintAndSubRate(req, res) {
+  try {
+    const { rateId } = req.body;
+    const PrintAndSubRate = await getPrintAndSubRateModel();
+    const rate = await PrintAndSubRate.findByPk(parseInt(rateId, 10));
+
+    if (!rate) {
+      return res.status(404).json({ success: false, message: 'Rate not found.' });
+    }
+
+    const payload = buildPrintAndSubRatePayload(req.body);
+
+    if (!payload.type || !payload.rateDescription || !payload.currency || payload.rate === null) {
+      return res.status(400).json({ success: false, message: 'Type, description, currency, and rate are required.' });
+    }
+
+    Object.assign(rate, payload);
+    await rate.save();
+
+    return res.json({ success: true, rate });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+async function deletePrintAndSubRate(req, res) {
+  try {
+    const { rateId } = req.body;
+    const PrintAndSubRate = await getPrintAndSubRateModel();
+    const rate = await PrintAndSubRate.findByPk(parseInt(rateId, 10));
+
+    if (!rate) {
+      return res.status(404).json({ success: false, message: 'Rate not found.' });
+    }
+
+    await rate.destroy();
+    return res.json({ success: true, message: 'Rate deleted successfully.' });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
   module.exports = {
     getDashboard,
     createCategory,
@@ -244,6 +433,10 @@ async function deleteService(req, res) {
     updateService,
     deleteService,
     getService,
+    getPrintAndSubRate,
+    createPrintAndSubRate,
+    updatePrintAndSubRate,
+    deletePrintAndSubRate,
     getSales,
     getAWVisionSales
   };

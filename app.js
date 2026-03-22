@@ -16,6 +16,8 @@ const PendingPayment = require('./models/pendingPayment');
 const app = express();
 const basePath = normalizeBasePath(process.env.APP_BASE_PATH);
 const sessionSecret = process.env.SESSION_SECRET || process.env.SECRET_KEY;
+const sessionCookieName = process.env.SESSION_COOKIE_NAME || (basePath ? `${basePath.replace(/\//g, '')}.sid` : 'gateway.sid');
+const sessionCookiePath = process.env.SESSION_COOKIE_PATH || (basePath || '/');
 const cookieSecure = process.env.SESSION_COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production';
 const cookieSameSite = process.env.SESSION_COOKIE_SAME_SITE
     ? (process.env.SESSION_COOKIE_SAME_SITE === 'false' ? false : process.env.SESSION_COOKIE_SAME_SITE)
@@ -64,6 +66,18 @@ app.locals.basePath = basePath;
 app.disable('x-powered-by'); 
 app.set('trust proxy', 1);
 
+app.use((req, res, next) => {
+    const forwardedProto = req.get('x-forwarded-proto');
+    const arrSsl = req.get('x-arr-ssl');
+    const frontEndHttps = String(req.get('front-end-https') || '').toLowerCase();
+
+    if (!forwardedProto && (arrSsl || frontEndHttps === 'on' || frontEndHttps === '1' || frontEndHttps === 'https')) {
+        req.headers['x-forwarded-proto'] = 'https';
+    }
+
+    next();
+});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -87,11 +101,13 @@ app.use((req, res, next) => {
 });
 
 app.use(session({
+    name: sessionCookieName,
     store,
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
+        path: sessionCookiePath,
         secure: cookieSecure,
         httpOnly: true,
         sameSite: cookieSameSite,

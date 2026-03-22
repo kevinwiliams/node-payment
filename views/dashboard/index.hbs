@@ -33,11 +33,18 @@
         <span class="admin-metric-note">Latest transactions loaded</span>
       </div>
     </div>
-    <div class="col-sm-6 col-xl-3">
+    {{!-- <div class="col-sm-6 col-xl-3">
       <div class="admin-metric-card">
         <span class="admin-metric-label">Subscribers</span>
         <strong class="admin-metric-value">{{subscribers.length}}</strong>
         <span class="admin-metric-note">Latest subscriber records loaded</span>
+      </div>
+    </div> --}}
+    <div class="col-sm-6 col-xl-3">
+      <div class="admin-metric-card">
+        <span class="admin-metric-label">Rates</span>
+        <strong class="admin-metric-value">{{printAndSubRates.length}}</strong>
+        <span class="admin-metric-note">Subscription and print plans available</span>
       </div>
     </div>
   </div>
@@ -76,7 +83,13 @@
                   </div>
                 </td>
                 <td>{{Category.name}}</td>
-                <td>{{currency}} {{price}}</td>
+                <td>
+                  {{#if useSubscriptionRates}}
+                  <span class="admin-inline-note">Adhoc Rate Table: {{subscriptionRateType}}</span>
+                  {{else}}
+                  {{currency}} {{price}}
+                  {{/if}}
+                </td>
                 <td>
                   <span class="admin-status {{#if active}}is-active{{else}}is-inactive{{/if}}">
                     {{#if active}}Active{{else}}Inactive{{/if}}
@@ -127,6 +140,57 @@
                 </td>
                 <td class="text-end">
                   <button type="button" class="btn btn-sm btn-outline-secondary edit-category" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-id="{{dataValues.categoryId}}">
+                    Edit
+                  </button>
+                </td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-12">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div>
+            <h2 class="admin-panel-title">Print & Subscription Rates</h2>
+            <p class="admin-panel-copy mb-0">Manage the plans pulled into rate-driven subscription services from the Adhoc database.</p>
+          </div>
+          <button type="button" class="btn btn-outline-secondary" id="createNewRateBtn" data-bs-toggle="modal" data-bs-target="#editRateModal">Create Rate</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="table admin-table align-middle small dtRate">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Market</th>
+                <th>Type</th>
+                <th>Term</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each printAndSubRates}}
+              <tr>
+                <td>
+                  <div class="admin-table-title">{{rateDescription}}</div>
+                  <div class="admin-table-meta">Sort: {{sortOrder}}</div>
+                </td>
+                <td>{{market}}</td>
+                <td>{{type}}</td>
+                <td>{{#if term}}{{term}} {{termUnit}}{{else}}-{{/if}}</td>
+                <td>{{currency}} {{formatNumber rate}}</td>
+                <td>
+                  <span class="admin-status {{#if active}}is-active{{else}}is-inactive{{/if}}">
+                    {{#if active}}Active{{else}}Inactive{{/if}}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-secondary edit-rate" data-bs-toggle="modal" data-bs-target="#editRateModal" data-id="{{rateId}}">
                     Edit
                   </button>
                 </td>
@@ -209,6 +273,7 @@
 
 {{> dashboard/serviceModal }}
 {{> dashboard/categoryModal }}
+{{> dashboard/rateModal }}
 
 <script src="{{withBasePath '/assets/js/jquery-3.7.1.min.js'}}"></script>
 <script src="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/b-2.3.6/b-html5-2.3.6/b-print-2.3.6/r-2.4.1/sb-1.4.2/sp-2.1.2/datatables.min.js"></script>

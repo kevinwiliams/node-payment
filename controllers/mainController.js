@@ -2,6 +2,7 @@ const Category = require('../models/category');
 const Service = require('../models/service');
 const Sale = require('../models/sale');
 const Subscriber = require('../models/subscriber');
+const definePrintAndSubRate = require('../models/printAndSubRate');
 const { withBasePath } = require('../helpers/basePath');
 const fs = require('fs');
 const util = require('util');
@@ -52,6 +53,160 @@ function normalizeOtherInfo(otherInfo) {
     return typeof otherInfo === 'string' ? otherInfo.trim() : '';
 }
 
+function isRateDrivenSubscriptionService(service) {
+    return Boolean(service?.useSubscriptionRates);
+}
+
+function getSubscriptionRateType(service) {
+    const value = String(service?.subscriptionRateType || '').trim();
+    return value || 'Epaper';
+}
+
+function isPrintSubscriptionRate(rate) {
+    return String(rate?.type || '').trim().toLowerCase() === 'print';
+}
+
+function getRateTermValue(rate) {
+    return isPrintSubscriptionRate(rate) ? rate.printTerm : rate.term;
+}
+
+function getRateTermUnitValue(rate) {
+    return isPrintSubscriptionRate(rate) ? rate.printTermUnit : rate.termUnit;
+}
+
+function getRateDayPattern(rate) {
+    return isPrintSubscriptionRate(rate) ? rate.printDayPattern : rate.eDayPattern;
+}
+
+function formatDayPattern(pattern) {
+    const normalized = String(pattern || '').trim();
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    if (!/^[01]{7}$/.test(normalized)) {
+        return '';
+    }
+
+    if (normalized === '1111111') {
+        return 'Daily';
+    }
+
+    if (normalized === '0111110') {
+        return 'Mon-Fri';
+    }
+
+    if (normalized === '0111111') {
+        return 'Mon-Sat';
+    }
+
+    if (normalized === '1000000') {
+        return 'Sun only';
+    }
+
+    const activeDays = normalized
+        .split('')
+        .map((value, index) => (value === '1' ? dayNames[index] : null))
+        .filter(Boolean);
+
+    return activeDays.join(', ');
+}
+
+function formatRateAmount(amount) {
+    return Number(amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function normalizeSubscriptionRate(rate) {
+    const amount = Number(rate.rate || 0);
+    const term = getRateTermValue(rate);
+    const termUnit = getRateTermUnitValue(rate);
+    const termLabel = term && termUnit ? `${term} ${termUnit}` : '';
+    const daySummary = formatDayPattern(getRateDayPattern(rate));
+    const rateDescription = String(rate.rateDescription || '').trim();
+    const descriptionLower = rateDescription.toLowerCase();
+    const daySummaryLower = daySummary.toLowerCase();
+    const termLabelLower = termLabel.toLowerCase();
+    // const labelParts = [rate.market, rateDescription];
+    const labelParts = [rateDescription];
+
+    if (daySummary && !descriptionLower.includes(daySummaryLower)) {
+        labelParts.push(daySummary);
+    }
+
+    if (termLabel && !descriptionLower.includes(termLabelLower)) {
+        labelParts.push(termLabel);
+    }
+
+    const notes = [rate.market, rate.type, daySummary, termLabel].filter(Boolean).join(' | ');
+
+    return {
+        rateId: rate.rateId,
+        market: rate.market,
+        type: rate.type,
+        rateDescription,
+        currency: String(rate.currency || '').toUpperCase(),
+        amount: Number.isFinite(amount) ? Number(amount.toFixed(2)) : 0,
+        term,
+        termUnit,
+        dayPattern: getRateDayPattern(rate),
+        daySummary,
+        sortOrder: rate.sortOrder || 0,
+        label: [
+            ...labelParts,
+            `${String(rate.currency || '').toUpperCase()} $${formatRateAmount(amount)}`,
+        ].filter(Boolean).join(' - '),
+        notes,
+    };
+}
+
+async function fetchSubscriptionRatesForService(service) {
+    if (!isRateDrivenSubscriptionService(service)) {
+        return [];
+    }
+
+    const PrintAndSubRate = await definePrintAndSubRate();
+    const where = {
+        active: 1,
+        market: 'Local',
+        type: getSubscriptionRateType(service),
+    };
+
+    if (service.epaperDays) {
+        if (String(where.type).toLowerCase() === 'print') {
+            where.printTerm = service.epaperDays;
+        } else {
+            where.term = service.epaperDays;
+        }
+    }
+
+    const rows = await PrintAndSubRate.findAll({
+        where,
+        order: [
+            ['sortOrder', 'ASC'],
+            ['rateId', 'ASC'],
+        ],
+        raw: true,
+    });
+
+    return rows.map(normalizeSubscriptionRate);
+}
+
+async function buildServiceResponse(service) {
+    try {
+        const subscriptionRates = await fetchSubscriptionRatesForService(service);
+
+        return {
+            ...service,
+            subscriptionRates,
+        };
+    } catch (error) {
+        console.error('Unable to load subscription rates for service', service.serviceId, error);
+
+        return {
+            ...service,
+            subscriptionRates: [],
+        };
+    }
+}
+
 // GET all users
 async function getMain(req, res){
     try {
@@ -79,9 +234,15 @@ async function getMain(req, res){
 
         const services = await Service.findAll({ 
             where: { categoryId, active: true},
-            order:[ ['price', 'DESC'] ] });
+            order:[ ['price', 'DESC'] ],
+            raw: true,
+        });
 
-        return res.json({ services });
+        const servicesWithRates = await Promise.all(
+            services.map((service) => buildServiceResponse(service))
+        );
+
+        return res.json({ services: servicesWithRates });
 
     } catch (err) {
       console.error(err);
@@ -115,11 +276,26 @@ async function getMain(req, res){
         const countries = JSON.parse(jsonFile);
         const quantity = normalizeQuantity(req.body.count);
         const supportsQuantity = service.price !== null && parseFloat(service.price) !== 0;
+        const subscriptionRates = await fetchSubscriptionRatesForService(service);
+        const submittedRateId = parseInt(req.body.rateId, 10);
+        const selectedRate = subscriptionRates.find((rate) => rate.rateId === submittedRateId)
+            || (subscriptionRates.length === 1 ? subscriptionRates[0] : null);
 
         let currency = service.currency;
         let fullAmount = Number(service.price || 0);
 
-        if (fullAmount > 0) {
+        if (selectedRate) {
+            currency = selectedRate.currency;
+            fullAmount = selectedRate.amount;
+        } else if (isRateDrivenSubscriptionService(service)) {
+            return res.status(400).render('en/index', {
+                title: 'Welcome',
+                categories,
+                error: subscriptionRates.length > 0
+                    ? 'Please select a valid subscription plan.'
+                    : 'No subscription plans are available for this service right now.',
+            });
+        } else if (fullAmount > 0) {
             fullAmount *= quantity;
         } else {
             const submittedAmount = parseFloat(String(req.body.totalAmount || '').replace(/,/g, ''));
@@ -150,15 +326,20 @@ async function getMain(req, res){
         const paymentInfo = {
             categoryName: category.name,
             categoryId,
-            serviceName: service.name,
-            description: service.description,
+            serviceName: selectedRate
+                ? `${service.name} (${selectedRate.rateDescription})`
+                : service.name,
+            description: selectedRate
+                ? (selectedRate.rateDescription || service.description)
+                : service.description,
             serviceId,
             price: parseFloat(fullAmount.toFixed(2)),
-            quantity: supportsQuantity ? quantity : null,
+            quantity: selectedRate ? null : (supportsQuantity ? quantity : null),
             currency,
             otherInfo: category.name.includes('Tickets')
                 ? `${quantity} Ticket(s)`
-                : (normalizedOtherInfo || 'N/A'),
+                : (selectedRate ? selectedRate.notes : null)
+                    || (normalizedOtherInfo || 'N/A'),
         };
 
         req.session.paymentInfo = paymentInfo;

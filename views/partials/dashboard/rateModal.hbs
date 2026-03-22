@@ -1,0 +1,84 @@
+<div class="modal fade" id="editRateModal" tabindex="-1" aria-labelledby="editRateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editRateModalLabel">Edit Subscription Rate</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editRateForm" method="POST" class="g-3 needs-validation" data-request-url="{{withBasePath '/admin/dashboard/updateprintandsubrate'}}">
+        <div class="modal-body">
+          <input type="hidden" class="form-control" id="rateId" name="rateId">
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="rateMarket" class="form-label">Market</label>
+              <input type="text" class="form-control" id="rateMarket" name="rateMarket" placeholder="Local">
+            </div>
+            <div class="col-md-4">
+              <label for="rateType" class="form-label">Type</label>
+              <input type="text" class="form-control" id="rateType" name="rateType" placeholder="Epaper" required>
+            </div>
+            <div class="col-md-4">
+              <label for="rateCurrency" class="form-label">Currency</label>
+              <select class="form-select" id="rateCurrency" name="rateCurrency" required>
+                <option value="">Select currency</option>
+                <option value="JMD">JMD</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="rateDescription" class="form-label">Rate Description</label>
+              <input type="text" class="form-control" id="rateDescription" name="rateDescription" placeholder="1 Month (30 Days)" required>
+            </div>
+
+            <div class="col-md-4">
+              <label for="rateAmount" class="form-label">Rate</label>
+              <input type="number" step="0.01" class="form-control" id="rateAmount" name="rateAmount" placeholder="0.00" required>
+            </div>
+            <div class="col-md-4">
+              <label for="sortOrder" class="form-label">Sort Order</label>
+              <input type="number" class="form-control" id="sortOrder" name="sortOrder" placeholder="1">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="rateActive" name="rateActive">
+                <label class="form-check-label" for="rateActive">Active</label>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label for="printDayPattern" class="form-label">Print Day Pattern</label>
+              <input type="text" class="form-control" id="printDayPattern" name="printDayPattern" placeholder="1111111">
+            </div>
+            <div class="col-md-4">
+              <label for="printTerm" class="form-label">Print Term</label>
+              <input type="number" class="form-control" id="printTerm" name="printTerm" placeholder="30">
+            </div>
+            <div class="col-md-4">
+              <label for="printTermUnit" class="form-label">Print Term Unit</label>
+              <input type="text" class="form-control" id="printTermUnit" name="printTermUnit" placeholder="Days">
+            </div>
+
+            <div class="col-md-4">
+              <label for="eDayPattern" class="form-label">Epaper Day Pattern</label>
+              <input type="text" class="form-control" id="eDayPattern" name="eDayPattern" placeholder="1111111">
+            </div>
+            <div class="col-md-4">
+              <label for="eTerm" class="form-label">Epaper Term</label>
+              <input type="number" class="form-control" id="eTerm" name="eTerm" placeholder="30">
+            </div>
+            <div class="col-md-4">
+              <label for="eTermUnit" class="form-label">Epaper Term Unit</label>
+              <input type="text" class="form-control" id="eTermUnit" name="eTermUnit" placeholder="Days">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer admin-modal-footer">
+          <button type="button" class="btn btn-outline-danger" id="deleteRateBtn">Delete</button>
+          <button type="submit" class="btn btn-primary-custom text-white" id="updateRateBtn">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

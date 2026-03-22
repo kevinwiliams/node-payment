@@ -17,6 +17,10 @@ router.post('/getservice', dashController.getService);
 router.post('/updateservice', upload.single('serviceImage'), dashController.updateService);
 router.post('/createservice', upload.single('serviceImage'), dashController.createService);
 router.post('/deleteservice', dashController.deleteService);
+router.post('/getprintandsubrate', dashController.getPrintAndSubRate);
+router.post('/createprintandsubrate', dashController.createPrintAndSubRate);
+router.post('/updateprintandsubrate', dashController.updatePrintAndSubRate);
+router.post('/deleteprintandsubrate', dashController.deletePrintAndSubRate);
 
 router.get('/sales', dashController.getSales);
 router.get('/sales/awvision', dashController.getAWVisionSales);

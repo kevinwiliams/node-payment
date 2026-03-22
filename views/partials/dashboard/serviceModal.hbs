@@ -44,6 +44,27 @@
               <label for="serviceEpaperDays" class="form-label">EPAPER Days</label>
               <input type="number" class="form-control" id="serviceEpaperDays" name="serviceEpaperDays">
             </div>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="serviceUseSubscriptionRates" name="serviceUseSubscriptionRates">
+                <label class="form-check-label" for="serviceUseSubscriptionRates">
+                  Use `printandsubrates` from Adhoc DB
+                </label>
+              </div>
+              <div class="form-text">
+                When enabled, this service uses the Adhoc subscription rate table instead of the service's own price at checkout.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label for="subscriptionRateType" class="form-label">Subscription Rate Type</label>
+              <select class="form-select" id="subscriptionRateType" name="subscriptionRateType">
+                <option value="Epaper">Epaper</option>
+                <option value="Print">Print</option>
+              </select>
+              <div class="form-text">
+                Choose which `Type` rows this service should load from `printandsubrates`.
+              </div>
+            </div>
             <div class="col-md-8">
               <label for="serviceImage" class="form-label">Upload Image</label>
               <input type="file" class="form-control" id="serviceImage" name="serviceImage" accept="image/*">

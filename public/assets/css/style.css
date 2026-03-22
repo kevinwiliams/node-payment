@@ -2673,6 +2673,7 @@ section {
       font-size: 0.95rem;
       transition: var(--transition);
       background: white;
+      color: #243041;
     }
 
     .form-control:focus, .form-select:focus {
@@ -2683,6 +2684,23 @@ section {
 
     .form-control::placeholder {
       color: #adb5bd;
+    }
+
+    /* Best-effort styling for grouped native select lists */
+    .service-rate-fields .form-select {
+      color: #1f2a37;
+      font-weight: 600;
+    }
+
+    .service-rate-fields .form-select optgroup {
+      color: #111827;
+      font-weight: 700;
+      background: #f8fafc;
+    }
+
+    .service-rate-fields .form-select option {
+      color: #243041;
+      font-weight: 500;
     }
 
     /* Order Summary Styling */
