@@ -114,7 +114,7 @@
       } else {
         // Custom price service
         var priceInputGroup = document.createElement('div');
-        priceInputGroup.className = 'mb-3';
+        priceInputGroup.className = 'mb-3 service-custom-fields';
         priceInputGroup.style.display = 'none';
 
         var row = document.createElement('div');
@@ -180,7 +180,7 @@
 
         // Notes
         var notesDiv = document.createElement('div');
-        notesDiv.className = 'mb-3';
+        notesDiv.className = 'mb-3 service-notes';
         notesDiv.style.display = 'none';
 
         var notesLabel = document.createElement('label');
@@ -227,7 +227,7 @@
         });
 
         // Show fields in selected card
-        var priceInputGroup = card.querySelector('.mb-3');
+        var priceInputGroup = card.querySelector('.service-custom-fields');
         if (priceInputGroup) priceInputGroup.style.display = 'block';
 
         var quantityDiv = card.querySelector('.mt-2');
@@ -236,7 +236,7 @@
           card.querySelector('select[name="quantity"]').style.display = 'block';
         }
 
-        var notesDiv = card.querySelector('.mb-3:nth-child(3)');
+        var notesDiv = card.querySelector('.service-notes');
         if (notesDiv) notesDiv.style.display = 'block';
 
         // Update hidden fields

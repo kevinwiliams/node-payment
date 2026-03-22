@@ -2454,7 +2454,7 @@ section {
     /* Floating Help Button */
     .floating-help {
       position: fixed;
-      bottom: 20px;
+      bottom: 90px;
       right: 20px;
       width: 60px;
       height: 60px;
