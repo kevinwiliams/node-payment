@@ -417,6 +417,9 @@
       });
 
       card.addEventListener('keydown', function(event) {
+        if (shouldIgnoreCardClick(event.target)) {
+          return;
+        }
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           activateCardSelection();
