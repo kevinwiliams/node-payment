@@ -4,6 +4,7 @@ const Sale = require('../models/sale');
 const Subscriber = require('../models/subscriber');
 const definePrintAndSubRate = require('../models/printAndSubRate');
 const { withBasePath } = require('../helpers/basePath');
+const { sanitizeDescription } = require('../helpers/util');
 const fs = require('fs');
 const util = require('util');
 const readFile = util.promisify(fs.readFile);
@@ -329,9 +330,9 @@ async function getMain(req, res){
             serviceName: selectedRate
                 ? `${service.name} (${selectedRate.rateDescription})`
                 : service.name,
-            description: selectedRate
+            description: sanitizeDescription(selectedRate
                 ? (selectedRate.rateDescription || service.description)
-                : service.description,
+                : service.description),
             serviceId,
             price: parseFloat(fullAmount.toFixed(2)),
             quantity: selectedRate ? null : (supportsQuantity ? quantity : null),

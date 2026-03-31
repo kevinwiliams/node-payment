@@ -9,6 +9,8 @@ const defineMessageQueue = require('../models/message');
 const { connectAdhocDB } = require('../config/db');
 const config = require('../config/env');
 const CryptoJS = require('crypto-js');
+const sanitizeHtml = require('sanitize-html');
+const he = require('he');
 
 
 // const os = require('os');
@@ -345,6 +347,25 @@ function decryptData(encryptedData, secretKey) {
     return JSON.parse(decryptedData);
 }
 
+// Sanitize service description to allow safe HTML rendering
+function sanitizeDescription(description) {
+    if (!description || typeof description !== 'string') {
+        return '';
+    }
+
+    // First decode HTML entities (handles &lt;br&gt; → <br>, etc.)
+    const decoded = he.decode(description);
+
+    // Then sanitize to allow only safe HTML tags
+    return sanitizeHtml(decoded, {
+        allowedTags: ['b', 'i', 'u', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+        allowedAttributes: {
+            'a': ['href', 'title']
+        },
+        nonCharacterEntities: true
+    });
+}
+
 
 module.exports = {
     fileHelper,
@@ -361,5 +382,6 @@ module.exports = {
     sendToMailQueue,
     generateInvoiceNumber,
     encryptData,
-    decryptData
+    decryptData,
+    sanitizeDescription
 };

@@ -3,6 +3,7 @@ const Service = require('../models/service');
 const Sale = require('../models/sale');
 const Subscriber = require('../models/subscriber');
 const definePrintAndSubRate = require('../models/printAndSubRate');
+const { sanitizeDescription } = require('../helpers/util');
 const { Op } = require('sequelize');
 const { Sequelize } = require('sequelize');
 const path = require('path');
@@ -73,6 +74,10 @@ async function getDashboard(req, res){
       services.forEach(service => {
         if (!service.image) {
           service.image = '/uploads/not-available.png';
+        }
+        // Sanitize description for safe HTML rendering
+        if (service.description) {
+          service.description = sanitizeDescription(service.description);
         }
       });
       const sales = await Sale.findAll({ limit: 10, order:[ ['createdAt', 'DESC'] ] });
@@ -255,7 +260,7 @@ async function createService(req, res) {
         name: serviceName, 
         currency: normalizedCurrency, 
         price: normalizedPrice, 
-        description: serviceDesc, 
+        description: sanitizeDescription(serviceDesc), 
         epaperDays: serviceEpaperDays, 
         useSubscriptionRates,
         subscriptionRateType: normalizedSubscriptionRateType,
@@ -317,7 +322,7 @@ async function updateService(req, res) {
       service.name = serviceName;
       service.currency = normalizedCurrency;
       service.price = normalizedPrice;
-      service.description = serviceDesc;
+      service.description = sanitizeDescription(serviceDesc);
       service.epaperDays = serviceEpaperDays;
       service.useSubscriptionRates = useSubscriptionRates;
       service.subscriptionRateType = normalizedSubscriptionRateType;
