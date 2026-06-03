@@ -24,7 +24,15 @@ function createToken() {
 }
 
 function attachCsrfToken(req, res, next) {
+    // For safe methods (GET/HEAD/OPTIONS) allow proceeding even if session
+    // middleware didn't run or didn't create a session yet. This avoids
+    // throwing errors for static asset requests or proxies that don't set
+    // up sessions. For state-changing requests require a session.
     if (!req.session) {
+        if (SAFE_METHODS.has(req.method)) {
+            return next();
+        }
+
         return next(new Error('Session middleware must run before CSRF middleware.'));
     }
 

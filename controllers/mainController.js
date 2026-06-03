@@ -10,6 +10,12 @@ const util = require('util');
 const readFile = util.promisify(fs.readFile);
  
 const MAX_CUSTOM_AMOUNT = parseFloat(process.env.MAX_CUSTOM_PAYMENT_AMOUNT || '9000000');
+const configuredMaxFixedPriceQuantity = parseInt(process.env.MAX_FIXED_PRICE_QUANTITY || '999', 10);
+const MAX_FIXED_PRICE_QUANTITY = Number.isNaN(configuredMaxFixedPriceQuantity)
+    ? 999
+    : Math.max(configuredMaxFixedPriceQuantity, 1);
+const FIXED_PRICE_DISCOUNT_MIN_QUANTITY = parseInt(process.env.FIXED_PRICE_DISCOUNT_MIN_QUANTITY || '0', 10);
+const FIXED_PRICE_DISCOUNT_PERCENT = parseFloat(process.env.FIXED_PRICE_DISCOUNT_PERCENT || '0');
 
 async function getActiveCategories() {
     return Category.findAll({
@@ -43,7 +49,34 @@ function normalizeQuantity(rawCount) {
         return 1;
     }
 
-    return Math.min(quantity, 5);
+    return Math.min(quantity, MAX_FIXED_PRICE_QUANTITY);
+}
+
+function getFixedPriceDiscount(originalAmount, quantity) {
+    if (
+        !Number.isFinite(originalAmount)
+        || originalAmount <= 0
+        || Number.isNaN(FIXED_PRICE_DISCOUNT_MIN_QUANTITY)
+        || FIXED_PRICE_DISCOUNT_MIN_QUANTITY <= 0
+        || quantity < FIXED_PRICE_DISCOUNT_MIN_QUANTITY
+        || !Number.isFinite(FIXED_PRICE_DISCOUNT_PERCENT)
+        || FIXED_PRICE_DISCOUNT_PERCENT <= 0
+    ) {
+        return {
+            discountAmount: 0,
+            discountPercent: 0,
+            discountThreshold: null,
+        };
+    }
+
+    const discountPercent = Math.min(FIXED_PRICE_DISCOUNT_PERCENT, 100);
+    const discountAmount = parseFloat(((originalAmount * discountPercent) / 100).toFixed(2));
+
+    return {
+        discountAmount,
+        discountPercent,
+        discountThreshold: FIXED_PRICE_DISCOUNT_MIN_QUANTITY,
+    };
 }
 
 function normalizeOtherInfo(otherInfo) {
@@ -284,6 +317,10 @@ async function getMain(req, res){
 
         let currency = service.currency;
         let fullAmount = Number(service.price || 0);
+        let originalAmount = null;
+        let discountAmount = 0;
+        let discountPercent = 0;
+        let discountThreshold = null;
 
         if (selectedRate) {
             currency = selectedRate.currency;
@@ -297,7 +334,14 @@ async function getMain(req, res){
                     : 'No subscription plans are available for this service right now.',
             });
         } else if (fullAmount > 0) {
+            originalAmount = parseFloat((fullAmount * quantity).toFixed(2));
+            const discount = getFixedPriceDiscount(originalAmount, quantity);
+
+            discountAmount = discount.discountAmount;
+            discountPercent = discount.discountPercent;
+            discountThreshold = discount.discountThreshold;
             fullAmount *= quantity;
+            fullAmount -= discountAmount;
         } else {
             const submittedAmount = parseFloat(String(req.body.totalAmount || '').replace(/,/g, ''));
             const submittedCurrency = String(req.body.currencyhd || req.body.currency || '').toUpperCase();
@@ -336,6 +380,10 @@ async function getMain(req, res){
             serviceId,
             price: parseFloat(fullAmount.toFixed(2)),
             quantity: selectedRate ? null : (supportsQuantity ? quantity : null),
+            originalAmount,
+            discountAmount,
+            discountPercent,
+            discountThreshold,
             currency,
             otherInfo: category.name.includes('Tickets')
                 ? `${quantity} Ticket(s)`

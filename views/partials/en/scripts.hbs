@@ -167,8 +167,7 @@
         var priceDisplay = document.createElement('div');
         priceDisplay.className = 'service-price';
         priceDisplay.innerHTML = service.currency + ' $' + 
-          parseFloat(service.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-          '<small class="ms-2">(Fixed price)</small>';
+          parseFloat(service.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         priceSection.appendChild(priceDisplay);
 
         // Hidden inputs
@@ -182,7 +181,7 @@
         currencyHidden.name = 'currency';
         currencyHidden.value = service.currency;
 
-        // Quantity dropdown
+        // Quantity input
         var quantityDiv = document.createElement('div');
         quantityDiv.className = 'mt-2';
         quantityDiv.style.display = 'none';
@@ -192,21 +191,19 @@
         quantityLabel.textContent = 'Quantity';
         quantityLabel.htmlFor = 'quantity' + index;
 
-        var quantitySelect = document.createElement('select');
-        quantitySelect.id = 'quantity' + index;
-        quantitySelect.name = 'quantity';
-        quantitySelect.className = 'form-select w-auto';
-        quantitySelect.style.display = 'none';
-
-        for (let qty = 1; qty <= 5; qty++) {
-          var option = document.createElement('option');
-          option.value = qty;
-          option.textContent = qty;
-          quantitySelect.appendChild(option);
-        }
+        var quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.id = 'quantity' + index;
+        quantityInput.name = 'quantity';
+        quantityInput.className = 'form-control w-auto';
+        quantityInput.min = '1';
+        quantityInput.step = '1';
+        quantityInput.value = '1';
+        quantityInput.inputMode = 'numeric';
+        quantityInput.style.display = 'none';
 
         quantityDiv.appendChild(quantityLabel);
-        quantityDiv.appendChild(quantitySelect);
+        quantityDiv.appendChild(quantityInput);
         priceSection.appendChild(quantityDiv);
 
         // Image if available
@@ -362,8 +359,8 @@
         var quantityDiv = card.querySelector('.mt-2');
         if (quantityDiv) {
           quantityDiv.style.display = 'block';
-          var quantitySelect = card.querySelector('select[name="quantity"]');
-          if (quantitySelect) quantitySelect.style.display = 'block';
+          var quantityInput = card.querySelector('input[name="quantity"]');
+          if (quantityInput) quantityInput.style.display = 'block';
         }
 
         var notesDiv = card.querySelector('.service-notes');
@@ -551,7 +548,7 @@
         var price = rateSelect.length
                   ? (selectedRateOption.attr('data-amount') || '')
                   : selectedCard.find('input[name="price"]').val();
-        var quantity = selectedService.closest('.service-card').find('select[name="quantity"]').val();
+        var quantity = selectedService.closest('.service-card').find('input[name="quantity"]').val();
         var otherInfo = rateSelect.length
                       ? (selectedRateOption.attr('data-notes') || '')
                       : selectedCard.find('textarea[name="otherInfo"]').val();
